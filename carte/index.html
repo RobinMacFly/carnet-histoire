@@ -33,7 +33,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 Overpass,sy
 button,input,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--vis);outline-offset:2px}
-.app{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+.app{position:fixed;inset:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
 header{padding:calc(env(safe-area-inset-top) + 12px) max(16px,env(safe-area-inset-right)) 12px max(16px,env(safe-area-inset-left));display:flex;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);background:var(--paper);z-index:3}
 h1{margin:0;font-weight:800;font-size:15px;letter-spacing:0;color:var(--muted)}
 .count{display:flex;align-items:baseline;gap:8px;line-height:1.05}
@@ -41,7 +41,7 @@ h1{margin:0;font-weight:800;font-size:15px;letter-spacing:0;color:var(--muted)}
 .count span{font-weight:600}
 .sub{color:var(--muted);font-size:14px;text-align:right;line-height:1.35}
 .sub strong{color:var(--ink)}
-main{position:relative;overflow:hidden}
+main{position:relative;overflow:hidden;overflow:clip}
 .view{position:absolute;inset:0}
 .view[hidden]{display:none}
 /* carte */
@@ -257,6 +257,25 @@ textarea{width:100%;font-size:16px;border:1.5px solid var(--line);border-radius:
 #new-trip{width:100%;margin:4px 0 4px}
 .sheet.tsheet{max-height:46%}
 .yb{border:0;background:none;padding:0;font-size:22px;line-height:1.2}
+.placebar{position:absolute;left:12px;right:12px;top:12px;z-index:5;display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border-radius:14px;padding:10px 10px 10px 14px;font-size:15px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.placebar[hidden]{display:none}
+.placebar span{flex:1}
+.placebar button{min-height:40px;border-radius:10px;border:0;background:var(--paper);color:var(--ink);font-weight:700;padding:0 12px}
+.pf{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:6px;min-height:48px;background:var(--paper);margin-top:4px;position:relative}
+.pf:focus-within{border-color:var(--vis)}
+.chip{display:inline-flex;align-items:center;gap:2px;background:var(--vis2);border-radius:16px;padding:2px 2px 2px 10px;font-weight:600;font-size:15px}
+.chip button{width:30px;height:30px;border:0;background:none;font-size:18px;color:var(--muted)}
+.pfi{flex:1;min-width:8em;border:0;outline:0;background:none;font-size:16px;padding:8px 4px}
+.pfs{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px}
+.pfs:empty{display:none}
+.pfs button{border:1px solid var(--line);background:none;border-radius:16px;padding:6px 12px;font-size:15px;min-height:38px}
+.pfs .new{border-style:dashed;color:var(--vis);font-weight:700}
+.lk{border:0;background:none;padding:2px 0;color:var(--vis);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.avbox{padding:10px 12px 12px;margin:0 0 8px 38px;border-radius:12px;background:color-mix(in srgb,var(--vis) 8%,var(--paper))}
+.avbox p{margin:0 0 4px;font-size:13px;font-weight:700;color:var(--muted)}
+.bord li{flex-wrap:wrap;row-gap:2px}
+.bord .bc{white-space:nowrap}
+.bord .ar{color:var(--muted)}
 /* onglets */
 nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);background:var(--paper);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{border:0;background:none;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
@@ -284,6 +303,7 @@ nav button[aria-selected=true]{color:var(--vis)}
         <button id="z-fit" aria-label="Voir tout le monde / mes pays"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></button>
       </div>
       <div class="legend"><span><i></i>Visité</span><span><i class="p"></i>Prévu</span><span><b class="rl"></b>Voyage</span></div>
+      <div class="placebar" id="placebar" hidden><span></span><button>Annuler</button></div>
       <div class="hint" id="hint">Touche un pays pour le cocher</div>
     </section>
     <section class="view scrollv" id="v-list" hidden aria-label="Liste des pays">
@@ -357,7 +377,9 @@ function ee(lon, lat){ const l = lon * Math.PI / 180, ph = lat * Math.PI / 180, 
 const EXM = ee(180, 0)[0], EYM = ee(0, 90)[1];
 const C = e => e.c || (BY[e.p] && BY[e.p].ll) || [0, 0];
 const tYear = t => t.an || (String(t.periode || "").match(/\d{4}/) || [""])[0];
-function proj(c){ const sc = M.w / (2 * EXM), [x, y] = ee(c[0], c[1]); return [(x + EXM) * sc, (EYM - y) * sc]; }
+function proj(c){ const R = M.w / (2 * Math.PI), lat = Math.max(-85, Math.min(85, c[1]));
+  return [(c[0] + 180) / 360 * M.w, (M.ym - Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360))) * R]; }
+function unproj(x, y){ const R = M.w / (2 * Math.PI); return [Math.round((x / M.w * 360 - 180) * 100) / 100, Math.round((2 * Math.atan(Math.exp(M.ym - y / R)) - Math.PI / 2) * 18000 / Math.PI) / 100]; }
 const LANDM = ["terre", "route", "train", "bus", "pied", "velo", "moto", "4l", "terre", "voiture", "stop"];
 const MODE = {terre: "terre", route: "route", train: "train", bus: "bus", pied: "à pied", velo: "vélo", moto: "moto", "4l": "4L", terre: "voie terrestre", voiture: "voiture", stop: "stop", bateau: "bateau", ferry: "ferry", avion: "avion", "?": "à préciser"};
 const kind = m => !m || m === "?" ? "unk" : LANDM.includes(m) ? "land" : (m === "bateau" || m === "ferry") ? "sea" : "air";
@@ -365,14 +387,12 @@ function hav(a, b){ const R = 6371, r = Math.PI / 180, dl = (b[1] - a[1]) * r, d
   const h = Math.sin(dl / 2) ** 2 + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.sin(dn / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); }
 function tripInfo(t){
   const E = t.etapes, done = E.filter(e => !e.prevu), borders = [];
-  let km = 0;
   for(let i = 1; i < E.length; i++){
-    if(!E[i].prevu) km += hav(C(E[i - 1]), C(E[i]));
     if(E[i].p !== E[i - 1].p) borders.push({a: E[i - 1].p, b: E[i].p, m: E[i].m || "?", k: kind(E[i].m), pv: !!E[i].prevu});
   }
   const countries = [...new Set(done.map(e => e.p))], all = [...new Set(E.map(e => e.p))];
   const b = [1e9, 1e9, -1e9, -1e9]; E.forEach(e => { const q = proj(C(e)); b[0] = Math.min(b[0], q[0]); b[1] = Math.min(b[1], q[1]); b[2] = Math.max(b[2], q[0]); b[3] = Math.max(b[3], q[1]); });
-  return {borders, km, countries, all, land: borders.filter(x => !x.pv && x.k === "land").length, done: borders.filter(x => !x.pv).length, box: b};
+  return {borders, countries, all, land: borders.filter(x => !x.pv && x.k === "land").length, done: borders.filter(x => !x.pv).length, box: b};
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const flag = iso => iso && iso.length === 2 ? String.fromCodePoint(...[...iso.toUpperCase()].map(c => 0x1F1A5 + c.charCodeAt(0))) : "";
@@ -387,10 +407,11 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 /* séjours d'un pays : ceux que tu as ajoutés + ceux qui viennent des grands voyages */
 function sejOf(id){
   const own = (ST.sej[id] || []).map(x => Object.assign({own: true}, x)), L = [...own];
-  TRIPS.forEach(t => { if(t.etapes.some(e => e.p === id && !e.prevu) && !own.some(x => x.voyage === t.id)) L.push({an: tYear(t), avec: t.avec || [], voyage: t.id}); });
+  TRIPS.forEach(t => { const E = t.etapes.filter(e => e.p === id && !e.prevu); if(!E.length || own.some(x => x.voyage === t.id)) return;
+    const av = [...new Set(E.flatMap(e => e.avec || t.avec || []))]; L.push({an: tYear(t), avec: av, voyage: t.id}); });
   return L.sort((a, b) => String(b.an || "").localeCompare(String(a.an || "")));
 }
-function people(){ const S = new Set(); Object.values(ST.sej).forEach(L => L.forEach(x => (x.avec || []).forEach(n => S.add(n)))); TRIPS.forEach(t => (t.avec || []).forEach(n => S.add(n))); return [...S].sort((a, b) => a.localeCompare(b, "fr")); }
+function people(){ const S = new Set(); Object.values(ST.sej).forEach(L => L.forEach(x => (x.avec || []).forEach(n => S.add(n)))); TRIPS.forEach(t => { (t.avec || []).forEach(n => S.add(n)); t.etapes.forEach(e => (e.avec || []).forEach(n => S.add(n))); }); return [...S].sort((a, b) => a.localeCompare(b, "fr")); }
 const splitNames = v => v.split(/[,;]+| et /).map(x => x.trim()).filter(Boolean);
 function setStatus(id, s){
   if((base[id] || "") === s) delete over[id]; else over[id] = s;
@@ -535,6 +556,7 @@ const up = e => {
   if(!pts.has(e.pointerId)) return;
   pts.delete(e.pointerId); last = null;
   if(pts.size === 0 && !moved && down && Date.now() - down.t < 600 && e.type === "pointerup"){
+    if(placing !== null){ const r = svg.getBoundingClientRect(); endPlacing(unproj((e.clientX - r.left - tx) / k, (e.clientY - r.top - ty) / k)); return; }
     const t = document.elementFromPoint(e.clientX, e.clientY), tr = t && t.closest("[data-trip]"), el = t && t.closest("[data-id]");
     if(tr){ openTrip(tr.dataset.trip, false); return; }
     if(selTrip){ closeTrip(); return; }
@@ -564,28 +586,52 @@ function openSheet(id){
   $("#tsheet").hidden = true;
   $("#sheet").hidden = false;
 }
+/* champ « avec qui » : pastilles + suggestions parmi les compagnons déjà connus */
+const PF = {};
+function peopleField(id){ const L = PF[id] || (PF[id] = []);
+  return `<div class="pf" data-pf="${id}">${L.map(n => `<span class="chip">${esc(n)}<button type="button" data-rmp="${esc(n)}" aria-label="Retirer ${esc(n)}">×</button></span>`).join("")}<input class="pfi" placeholder="${L.length ? "Ajouter quelqu'un…" : "Avec qui ? (vide = seul)"}" autocomplete="off" autocapitalize="words" enterkeyhint="done"><div class="pfs"></div></div>`; }
+function pfSuggest(box){
+  const id = box.dataset.pf, q = box.querySelector(".pfi").value.trim(), nq = norm(q), L = PF[id] || [];
+  const known = people().filter(n => !L.includes(n) && (!nq || norm(n).includes(nq))).slice(0, 8);
+  const exact = people().some(n => norm(n) === nq);
+  box.querySelector(".pfs").innerHTML = known.map(n => `<button type="button" data-pick="${esc(n)}">${esc(n)}</button>`).join("") + (q && !exact && !L.some(n => norm(n) === nq) ? `<button type="button" class="new" data-pick="${esc(q)}">+ Ajouter « ${esc(q)} »</button>` : "");
+}
+function pfAdd(box, name){
+  const id = box.dataset.pf, L = PF[id] = PF[id] || [], n = name.trim(); if(!n) return;
+  const known = people().find(x => norm(x) === norm(n)) || n.charAt(0).toUpperCase() + n.slice(1);
+  if(!L.includes(known)) L.push(known);
+  const nb = document.createElement("div"); nb.innerHTML = peopleField(id); const nf = nb.firstChild; box.replaceWith(nf);
+  const inp = nf.querySelector(".pfi"); inp.focus({preventScroll: true}); pfSuggest(nf);
+}
+document.addEventListener("focusin", e => { const b = e.target.closest && e.target.closest(".pf"); if(b && e.target.classList.contains("pfi")) pfSuggest(b); });
+document.addEventListener("input", e => { const b = e.target.closest && e.target.closest(".pf"); if(b) pfSuggest(b); });
+document.addEventListener("keydown", e => { const b = e.target.closest && e.target.closest(".pf"); if(b && e.key === "Enter"){ e.preventDefault(); pfAdd(b, e.target.value); } });
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest(".pf"); if(!b) return;
+  const pk = e.target.closest("[data-pick]"); if(pk){ pfAdd(b, pk.dataset.pick); return; }
+  const rm = e.target.closest("[data-rmp]"); if(rm){ const id = b.dataset.pf; PF[id] = (PF[id] || []).filter(n => n !== rm.dataset.rmp); const nb = document.createElement("div"); nb.innerHTML = peopleField(id); b.replaceWith(nb.firstChild); }
+});
 let sejForm = false;
 function renderSej(id){
   const s = st(id), L = sejOf(id), tn = v => { const t = TRIPS.find(x => x.id === v); return t ? t.nom : ""; };
   if(id === HOME){ $("#sh-sej").innerHTML = `<p class="home">Chez toi : pas de séjours à noter.</p>`; return; }
   const list = L.length ? `<ul class="sej">${L.map(x => `<li><b>${esc(x.an || "?")}</b><span>${x.avec && x.avec.length ? "avec " + esc(x.avec.join(", ")) : "seul"}${x.voyage && tn(x.voyage) ? " · " + esc(tn(x.voyage)) : ""}</span>${x.own ? `<button class="del" data-del-sej="${x.id}" aria-label="Supprimer ce séjour">×</button>` : ""}</li>`).join("")}</ul>` : "";
   const ppl = people();
-  const form = sejForm ? `<form class="sform" id="sform"><div class="frow"><label>Année<input id="sf-an" type="number" inputmode="numeric" min="1950" max="2100" placeholder="2019"></label><label class="grow">Avec qui<input id="sf-avec" list="ppl-list" placeholder="Éléonore, Thomas… (vide = seul)" autocomplete="off"></label></div>
-    ${ppl.length ? `<div class="pchips">${ppl.map(n => `<button type="button" data-addp="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div>` : ""}
+  const form = sejForm ? `<form class="sform" id="sform"><div class="frow"><label>Année<input id="sf-an" type="number" inputmode="numeric" min="1950" max="2100" placeholder="2019"></label></div>
+    <label class="fld">Avec qui</label>${peopleField("sej")}
     <div class="frow"><button class="btn" type="submit">Ajouter</button><button class="btn alt" type="button" id="sf-cancel">Annuler</button></div></form>`
     : `<button class="addsej" id="sf-open">+ Ajouter un séjour (année, avec qui)</button>`;
   $("#sh-sej").innerHTML = `<p class="tsub2">Séjours</p>${list || (s === "v" ? `<p class="home" style="color:var(--muted);font-weight:400;margin-top:4px">Aucun séjour noté.</p>` : "")}${form}<datalist id="ppl-list">${ppl.map(n => `<option value="${esc(n)}">`).join("")}</datalist>`;
 }
 $("#sh-sej").addEventListener("click", e => {
-  if(e.target.id === "sf-open"){ sejForm = true; renderSej(sel); setTimeout(() => { const a = $("#sf-an"); if(a) a.focus(); }, 50); }
+  if(e.target.id === "sf-open"){ sejForm = true; PF.sej = []; renderSej(sel); setTimeout(() => { const a = $("#sf-an"); if(a) a.focus(); }, 50); }
   if(e.target.id === "sf-cancel"){ sejForm = false; renderSej(sel); }
-  const ap = e.target.closest("[data-addp]"); if(ap){ const f = $("#sf-avec"), cur = splitNames(f.value); if(!cur.includes(ap.dataset.addp)) cur.push(ap.dataset.addp); f.value = cur.join(", "); }
   const d = e.target.closest("[data-del-sej]"); if(d){ if(d.dataset.delSej.startsWith("f-")) ST.del.push(d.dataset.delSej); ST.sej[sel] = (ST.sej[sel] || []).filter(x => x.id !== d.dataset.delSej); save(); renderSej(sel); renderStats(); if(!$("#v-list").hidden) renderList(); }
 });
 $("#sh-sej").addEventListener("submit", e => {
   e.preventDefault(); const an = parseInt($("#sf-an").value, 10);
   if(!(an > 1900 && an < 2101)){ $("#sf-an").focus(); return; }
-  (ST.sej[sel] = ST.sej[sel] || []).push({id: uid(), an, avec: splitNames($("#sf-avec").value)});
+  (ST.sej[sel] = ST.sej[sel] || []).push({id: uid(), an, avec: [...(PF.sej || [])]}); PF.sej = [];
   if(st(sel) !== "v") setStatus(sel, "v");
   sejForm = false; save(); renderSej(sel); renderStats(); if(!$("#v-list").hidden) renderList();
 });
@@ -602,13 +648,13 @@ function openTrip(id, fit = true){
   $("#routes").querySelectorAll("g").forEach(g => g.classList.toggle("on", g.dataset.t === id));
   $("#land").querySelectorAll("path").forEach(p => p.classList.toggle("intrip", I.all.includes(p.dataset.id)));
   $("#stops").innerHTML = t.etapes.map((e, i) => { const q = proj(C(e)); if(i === t.etapes.length - 1 && e.v === t.etapes[0].v && e.p === t.etapes[0].p) return "";
-    return `<circle class="${e.prevu ? "pv" : ""}" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="4"/><text x="${q[0].toFixed(1)}" y="${q[1].toFixed(1)}" data-y="${q[1].toFixed(1)}" text-anchor="middle">${esc(e.v)}</text>`; }).join("");
+    return `<circle class="${e.prevu ? "pv" : ""}" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="4"/><text x="${q[0].toFixed(1)}" y="${q[1].toFixed(1)}" data-y="${q[1].toFixed(1)}" text-anchor="middle">${esc(e.v || (BY[e.p] ? BY[e.p].n : e.p))}</text>`; }).join("");
   const nm = c => BY[c] ? BY[c].n : c, fg = c => BY[c] ? flag(BY[c].iso) : "";
-  const row = x => `<li class="${x.pv ? "pv" : ""}"><span class="fl2">${fg(x.a)} → ${fg(x.b)}</span><span>${esc(nm(x.a))} → ${esc(nm(x.b))}</span><span class="md ${x.k}">${esc(MODE[x.m] || x.m)}</span></li>`;
+  const row = x => `<li class="${x.pv ? "pv" : ""}"><span class="bc">${fg(x.a)} ${esc(nm(x.a))}</span><span class="ar">→</span><span class="bc">${fg(x.b)} ${esc(nm(x.b))}</span><span class="md ${x.k}">${esc(MODE[x.m] || x.m)}</span></li>`;
   const D = I.borders.filter(x => !x.pv), F = I.borders.filter(x => x.pv);
   $("#ts-name").innerHTML = esc(t.nom) + (t.brouillon ? `<span class="badge">brouillon</span>` : "");
   $("#ts-info").textContent = [t.periode, t.avec && t.avec.length ? "avec " + t.avec.join(", ") : ""].filter(Boolean).join(" · ");
-  $("#ts-body").innerHTML = `<div class="tchips"><span><b>${I.countries.length}</b>pays</span><span><b>${I.done}</b>frontière${I.done > 1 ? "s" : ""}</span><span><b>${I.land}</b>par la terre</span><span><b>${fmt(Math.round(I.km / 100) * 100)}</b>km</span></div>
+  $("#ts-body").innerHTML = `<div class="tchips"><span><b>${I.countries.length}</b>pays</span><span><b>${I.done}</b>frontière${I.done > 1 ? "s" : ""}</span><span><b>${I.land}</b>par la terre</span></div>
     ${D.length ? `<p class="tsub2">Frontières franchies</p><ul class="bord">${D.map(row).join("")}</ul>` : ""}
     ${F.length ? `<p class="tsub2">À venir</p><ul class="bord">${F.map(row).join("")}</ul>` : ""}
     ${t.brouillon ? `<p class="tsub2" style="font-weight:400">Itinéraire provisoire : touche « Modifier » pour corriger les étapes et les frontières.</p>` : ""}
@@ -627,7 +673,7 @@ function renderTrips(){
     t.etapes.forEach(e => { if(!seq.length || seq[seq.length - 1].p !== e.p) seq.push({p: e.p, pv: !!e.prevu}); });
     return `<button class="tcard" data-trip="${t.id}"><h4>${esc(t.nom)}${t.brouillon ? `<span class="badge">brouillon</span>` : ""}</h4><p>${esc([t.periode, t.avec && t.avec.length ? "avec " + t.avec.join(", ") : ""].filter(Boolean).join(" · "))}</p>
       <div class="chain">${seq.map((x, i) => `${i ? "<i>›</i>" : ""}<span class="${x.pv ? "pv" : ""}">${BY[x.p] ? flag(BY[x.p].iso) : x.p}</span>`).join("")}</div>
-      <div class="tchips"><span><b>${I.countries.length}</b>pays</span><span><b>${I.land}</b>frontières par la terre</span><span><b>${fmt(Math.round(I.km / 100) * 100)}</b>km</span></div></button>`; }).join("");
+      <div class="tchips"><span><b>${I.countries.length}</b>pays</span><span><b>${I.land}</b>frontière${I.land > 1 ? "s" : ""} par la terre</span></div></button>`; }).join("");
   $("#trips").innerHTML = `<h2 class="sec">Mes grands voyages</h2><button class="btn" id="new-trip">+ Nouveau voyage</button>${cards || `<p class="empty">Aucun voyage pour l'instant.</p>`}
     <p class="foot">Les tracés sont simplifiés : un point par pays (ou par grande ville si tu me la donnes). Pour chaque passage d'un pays à l'autre, tu indiques si c'était par la terre, en avion ou par la mer.</p>`;
 }
@@ -639,28 +685,37 @@ function setTrips(){
 }
 
 /* ---------- éditeur de voyage ---------- */
-let ED = null;
+let ED = null, placing = null;
 const MBTN = [["terre", "Terre"], ["avion", "Avion"], ["bateau", "Mer"]];
 const mk = m => ({land: "terre", air: "avion", sea: "bateau"})[kind(m)] || "";
+const PIN = `<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>`;
 function openEditor(id){
   const t = id && TRIPS.find(x => x.id === id);
-  ED = t ? {id: t.id, nom: t.nom, an: tYear(t), avec: (t.avec || []).join(", "), etapes: t.etapes.map(e => Object.assign({}, e)), orig: t, confirm: false}
-         : {id: null, nom: "", an: "", avec: "", etapes: [], confirm: false};
+  ED = t ? {id: t.id, nom: t.nom, an: tYear(t), etapes: t.etapes.map(e => Object.assign({}, e)), orig: t, confirm: false, open: null}
+         : {id: null, nom: "", an: "", etapes: [], confirm: false, open: null};
+  PF.trip = t ? [...(t.avec || [])] : [];
   renderEditor(); openPanel("editor");
 }
-function grab(){ if(!ED || !$("#ed-nom")) return; ED.nom = $("#ed-nom").value; ED.an = $("#ed-an").value; ED.avec = $("#ed-avec").value; }
+function grab(){
+  if(!ED || !$("#ed-nom")) return; ED.nom = $("#ed-nom").value; ED.an = $("#ed-an").value;
+  if(ED.open !== null && ED.etapes[ED.open]){ const L = PF["st" + ED.open]; if(L && L.length) ED.etapes[ED.open].avec = [...L]; }
+}
 function renderEditor(){
-  const E = ED.etapes, ppl = people();
+  const E = ED.etapes, tav = (PF.trip || []).join(", ") || "seul";
   $("#ed-t").textContent = ED.id ? "Modifier le voyage" : "Nouveau voyage";
+  const step = (e, i) => {
+    const av = e.avec ? e.avec.join(", ") || "seul" : "comme le voyage";
+    return `<li class="step"><span class="f">${BY[e.p] ? flag(BY[e.p].iso) : ""}</span><span class="nm">${esc(BY[e.p] ? BY[e.p].n : e.p)}${e.v ? ` · ${esc(e.v)}` : ""}
+      <small><button class="lk" data-av="${i}">avec : ${esc(av)}</button> · ${e.c ? `point placé · <button class="lk" data-place="${i}">déplacer</button> · <button class="lk" data-unplace="${i}">remettre au centre</button>` : `<button class="lk" data-place="${i}">placer sur la carte</button>`}</small></span>
+      <button class="pvb${e.prevu ? " on" : ""}" data-pv="${i}" aria-pressed="${!!e.prevu}">à venir</button><button class="ib" data-up="${i}" aria-label="Monter"${i ? "" : " disabled"}>↑</button><button class="ib" data-rm="${i}" aria-label="Retirer">×</button></li>
+      ${ED.open === i ? `<li class="avbox"><p>Avec qui dans ce pays ?</p>${peopleField("st" + i)}<div class="frow"><button class="btn" data-avok="${i}">Valider</button><button class="btn alt" data-avreset="${i}">Comme le voyage (${esc(tav)})</button></div></li>` : ""}`;
+  };
   $("#ed-body").innerHTML = `
   <label class="fld">Nom du voyage<input id="ed-nom" value="${esc(ED.nom)}" placeholder="Road trip en Amérique latine" autocomplete="off"></label>
-  <div class="frow"><label class="fld">Année<input id="ed-an" type="number" inputmode="numeric" value="${esc(ED.an)}" placeholder="2018"></label>
-  <label class="fld grow">Avec qui<input id="ed-avec" list="ppl-list2" value="${esc(ED.avec)}" placeholder="Éléonore, Thomas… (vide = seul)" autocomplete="off"></label></div>
-  <datalist id="ppl-list2">${ppl.map(n => `<option value="${esc(n)}">`).join("")}</datalist>
+  <label class="fld" style="width:8em;margin-left:0">Année<input id="ed-an" type="number" inputmode="numeric" value="${esc(ED.an)}" placeholder="2018"></label>
+  <label class="fld">Avec qui (pour tout le voyage)</label>${peopleField("trip")}
   <h3>Étapes dans l'ordre<span>${E.length}</span></h3>
-  ${E.length ? `<ol class="steps">${E.map((e, i) => `${i ? `<li class="mrow"><span>${e.p !== E[i - 1].p ? "Frontière" : "Trajet"}</span><div class="mseg">${MBTN.map(([m, l]) => `<button data-mode="${m}" data-i="${i}" aria-pressed="${mk(e.m) === m}">${l}</button>`).join("")}</div></li>` : ""}
-    <li class="step"><span class="f">${BY[e.p] ? flag(BY[e.p].iso) : ""}</span><span class="nm">${esc(BY[e.p] ? BY[e.p].n : e.p)}${e.v ? `<small>${esc(e.v)}</small>` : ""}</span>
-    <button class="pvb${e.prevu ? " on" : ""}" data-pv="${i}" aria-pressed="${!!e.prevu}">à venir</button><button class="ib" data-up="${i}" aria-label="Monter"${i ? "" : " disabled"}>↑</button><button class="ib" data-rm="${i}" aria-label="Retirer">×</button></li>`).join("")}</ol>` : `<p class="empty" style="padding:8px 0">Ajoute les pays dans l'ordre où tu les as traversés.</p>`}
+  ${E.length ? `<ol class="steps">${E.map((e, i) => `${i ? `<li class="mrow"><span>${e.p !== E[i - 1].p ? "Frontière" : "Trajet"}</span><div class="mseg">${MBTN.map(([m, l]) => `<button data-mode="${m}" data-i="${i}" aria-pressed="${mk(e.m) === m}">${l}</button>`).join("")}</div></li>` : ""}${step(e, i)}`).join("")}</ol>` : `<p class="empty" style="padding:8px 0">Ajoute les pays dans l'ordre où tu les as traversés. Un pays peut revenir plusieurs fois (par exemple Kazakhstan → Ouzbékistan → Kazakhstan).</p>`}
   <div class="picker"><input class="search" id="ed-q" type="search" placeholder="Ajouter un pays…" autocomplete="off"><div id="ed-res"></div></div>
   <div class="msg" id="ed-msg" role="status"></div>
   <div class="frow"><button class="btn" id="ed-save">Enregistrer</button><button class="btn alt" id="ed-cancel">Annuler</button></div>
@@ -669,16 +724,21 @@ function renderEditor(){
 $("#ed-body").addEventListener("input", e => {
   if(e.target.id !== "ed-q") return;
   const q = norm(e.target.value.trim());
-  $("#ed-res").innerHTML = q ? M.pays.filter(p => p.id !== "ATA" && norm(p.n).includes(q)).sort((a, b) => (norm(a.n).startsWith(q) ? 0 : 1) - (norm(b.n).startsWith(q) ? 0 : 1) || a.n.localeCompare(b.n, "fr")).slice(0, 8)
+  $("#ed-res").innerHTML = q ? M.pays.filter(p => norm(p.n).includes(q)).sort((a, b) => (norm(a.n).startsWith(q) ? 0 : 1) - (norm(b.n).startsWith(q) ? 0 : 1) || a.n.localeCompare(b.n, "fr")).slice(0, 8)
     .map(p => `<button data-add="${p.id}">${flag(p.iso)} ${esc(p.n)}</button>`).join("") : "";
 });
 $("#ed-body").addEventListener("click", e => {
-  const b = e.target.closest("button"); if(!b) return; grab(); const E = ED.etapes;
-  if(b.dataset.add){ E.push({p: b.dataset.add, m: E.length ? "terre" : undefined}); renderEditor(); const q = $("#ed-q"); q.focus(); q.scrollIntoView({block: "center"}); return; }
+  const b = e.target.closest("button"); if(!b || b.closest(".pf")) return; grab(); const E = ED.etapes;
+  if(b.dataset.add){ E.push({p: b.dataset.add, m: E.length ? "terre" : undefined}); renderEditor(); const q = $("#ed-q"); q.focus({preventScroll: true}); const pb = $("#editor .pb"); pb.scrollTop = Math.max(0, q.offsetTop - pb.clientHeight / 2); return; }
   if(b.dataset.mode){ E[+b.dataset.i].m = b.dataset.mode; renderEditor(); return; }
   if(b.dataset.pv){ const i = +b.dataset.pv; E[i].prevu = !E[i].prevu; if(!E[i].prevu) delete E[i].prevu; renderEditor(); return; }
-  if(b.dataset.up){ const i = +b.dataset.up; if(i > 0){ [E[i - 1], E[i]] = [E[i], E[i - 1]]; } renderEditor(); return; }
-  if(b.dataset.rm){ E.splice(+b.dataset.rm, 1); renderEditor(); return; }
+  if(b.dataset.up){ const i = +b.dataset.up; if(i > 0){ [E[i - 1], E[i]] = [E[i], E[i - 1]]; ED.open = null; } renderEditor(); return; }
+  if(b.dataset.rm){ E.splice(+b.dataset.rm, 1); ED.open = null; renderEditor(); return; }
+  if(b.dataset.av){ const i = +b.dataset.av; ED.open = ED.open === i ? null : i; PF["st" + i] = [...(E[i].avec || PF.trip || [])]; renderEditor(); return; }
+  if(b.dataset.avok){ const i = +b.dataset.avok; E[i].avec = [...(PF["st" + i] || [])]; ED.open = null; renderEditor(); return; }
+  if(b.dataset.avreset){ const i = +b.dataset.avreset; delete E[i].avec; ED.open = null; renderEditor(); return; }
+  if(b.dataset.unplace){ delete E[+b.dataset.unplace].c; delete E[+b.dataset.unplace].v; renderEditor(); return; }
+  if(b.dataset.place){ startPlacing(+b.dataset.place); return; }
   if(b.id === "ed-cancel"){ $("#editor").hidden = true; return; }
   if(b.id === "ed-del"){ if(!ED.confirm){ ED.confirm = true; renderEditor(); return; }
     ST.trips = ST.trips.filter(t => t.id !== ED.id); ST.del.push(ED.id); save(); $("#editor").hidden = true; if(selTrip === ED.id) closeTrip(); setTrips(); renderStats(); return; }
@@ -686,7 +746,7 @@ $("#ed-body").addEventListener("click", e => {
     if(!ED.nom.trim()){ $("#ed-msg").textContent = "Donne un nom au voyage."; $("#ed-nom").focus(); return; }
     if(E.length < 2){ $("#ed-msg").textContent = "Ajoute au moins deux étapes."; return; }
     const an = parseInt(ED.an, 10);
-    const t = Object.assign({}, ED.orig || {}, {id: ED.id || "u" + uid(), nom: ED.nom.trim(), an: an || "", periode: ED.orig && ED.orig.periode && String(ED.orig.periode).includes(String(an)) ? ED.orig.periode : (an || ""), avec: splitNames(ED.avec), etapes: E.map((e, i) => { const x = Object.assign({}, e); if(!i) delete x.m; return x; }), edited: true});
+    const t = Object.assign({}, ED.orig || {}, {id: ED.id || "u" + uid(), nom: ED.nom.trim(), an: an || "", periode: ED.orig && ED.orig.periode && String(ED.orig.periode).includes(String(an)) ? ED.orig.periode : (an || ""), avec: [...(PF.trip || [])], etapes: E.map((e, i) => { const x = Object.assign({}, e); if(!i) delete x.m; return x; }), edited: true});
     delete t.brouillon;
     const i = ST.trips.findIndex(x => x.id === t.id); if(i < 0) ST.trips.push(t); else ST.trips[i] = t;
     E.filter(e => !e.prevu).forEach(e => { if(st(e.p) !== "v"){ if((base[e.p] || "") === "v") delete over[e.p]; else over[e.p] = "v"; } });
@@ -694,6 +754,17 @@ $("#ed-body").addEventListener("click", e => {
     if(!$("#v-trips").hidden) renderTrips();
   }
 });
+/* placer une étape à la main sur la carte */
+function startPlacing(i){
+  placing = i; $("#editor").hidden = true; show("map"); $("#tsheet").hidden = true;
+  const e = ED.etapes[i], b = BY[e.p] ? BY[e.p].b : null; if(b) fitBox([b[0] - 60, b[1] - 60, b[2] + 60, b[3] + 60], 20);
+  $("#placebar").hidden = false; $("#placebar span").textContent = `Touche la carte là où était l'étape (${BY[e.p] ? BY[e.p].n : e.p})`;
+}
+function endPlacing(c){
+  if(placing !== null && c){ ED.etapes[placing].c = c; }
+  placing = null; $("#placebar").hidden = true; renderEditor(); openPanel("editor");
+}
+$("#placebar").addEventListener("click", e => { if(e.target.closest("button")) endPlacing(null); });
 
 /* ---------- onglets ---------- */
 function show(v){
@@ -735,7 +806,7 @@ $("#list").onclick = e => {
   const c = e.target.closest("[data-row]"), g = e.target.closest("[data-go]");
   const set = e.target.closest("[data-set]");
   if(set){ setStatus(set.dataset.id, set.dataset.set); return; }
-  const sj = e.target.closest("[data-sej]"); if(sj){ sel = sj.dataset.sej; sejForm = true; openSheet(sel); setTimeout(() => { const a = $("#sf-an"); if(a) a.focus(); }, 80); return; }
+  const sj = e.target.closest("[data-sej]"); if(sj){ sel = sj.dataset.sej; sejForm = true; PF.sej = []; openSheet(sel); setTimeout(() => { const a = $("#sf-an"); if(a) a.focus(); }, 80); return; }
   if(c){ openRow = openRow === c.dataset.row ? null : c.dataset.row; renderList(); }
   else if(g) goMap(g.dataset.go);
 };
@@ -770,7 +841,7 @@ function renderStats(){
   const on = CORDER.filter(c => c !== "an" && VA.some(p => p.c === c));
   const conts = CORDER.filter(c => c !== "an").map(c => { const all = C.filter(p => p.c === c), v = all.filter(p => st(p.id) === "v").length; return {c, all: all.length, v}; });
   const pct = Math.round(VA.length / C.length * 100);
-  const TI = TRIPS.map(tripInfo), land = TI.reduce((a, x) => a + x.land, 0), km = TI.reduce((a, x) => a + x.km, 0);
+  const TI = TRIPS.map(tripInfo), land = TI.reduce((a, x) => a + x.land, 0);
   /* par année et compagnons, depuis les séjours */
   const years = {}, ppl = {}, nodate = [];
   [...V, ...terrV].filter(p => p.id !== HOME).forEach(p => { const L = sejOf(p.id); if(!L.length) nodate.push(p);
@@ -788,7 +859,7 @@ function renderStats(){
   <div class="tiles">
     <div><b>${on.length}<small style="font-size:.55em;color:var(--muted)"> / 6</small></b><span>continents</span></div>
     <div><b>${land}</b><span>frontières franchies par la terre</span></div>
-    <div><b>${km >= 10000 ? fmt(Math.round(km / 1000)) + "k" : fmt(Math.round(km))}</b><span>km en grands voyages</span></div>
+    <div><b>${TRIPS.length}</b><span>grand${TRIPS.length > 1 ? "s" : ""} voyage${TRIPS.length > 1 ? "s" : ""}</span></div>
   </div>
   <h2 class="sec">Continents visités</h2>
   ${contMap(on)}
@@ -806,7 +877,7 @@ function renderStats(){
 }
 function code(){ const ids = s => M.pays.filter(p => st(p.id) === s).map(p => p.id).join(","); return `CARTE1:V=${ids("v")};P=${ids("p")}`; }
 $("#stats").onclick = e => {
-  const sg = e.target.closest("[data-sejgo]"); if(sg){ goMap(sg.dataset.sejgo); sejForm = true; renderSej(sg.dataset.sejgo); return; }
+  const sg = e.target.closest("[data-sejgo]"); if(sg){ goMap(sg.dataset.sejgo); sejForm = true; PF.sej = []; renderSej(sg.dataset.sejgo); return; }
   const g = e.target.closest("[data-go]"); if(g){ goMap(g.dataset.go); return; }
 };
 
@@ -836,7 +907,7 @@ function renderSettings(){
   </div>
   <p class="foot"><a href="../">Carnet d'histoire →</a></p>`;
 }
-function openPanel(id){ $("#" + id).hidden = false; $("#" + id).querySelector(".pb").scrollTop = 0; }
+function openPanel(id){ document.querySelector("main").scrollTop = 0; $("#" + id).hidden = false; $("#" + id).querySelector(".pb").scrollTop = 0; }
 $("#gear").onclick = () => { renderSettings(); openPanel("settings"); };
 document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => $("#" + b.dataset.close).hidden = true);
 $("#set-body").addEventListener("change", e => {
@@ -886,9 +957,10 @@ async function start(){
   TRIPS = ST.trips.filter(t => t.etapes && t.etapes.length > 1);
   svg.classList.toggle("noroutes", !ST.opt.routes);
   build(); size(); paint(); renderStats(); fitMine(false);
-  setTimeout(() => $("#hint").style.opacity = 0, 3500);
-  setTimeout(() => $("#hint").remove(), 4200);
+  setTimeout(() => { const h = $("#hint"); if(h) h.style.opacity = 0; }, 3500);
+  setTimeout(() => { const h = $("#hint"); if(h) h.remove(); }, 4200);
 }
+document.querySelector("main").addEventListener("scroll", e => { e.currentTarget.scrollTop = 0; });
 new ResizeObserver(() => { if(M && !$("#v-map").hidden){ size(); apply(); } }).observe(svg);
 start().catch(err => { $("#v-map").innerHTML = `<p class="empty" style="padding:24px">La carte n'a pas pu se charger. Vérifie ta connexion puis rouvre la page.</p>`; console.error(err); });
 if("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
