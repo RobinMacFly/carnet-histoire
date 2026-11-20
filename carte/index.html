@@ -92,11 +92,17 @@ main{position:relative;overflow:hidden}
 h3{font-size:15px;margin:22px 0 6px;color:var(--head);font-weight:800;display:flex;justify-content:space-between}
 h3 span{color:var(--muted);font-weight:600}
 .rows{list-style:none;margin:0;padding:0}
-.rows li{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--line)}
+.rows li{border-bottom:1px solid var(--line)}
+.rows .row{display:flex;align-items:center;gap:6px}
+.rows li.open{background:color-mix(in srgb,var(--vis) 6%,transparent);margin:0 -10px;padding:0 10px;border-radius:12px}
+.rowseg{margin:0 0 12px}
+.rowseg button{min-height:44px}
 .rows .main{flex:1;display:flex;align-items:center;gap:10px;min-height:50px;border:0;background:none;text-align:left;padding:4px 0}
 .rows .main .f{font-size:22px;width:28px;text-align:center}
 .rows .main small{color:var(--muted);font-size:13px;margin-left:4px}
-.pill{font-size:13px;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid var(--line);color:var(--muted);white-space:nowrap}
+.pill{font-size:13px;font-weight:600;padding:0 6px 0 12px;min-height:34px;display:inline-flex;align-items:center;gap:2px;border-radius:20px;border:1.5px solid var(--line);background:none;color:var(--muted);white-space:nowrap}
+.pill svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.pill.p{background:color-mix(in srgb,var(--vis) 18%,transparent)}
 .pill.v{background:var(--vis);border-color:var(--vis);color:var(--onvis)}
 .pill.p{border-color:var(--vis);color:var(--vis)}
 .go{width:44px;height:44px;border:0;background:none;display:grid;place-items:center;flex:none}
@@ -348,7 +354,7 @@ document.querySelector("nav").onclick = e => { const b = e.target.closest("butto
 function goMap(id){ show("map"); select(id); fitBox(BY[id].b, 60); }
 
 /* ---------- liste ---------- */
-let filt = "all";
+let filt = "all", openRow = null;
 $("#chips").onclick = e => { const b = e.target.closest("button"); if(!b) return; filt = b.dataset.f; $("#chips").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); renderList(); };
 $("#q").oninput = renderList;
 const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -362,12 +368,14 @@ function renderList(){
   if(!items.length){ $("#list").innerHTML = `<p class="empty">Aucun pays ne correspond.</p>`; return; }
   $("#list").innerHTML = CORDER.map(c => {
     const L = items.filter(p => p.c === c); if(!L.length) return "";
-    return `<h3>${CONT[c]}<span>${L.length}</span></h3><ul class="rows">${L.map(p => { const s = st(p.id); return `<li><button class="main" data-cycle="${p.id}"><span class="f">${flag(p.iso)}</span><span>${esc(p.n)}${p.t ? "" : "<small>territoire</small>"}</span></button><span class="pill ${s}">${LABEL[s]}</span><button class="go" data-go="${p.id}" aria-label="Voir ${esc(p.n)} sur la carte"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></button></li>`; }).join("")}</ul>`;
+    return `<h3>${CONT[c]}<span>${L.length}</span></h3><ul class="rows">${L.map(p => { const s = st(p.id), o = openRow === p.id; return `<li class="${o ? "open" : ""}"><div class="row"><button class="main" data-row="${p.id}" aria-expanded="${o}"><span class="f">${flag(p.iso)}</span><span>${esc(p.n)}${p.t ? "" : "<small>territoire</small>"}</span></button><button class="pill ${s}" data-row="${p.id}">${LABEL[s]}<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button><button class="go" data-go="${p.id}" aria-label="Voir ${esc(p.n)} sur la carte"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></button></div>${o ? `<div class="seg rowseg">${["v", "p", ""].map(x => `<button data-set="${x}" data-id="${p.id}" aria-pressed="${x === s}">${LABEL[x]}</button>`).join("")}</div>` : ""}</li>`; }).join("")}</ul>`;
   }).join("");
 }
 $("#list").onclick = e => {
-  const c = e.target.closest("[data-cycle]"), g = e.target.closest("[data-go]");
-  if(c){ const s = st(c.dataset.cycle); setStatus(c.dataset.cycle, s === "" ? "v" : s === "v" ? "p" : ""); }
+  const c = e.target.closest("[data-row]"), g = e.target.closest("[data-go]");
+  const set = e.target.closest("[data-set]");
+  if(set){ setStatus(set.dataset.id, set.dataset.set); return; }
+  if(c){ openRow = openRow === c.dataset.row ? null : c.dataset.row; renderList(); }
   else if(g) goMap(g.dataset.go);
 };
 
