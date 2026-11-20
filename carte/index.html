@@ -51,12 +51,12 @@ main{position:relative;overflow:hidden}
 #grat{display:none}
 #land path{fill:var(--land);stroke:var(--border);stroke-width:.8;vector-effect:non-scaling-stroke;stroke-linejoin:round}
 #land path.v{fill:var(--vis)}
-#land path.p{fill:url(#hatch)}
+#land path.p{fill:color-mix(in srgb,var(--vis) 30%,var(--land))}
 #land path.v,#land path.p{stroke:var(--paper)}
 #land path.sel{stroke:var(--ink);stroke-width:2.2}
 #dots circle{fill:var(--land);stroke:var(--border);stroke-width:1;vector-effect:non-scaling-stroke}
 #dots circle.v{fill:var(--vis);stroke:var(--paper);stroke-width:1.5}
-#dots circle.p{fill:var(--paper);stroke:var(--vis);stroke-width:2}
+#dots circle.p{fill:color-mix(in srgb,var(--vis) 30%,var(--land));stroke:var(--vis);stroke-width:1.2}
 #dots circle{display:none}#dots circle.v,#dots circle.p,#dots circle.sel,#map.close #dots circle{display:inline}
 #dots circle.sel{stroke:var(--ink);stroke-width:2.4}
 #labels text{fill:var(--muted);stroke:var(--paper);paint-order:stroke;stroke-linejoin:round;font-weight:600;text-anchor:middle;dominant-baseline:middle;pointer-events:none}
@@ -67,7 +67,7 @@ main{position:relative;overflow:hidden}
 .tools svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .legend{position:absolute;left:max(12px,env(safe-area-inset-left));bottom:12px;display:flex;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:13px;color:var(--muted)}
 .legend i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;background:var(--vis)}
-.legend i.p{background:repeating-linear-gradient(45deg,var(--vis) 0 2px,var(--land) 2px 5px);outline:1px solid var(--vis)}
+.legend i.p{background:color-mix(in srgb,var(--vis) 30%,var(--land))}
 .hint{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:var(--ink);color:var(--paper);font-size:13px;padding:6px 12px;border-radius:20px;white-space:nowrap;transition:opacity .4s}
 /* fiche pays */
 .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);border-radius:18px 18px 0 0;padding:16px max(16px,env(safe-area-inset-right)) 16px max(16px,env(safe-area-inset-left));box-shadow:0 -10px 30px rgba(8,20,28,.16);transform:translateY(0);transition:transform .25s ease;z-index:4}
