@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mes pays du monde</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mes pays">
+<meta name="theme-color" content="#fbfbf2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1c24" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: carnet de cartographe, sobre et précis.
+   IDEA: une carte d'état-major où l'on colorie les pays traversés.
+   PICTURE: la carte du monde elle-même, plein écran, zoomable.
+   COLOUR and TYPE: mer #bfe3ee, terre #fbfbf2, frontières brunes, pays visités magenta ; Overpass.
+   LAYOUT: compteur en haut comme une légende, carte au centre, onglets en bas. */
+:root{color-scheme:light dark;
+--paper:light-dark(#fbfbf2,#0f2029);--bg2:light-dark(#dcecf1,#0a161d);--sea:light-dark(#bfe3ee,#14303c);
+--land:light-dark(#fbfbf2,#2a4552);--border:light-dark(#c39a74,#0d1c24);--ink:light-dark(#13242e,#e8f1f4);
+--muted:light-dark(#566a74,#9db3bd);--line:light-dark(#e2e3d3,#223a46);
+--vis:light-dark(#d6127e,#ff4fa3);--vis2:light-dark(#fbe1ef,#3d1a2e);--plan:light-dark(#d6127e,#ff4fa3);
+--brown:light-dark(#a8551b,#e0a070);--grat:light-dark(rgba(255,255,255,.55),rgba(255,255,255,.06))}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 Overpass,system-ui,-apple-system,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--vis);outline-offset:2px}
+.app{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+header{padding:calc(env(safe-area-inset-top) + 12px) max(16px,env(safe-area-inset-right)) 12px max(16px,env(safe-area-inset-left));display:flex;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);background:var(--paper);z-index:3}
+h1{margin:0;font-weight:800;font-size:15px;letter-spacing:0;color:var(--muted)}
+.count{display:flex;align-items:baseline;gap:8px;line-height:1.05}
+.count b{font-size:clamp(36px,10vw,48px);font-weight:800;color:var(--vis)}
+.count span{font-weight:600}
+.sub{color:var(--muted);font-size:14px;text-align:right;line-height:1.35}
+.sub strong{color:var(--ink)}
+main{position:relative;overflow:hidden}
+.view{position:absolute;inset:0}
+.view[hidden]{display:none}
+/* carte */
+#map{width:100%;height:100%;display:block;touch-action:none;background:var(--bg2);user-select:none;-webkit-user-select:none}
+#sphere{fill:var(--sea)}
+#grat{fill:none;stroke:var(--grat);stroke-width:1;vector-effect:non-scaling-stroke}
+#land path{fill:var(--land);stroke:var(--border);stroke-width:.6;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+#land path.v{fill:var(--vis)}
+#land path.p{fill:url(#hatch)}
+#land path.sel{stroke:var(--ink);stroke-width:2.2}
+#dots circle{fill:var(--land);stroke:var(--border);stroke-width:1;vector-effect:non-scaling-stroke}
+#dots circle.v{fill:var(--vis);stroke:var(--paper)}
+#dots circle.p{fill:var(--paper);stroke:var(--vis);stroke-width:2}
+#dots circle.t0{display:none}#map.close #dots circle.t0{display:inline}
+#dots circle.sel{stroke:var(--ink);stroke-width:2.4}
+#labels text{fill:var(--ink);stroke:var(--paper);paint-order:stroke;stroke-linejoin:round;font-weight:600;text-anchor:middle;dominant-baseline:middle;pointer-events:none}
+#labels text.v{fill:var(--vis);font-weight:800}
+.tools{position:absolute;right:max(12px,env(safe-area-inset-right));top:12px;display:flex;flex-direction:column;gap:8px}
+.tools button{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;box-shadow:0 2px 8px rgba(19,36,46,.12)}
+.tools svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.legend{position:absolute;left:max(12px,env(safe-area-inset-left));bottom:12px;display:flex;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;background:var(--vis)}
+.legend i.p{background:repeating-linear-gradient(45deg,var(--vis) 0 2px,var(--land) 2px 5px);outline:1px solid var(--vis)}
+.hint{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:var(--ink);color:var(--paper);font-size:13px;padding:6px 12px;border-radius:20px;white-space:nowrap;transition:opacity .4s}
+/* fiche pays */
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);border-radius:18px 18px 0 0;padding:16px max(16px,env(safe-area-inset-right)) 16px max(16px,env(safe-area-inset-left));box-shadow:0 -10px 30px rgba(8,20,28,.16);transform:translateY(0);transition:transform .25s ease;z-index:4}
+.sheet[hidden]{display:block;transform:translateY(110%);visibility:hidden}
+.sh-top{display:flex;align-items:center;gap:12px}
+.flag{font-size:34px;line-height:1}
+.sh-top h2{margin:0;font-size:24px;line-height:1.1;font-weight:800;flex:1}
+.sh-top p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.x{width:44px;height:44px;border:0;background:none;font-size:26px;color:var(--muted);flex:none}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.seg button{min-height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);font-weight:600}
+.seg button[aria-pressed=true]{border-color:var(--vis);background:var(--vis);color:#fff}
+.seg button[data-s=p][aria-pressed=true]{background:var(--vis2);color:var(--vis)}
+.seg button[data-s=""][aria-pressed=true]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+/* listes et bilan */
+.scrollv{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px max(16px,env(safe-area-inset-right)) 32px max(16px,env(safe-area-inset-left))}
+.inner{max-width:720px;margin:0 auto}
+.search{width:100%;font-size:16px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.chips button{min-height:40px;padding:0 14px;border-radius:20px;border:1.5px solid var(--line);background:none;font-weight:600;font-size:14px}
+.chips button[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+h3{font-size:15px;margin:22px 0 6px;color:var(--brown);font-weight:800;display:flex;justify-content:space-between}
+h3 span{color:var(--muted);font-weight:600}
+.rows{list-style:none;margin:0;padding:0}
+.rows li{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--line)}
+.rows .main{flex:1;display:flex;align-items:center;gap:10px;min-height:50px;border:0;background:none;text-align:left;padding:4px 0}
+.rows .main .f{font-size:22px;width:28px;text-align:center}
+.rows .main small{color:var(--muted);font-size:13px;margin-left:4px}
+.pill{font-size:13px;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid var(--line);color:var(--muted);white-space:nowrap}
+.pill.v{background:var(--vis);border-color:var(--vis);color:#fff}
+.pill.p{border-color:var(--vis);color:var(--vis)}
+.go{width:44px;height:44px;border:0;background:none;display:grid;place-items:center;flex:none}
+.go svg{width:20px;height:20px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.empty{color:var(--muted);padding:24px 0}
+.big{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.big div{border:1px solid var(--line);border-radius:14px;padding:12px}
+.big b{display:block;white-space:nowrap;font-size:clamp(24px,6.5vw,36px);font-weight:800;line-height:1.1;color:var(--vis)}
+.big span{font-size:13px;color:var(--muted)}
+.bar{display:grid;grid-template-columns:10em minmax(0,1fr) 4.5em;gap:10px;align-items:center;padding:7px 0;font-size:15px}
+.bar .t{height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+.bar .t i{display:block;height:100%;background:var(--vis);border-radius:6px}
+.bar em{font-style:normal;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags button{border:1px solid var(--line);background:none;border-radius:20px;padding:5px 11px;font-size:14px;min-height:36px}
+.box{border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:8px}
+.box p{margin:0 0 10px;color:var(--muted);font-size:14px}
+textarea{width:100%;font-size:16px;border:1.5px solid var(--line);border-radius:10px;padding:10px;background:var(--paper);resize:vertical;min-height:70px;font-family:ui-monospace,monospace;font-size:14px}
+.btn{min-height:44px;padding:0 16px;border-radius:12px;border:0;background:var(--ink);color:var(--paper);font-weight:700;margin-top:8px}
+.btn.alt{background:none;border:1.5px solid var(--line);color:var(--ink)}
+.msg{font-size:14px;color:var(--vis);min-height:1.5em;margin-top:6px}
+.foot{margin-top:28px;font-size:14px;color:var(--muted)}
+.foot a{color:var(--ink);font-weight:600}
+/* onglets */
+nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);background:var(--paper);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{border:0;background:none;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
+nav svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button[aria-selected=true]{color:var(--vis)}
+@media(prefers-reduced-motion:reduce){.sheet,.hint{transition:none}}
+@media(min-width:700px){.sheet{left:auto;right:16px;bottom:16px;width:380px;border-radius:18px;border:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>Mes pays du monde</h1>
+      <div class="count"><b id="n-vis">0</b><span id="n-lab">pays visités</span></div>
+    </div>
+    <div class="sub" id="sub"></div>
+  </header>
+  <main>
+    <section class="view" id="v-map" aria-label="Carte">
+      <svg id="map" role="img" aria-label="Carte du monde des pays visités"></svg>
+      <div class="tools">
+        <button id="z-in" aria-label="Zoomer"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button id="z-out" aria-label="Dézoomer"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        <button id="z-fit" aria-label="Voir tout le monde / mes pays"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></button>
+      </div>
+      <div class="legend"><span><i></i>Visité</span><span><i class="p"></i>Prévu</span></div>
+      <div class="hint" id="hint">Touche un pays pour le cocher</div>
+    </section>
+    <section class="view scrollv" id="v-list" hidden aria-label="Liste des pays">
+      <div class="inner">
+        <input class="search" id="q" type="search" placeholder="Chercher un pays" autocomplete="off">
+        <div class="chips" id="chips">
+          <button data-f="all" aria-pressed="true">Tous</button>
+          <button data-f="v" aria-pressed="false">Visités</button>
+          <button data-f="p" aria-pressed="false">Prévus</button>
+          <button data-f="n" aria-pressed="false">Pas encore</button>
+        </div>
+        <div id="list"></div>
+      </div>
+    </section>
+    <section class="view scrollv" id="v-stats" hidden aria-label="Bilan">
+      <div class="inner" id="stats"></div>
+    </section>
+    <div class="sheet" id="sheet" hidden role="dialog" aria-labelledby="sh-name">
+      <div class="sh-top">
+        <div class="flag" id="sh-flag"></div>
+        <div style="flex:1"><h2 id="sh-name"></h2><p id="sh-info"></p></div>
+        <button class="x" id="sh-x" aria-label="Fermer">×</button>
+      </div>
+      <div class="seg" id="sh-seg">
+        <button data-s="v" aria-pressed="false">Visité</button>
+        <button data-s="p" aria-pressed="false">Prévu</button>
+        <button data-s="" aria-pressed="false">Pas encore</button>
+      </div>
+    </div>
+  </main>
+  <nav role="tablist">
+    <button role="tab" data-v="map" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>Carte</button>
+    <button role="tab" data-v="list" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Liste</button>
+    <button role="tab" data-v="stats" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Bilan</button>
+  </nav>
+</div>
+<script>
+{
+const $ = s => document.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const KEY = "carte-pays-v1";
+const CONT = {eu:"Europe", as:"Asie", af:"Afrique", na:"Amérique du Nord", sa:"Amérique du Sud", oc:"Océanie", an:"Antarctique"};
+const CORDER = ["eu","as","af","na","sa","oc","an"];
+const LABEL = {v:"Visité", p:"Prévu", "":"Pas encore"};
+let M = null, BY = {}, base = {}, over = {};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const flag = iso => iso && iso.length === 2 ? String.fromCodePoint(...[...iso.toUpperCase()].map(c => 0x1F1A5 + c.charCodeAt(0))) : "";
+const st = id => (id in over ? over[id] : (base[id] || ""));
+const fmt = n => n.toLocaleString("fr-FR");
+
+function load(){ try{ over = JSON.parse(localStorage.getItem(KEY) || "{}").o || {}; }catch(e){ over = {}; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({o: over})); }catch(e){} }
+function setStatus(id, s){
+  if((base[id] || "") === s) delete over[id]; else over[id] = s;
+  save(); paint(); renderStats(); if(!$("#v-list").hidden) renderList();
+  if(sel === id) openSheet(id);
+}
+
+/* ---------- carte ---------- */
+const svg = $("#map");
+let k = 1, tx = 0, ty = 0, kmin = 1, cw = 0, ch = 0, sel = null;
+function build(){
+  const P = M.pays;
+  const land = P.map(p => `<path data-id="${p.id}" d="${p.d}"/>`).join("");
+  const dots = P.filter(p => p.dot).map(p => `<circle class="t${p.t}" data-id="${p.id}" cx="${p.x}" cy="${p.y}" r="6"/>`).join("");
+  const labels = P.filter(p => p.id !== "ATA").map(p => `<text data-id="${p.id}" x="${p.x}" y="${p.y}">${esc(p.n)}</text>`).join("");
+  svg.innerHTML = `<defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--land)"/><rect width="3" height="8" fill="var(--plan)"/></pattern></defs>
+  <g id="vp"><path id="sphere" d="${M.sphere}"/><path id="grat" d="${M.grat}"/><g id="land">${land}</g><g id="dots">${dots}</g><g id="labels">${labels}</g></g>`;
+}
+function size(){ const r = svg.getBoundingClientRect(); cw = r.width; ch = r.height; kmin = Math.min(cw / M.w, ch / M.h); }
+function clamp(){
+  k = Math.max(kmin * .9, Math.min(kmin * 40, k));
+  const mw = M.w * k, mh = M.h * k;
+  tx = mw <= cw ? (cw - mw) / 2 : Math.min(cw * .25, Math.max(cw * .75 - mw, tx));
+  ty = mh <= ch ? (ch - mh) / 2 : Math.min(ch * .25, Math.max(ch * .75 - mh, ty));
+}
+let raf = 0, detailT = 0;
+function apply(){
+  clamp();
+  $("#vp").setAttribute("transform", `translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${k.toFixed(5)})`);
+  const g = $("#labels"); g.setAttribute("font-size", (12 / k).toFixed(3)); g.setAttribute("stroke-width", (3 / k).toFixed(3));
+  clearTimeout(detailT); detailT = setTimeout(detail, 60);
+}
+function req(){ if(!raf) raf = requestAnimationFrame(() => { raf = 0; apply(); }); }
+function detail(){
+  const r = 4.2 / k;
+  document.querySelectorAll("#dots circle").forEach(c => c.setAttribute("r", r.toFixed(3)));
+  const h = 7 / k, pat = $("#hatch");
+  pat.setAttribute("width", h); pat.setAttribute("height", h);
+  pat.children[0].setAttribute("width", h); pat.children[0].setAttribute("height", h); pat.children[1].setAttribute("width", h * .42); pat.children[1].setAttribute("height", h);
+  const z = k / kmin;
+  svg.classList.toggle("close", z > 3);
+  document.querySelectorAll("#labels text").forEach(t => {
+    const p = BY[t.dataset.id], w = (p.b[2] - p.b[0]) * k, show = p.id === sel || (z > 1.7 && w > p.n.length * 6.5 + 8) || (p.dot && z > 7);
+    t.style.display = show ? "" : "none";
+  });
+}
+function zoomAt(px, py, f){ const nk = Math.max(kmin * .9, Math.min(kmin * 40, k * f)); tx = px - (px - tx) * nk / k; ty = py - (py - ty) * nk / k; k = nk; req(); }
+function fitBox(b, pad = 28, anim = true){
+  const bw = Math.max(b[2] - b[0], 40), bh = Math.max(b[3] - b[1], 40);
+  const nk = Math.min((cw - pad * 2) / bw, (ch - pad * 2) / bh, kmin * 40);
+  const ntx = cw / 2 - (b[0] + b[2]) / 2 * nk, nty = ch / 2 - (b[1] + b[3]) / 2 * nk;
+  if(!anim || matchMedia("(prefers-reduced-motion: reduce)").matches){ k = nk; tx = ntx; ty = nty; apply(); return; }
+  const k0 = k, x0 = tx, y0 = ty, t0 = performance.now();
+  const step = now => { const u = Math.min(1, (now - t0) / 420), e = 1 - Math.pow(1 - u, 3);
+    k = k0 + (nk - k0) * e; tx = x0 + (ntx - x0) * e; ty = y0 + (nty - y0) * e; apply(); if(u < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+function mineBox(){
+  let ids = M.pays.filter(p => st(p.id) === "v").map(p => p.id);
+  if(!ids.length) ids = M.pays.filter(p => st(p.id)).map(p => p.id);
+  if(!ids.length) return null;
+  const b = [1e9, 1e9, -1e9, -1e9];
+  ids.forEach(id => { const q = BY[id].b; b[0] = Math.min(b[0], q[0]); b[1] = Math.min(b[1], q[1]); b[2] = Math.max(b[2], q[2]); b[3] = Math.max(b[3], q[3]); });
+  return b;
+}
+let showingWorld = false;
+function fitMine(anim){ const b = mineBox(); showingWorld = !b; fitBox(b || [0, 0, M.w, M.h], 20, anim); }
+const zc = () => { if(sel){ const b = BY[sel].b, x = tx + (b[0] + b[2]) / 2 * k, y = ty + (b[1] + b[3]) / 2 * k; if(x > 0 && x < cw && y > 0 && y < ch) return [x, y]; } return [cw / 2, ch / 2]; };
+$("#z-in").onclick = () => zoomAt(...zc(), 1.8);
+$("#z-out").onclick = () => zoomAt(...zc(), 1 / 1.8);
+$("#z-fit").onclick = () => { if(showingWorld){ fitMine(true); } else { showingWorld = true; fitBox([0, 0, M.w, M.h], 4); } };
+
+/* gestes : glisser, pincer, toucher */
+const pts = new Map(); let moved = false, down = null, last = null;
+svg.addEventListener("pointerdown", e => {
+  svg.setPointerCapture(e.pointerId); pts.set(e.pointerId, {x: e.clientX, y: e.clientY});
+  if(pts.size === 1){ moved = false; down = {x: e.clientX, y: e.clientY, t: Date.now()}; } else moved = true;
+  last = null;
+});
+svg.addEventListener("pointermove", e => {
+  if(!pts.has(e.pointerId)) return;
+  const prev = pts.get(e.pointerId); pts.set(e.pointerId, {x: e.clientX, y: e.clientY});
+  if(pts.size === 1){
+    if(down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 8) moved = true;
+    if(moved){ tx += e.clientX - prev.x; ty += e.clientY - prev.y; req(); }
+  } else if(pts.size === 2){
+    const [a, b] = [...pts.values()], r = svg.getBoundingClientRect();
+    const mx = (a.x + b.x) / 2 - r.left, my = (a.y + b.y) / 2 - r.top, d = Math.hypot(a.x - b.x, a.y - b.y);
+    if(last){ tx += mx - last.mx; ty += my - last.my; zoomAt(mx, my, d / last.d); }
+    last = {mx, my, d};
+  }
+});
+const up = e => {
+  if(!pts.has(e.pointerId)) return;
+  pts.delete(e.pointerId); last = null;
+  if(pts.size === 0 && !moved && down && Date.now() - down.t < 600 && e.type === "pointerup"){
+    const t = document.elementFromPoint(e.clientX, e.clientY), el = t && t.closest("[data-id]");
+    if(el) select(el.dataset.id); else closeSheet();
+  }
+};
+svg.addEventListener("pointerup", up); svg.addEventListener("pointercancel", up);
+svg.addEventListener("wheel", e => { e.preventDefault(); const r = svg.getBoundingClientRect(); zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY / 300)); }, {passive: false});
+
+function paint(){
+  document.querySelectorAll("#land path,#dots circle,#labels text").forEach(el => { const s = st(el.dataset.id); el.classList.toggle("v", s === "v"); el.classList.toggle("p", s === "p"); el.classList.toggle("sel", el.dataset.id === sel); });
+  const land = $("#land"), dots = $("#dots");
+  if(sel){ const el = land.querySelector(`[data-id="${sel}"]`); if(el) land.appendChild(el); const d = dots.querySelector(`[data-id="${sel}"]`); if(d) dots.appendChild(d); }
+  const V = M.pays.filter(p => p.t && st(p.id) === "v").length;
+  $("#n-vis").textContent = V; $("#n-lab").textContent = V > 1 ? "pays visités" : "pays visité";
+  const P = M.pays.filter(p => p.t && st(p.id) === "p").length, tot = M.pays.filter(p => p.t).length;
+  $("#sub").innerHTML = `sur ${tot}, soit <strong>${Math.round(V / tot * 100)} %</strong><br>${P} prévu${P > 1 ? "s" : ""}`;
+}
+function select(id){ sel = id; paint(); detail(); openSheet(id); }
+function openSheet(id){
+  const p = BY[id], s = st(id);
+  $("#sh-flag").textContent = flag(p.iso);
+  $("#sh-name").textContent = p.n;
+  $("#sh-info").textContent = (CONT[p.c] || "") + (p.t ? "" : " · territoire, hors décompte");
+  $("#sh-seg").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.s === s)));
+  $("#sheet").hidden = false;
+}
+function closeSheet(){ $("#sheet").hidden = true; if(sel){ sel = null; paint(); detail(); } }
+$("#sh-x").onclick = closeSheet;
+$("#sh-seg").onclick = e => { const b = e.target.closest("button"); if(b && sel) setStatus(sel, b.dataset.s); };
+
+/* ---------- onglets ---------- */
+function show(v){
+  document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.v === v)));
+  ["map", "list", "stats"].forEach(n => $("#v-" + n).hidden = n !== v);
+  if(v !== "map") $("#sheet").hidden = true;
+  if(v === "list") renderList();
+  if(v === "map"){ size(); apply(); if(sel) openSheet(sel); }
+}
+document.querySelector("nav").onclick = e => { const b = e.target.closest("button"); if(b) show(b.dataset.v); };
+function goMap(id){ show("map"); select(id); fitBox(BY[id].b, 60); }
+
+/* ---------- liste ---------- */
+let filt = "all";
+$("#chips").onclick = e => { const b = e.target.closest("button"); if(!b) return; filt = b.dataset.f; $("#chips").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); renderList(); };
+$("#q").oninput = renderList;
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+function renderList(){
+  const q = norm($("#q").value.trim());
+  const items = M.pays.filter(p => p.id !== "ATA" || q).filter(p => {
+    const s = st(p.id);
+    if(filt === "v" && s !== "v") return false; if(filt === "p" && s !== "p") return false; if(filt === "n" && s) return false;
+    return !q || norm(p.n).includes(q);
+  }).sort((a, b) => a.n.localeCompare(b.n, "fr"));
+  if(!items.length){ $("#list").innerHTML = `<p class="empty">Aucun pays ne correspond.</p>`; return; }
+  $("#list").innerHTML = CORDER.map(c => {
+    const L = items.filter(p => p.c === c); if(!L.length) return "";
+    return `<h3>${CONT[c]}<span>${L.length}</span></h3><ul class="rows">${L.map(p => { const s = st(p.id); return `<li><button class="main" data-cycle="${p.id}"><span class="f">${flag(p.iso)}</span><span>${esc(p.n)}${p.t ? "" : "<small>territoire</small>"}</span></button><span class="pill ${s}">${LABEL[s]}</span><button class="go" data-go="${p.id}" aria-label="Voir ${esc(p.n)} sur la carte"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></button></li>`; }).join("")}</ul>`;
+  }).join("");
+}
+$("#list").onclick = e => {
+  const c = e.target.closest("[data-cycle]"), g = e.target.closest("[data-go]");
+  if(c){ const s = st(c.dataset.cycle); setStatus(c.dataset.cycle, s === "" ? "v" : s === "v" ? "p" : ""); }
+  else if(g) goMap(g.dataset.go);
+};
+
+/* ---------- bilan ---------- */
+function renderStats(){
+  const C = M.pays.filter(p => p.t), V = C.filter(p => st(p.id) === "v"), P = C.filter(p => st(p.id) === "p");
+  const area = M.pays.reduce((a, p) => a + p.a, 0), va = M.pays.filter(p => st(p.id) === "v").reduce((a, p) => a + p.a, 0);
+  const conts = CORDER.filter(c => c !== "an").map(c => { const all = C.filter(p => p.c === c), v = all.filter(p => st(p.id) === "v").length; return {c, all: all.length, v}; });
+  const nc = conts.filter(x => x.v).length;
+  const terr = M.pays.filter(p => !p.t && st(p.id) === "v");
+  const tag = L => L.length ? `<div class="tags">${L.sort((a, b) => a.n.localeCompare(b.n, "fr")).map(p => `<button data-go="${p.id}">${flag(p.iso)} ${esc(p.n)}</button>`).join("")}</div>` : `<p class="empty">Aucun pour l'instant.</p>`;
+  $("#stats").innerHTML = `
+  <div class="big">
+    <div><b>${V.length}</b><span>pays sur ${C.length}</span></div>
+    <div><b>${nc}</b><span>continent${nc > 1 ? "s" : ""} sur 6</span></div>
+    <div><b>${(va / area * 100).toLocaleString("fr-FR", {maximumFractionDigits: va / area < .1 ? 1 : 0})} %</b><span>des terres du globe</span></div>
+  </div>
+  <h3>Par continent</h3>
+  ${conts.map(x => `<div class="bar"><span>${CONT[x.c]}</span><span class="t"><i style="width:${x.all ? x.v / x.all * 100 : 0}%"></i></span><em>${x.v} / ${x.all}</em></div>`).join("")}
+  <h3>Pays visités<span>${V.length}</span></h3>${tag(V)}
+  <h3>Pays prévus<span>${P.length}</span></h3>${tag(P)}
+  ${terr.length ? `<h3>Territoires visités<span>${terr.length}</span></h3>${tag(terr)}` : ""}
+  <h3>Sauvegarde</h3>
+  <div class="box">
+    <p>Tes coches sont enregistrées dans ce téléphone. Garde ce code quelque part (Notes, message à Claude) pour les retrouver si besoin.</p>
+    <textarea id="bk-out" readonly>${esc(code())}</textarea>
+    <button class="btn" id="bk-copy">Copier le code</button>
+    <p style="margin-top:16px">Pour restaurer, colle un code ci-dessous.</p>
+    <textarea id="bk-in" placeholder="CARTE1:V=…;P=…"></textarea>
+    <button class="btn alt" id="bk-imp">Importer</button>
+    <div class="msg" id="bk-msg" role="status"></div>
+  </div>
+  <p class="foot">${C.length} pays comptés : les 193 membres de l'ONU, plus le Vatican, la Palestine, le Kosovo et Taïwan. Les territoires (Groenland, Hong Kong, Polynésie…) se cochent à part.<br><br><a href="../">Carnet d'histoire →</a></p>`;
+}
+function code(){ const ids = s => M.pays.filter(p => st(p.id) === s).map(p => p.id).join(","); return `CARTE1:V=${ids("v")};P=${ids("p")}`; }
+$("#stats").onclick = e => {
+  const g = e.target.closest("[data-go]"); if(g){ goMap(g.dataset.go); return; }
+  if(e.target.id === "bk-copy"){
+    const ta = $("#bk-out");
+    const ok = () => $("#bk-msg").textContent = "Code copié.";
+    const ko = () => { ta.focus(); ta.select(); $("#bk-msg").textContent = "Le code est sélectionné : touche « Copier »."; };
+    try{ navigator.clipboard.writeText(ta.value).then(ok, ko); }catch(err){ ko(); }
+  }
+  if(e.target.id === "bk-imp"){
+    const v = $("#bk-in").value.trim(), m = v.match(/^CARTE1:V=([A-Z0-9,]*);P=([A-Z0-9,]*)$/);
+    if(!m){ $("#bk-msg").textContent = "Ce code n'est pas reconnu. Il doit commencer par CARTE1:"; return; }
+    const S = {}; m[1].split(",").filter(Boolean).forEach(id => S[id] = "v"); m[2].split(",").filter(Boolean).forEach(id => S[id] = "p");
+    over = {}; M.pays.forEach(p => { const s = S[p.id] || ""; if((base[p.id] || "") !== s) over[p.id] = s; });
+    save(); paint(); renderStats(); $("#bk-msg").textContent = "Importé.";
+  }
+};
+
+/* ---------- démarrage ---------- */
+async function start(){
+  load();
+  const [m, b] = await Promise.all([
+    fetch("monde.json").then(r => r.json()),
+    fetch("mes-pays.json", {cache: "no-cache"}).then(r => r.json()).catch(() => ({}))
+  ]);
+  M = m; M.pays.forEach(p => BY[p.id] = p);
+  (b.visites || []).forEach(id => base[id] = "v"); (b.prevus || []).forEach(id => base[id] = "p");
+  build(); size(); paint(); renderStats(); fitMine(false);
+  setTimeout(() => $("#hint").style.opacity = 0, 3500);
+  setTimeout(() => $("#hint").remove(), 4200);
+}
+new ResizeObserver(() => { if(M && !$("#v-map").hidden){ size(); apply(); } }).observe(svg);
+start().catch(err => { $("#v-map").innerHTML = `<p class="empty" style="padding:24px">La carte n'a pas pu se charger. Vérifie ta connexion puis rouvre la page.</p>`; console.error(err); });
+if("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>

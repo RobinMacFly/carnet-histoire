@@ -1,0 +1,16 @@
+{
+  "name": "Mes pays du monde",
+  "short_name": "Mes pays",
+  "description": "Carte des pays que j'ai visités",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fbfbf2",
+  "theme_color": "#fbfbf2",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

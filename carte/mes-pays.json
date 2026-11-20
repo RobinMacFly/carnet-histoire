@@ -1,0 +1,5 @@
+{
+  "_note": "Codes pays à 3 lettres (ISO). « visites » = pays déjà visités, « prevus » = pays prévus. Ce que tu changes dans l'appli passe avant cette liste.",
+  "visites": ["FRA", "TUR", "GEO", "ARM", "KAZ", "KGZ", "TJK", "UZB", "CHN", "VNM"],
+  "prevus": ["LAO", "KHM", "THA", "MYS", "SGP", "IDN", "AUS", "NZL", "USA"]
+}

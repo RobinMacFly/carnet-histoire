@@ -254,6 +254,7 @@ a{color:var(--lapis)}
       <button role="menuitem" data-act="countries"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><span>Mes pays<small>Itinéraire, questions par pays</small></span></button>
       <button role="menuitem" data-act="frises"><svg viewBox="0 0 24 24"><path d="M3 12h18"/><circle cx="6" cy="12" r="2"/><circle cx="13" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M6 8V5M13 8V4M19 8V6"/></svg><span>Frises chronologiques<small>Les grandes dates de chaque pays</small></span></button>
       <button role="menuitem" data-act="add-country"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>Ajouter un pays<small>Claude prépare les questions</small></span></button>
+      <button role="menuitem" data-act="carte"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span>Carte de mes pays<small>Tous les pays que j'ai visités</small></span></button>
       <button role="menuitem" data-act="backup"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/></svg><span>Sauvegarde<small>Exporter ou importer ta progression</small></span></button>
     </div>
   </header>
@@ -1307,6 +1308,7 @@ document.addEventListener("click", e => {
   else if(act === "ahead"){ S.quiz.ahead = true; if(S.quiz.type !== "q") S.quiz.type = "q"; renderFilters(); nextQuestion(); }
   else if(act === "ex-mix"){ S.quiz.type = "mix"; S.quiz.seq = 2; renderFilters(); nextQuestion(); }
   else if(act === "frises") openFrises();
+  else if(act === "carte") location.href = "carte/";
   else if(act === "frise") openFrise(t.dataset.country);
   else if(act === "frise-all") openFrise(t.dataset.country, true, true);
   else if(act === "frise-less") openFrise(t.dataset.country, false, true);
