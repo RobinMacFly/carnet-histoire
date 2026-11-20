@@ -217,6 +217,11 @@ a{color:var(--lapis)}
 .ord .yr{font-family:var(--f-display);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
 .ord .it.ok{border-color:var(--good);background:var(--good-soft)} .ord .it.ok .pos{color:var(--good)}
 .ord .it.ko{border-color:var(--bad);background:var(--bad-soft)} .ord .it.ko .pos{color:var(--bad)}
+.ord .slot{border:1.5px dashed var(--line);background:transparent;border-radius:12px;padding:8px 12px;min-height:52px;display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;text-align:left;width:100%;color:var(--muted)}
+.ord .slot.full{border-style:solid;border-color:var(--lapis);background:var(--surface);color:var(--ink)}
+.ord .slot .x{font-size:.9rem;color:var(--muted)}
+.pool{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.pool button{border:1.5px solid var(--line);background:var(--surface2);border-radius:12px;padding:12px 14px;min-height:50px;text-align:left}
 .ord .fix{display:block;font-size:.8rem;color:var(--bad);font-weight:600;margin-top:2px}
 .ord small{display:block;color:var(--muted);font-size:.8rem}
 @media (prefers-reduced-motion:reduce){.ord .it{transition:none}}
@@ -839,7 +844,7 @@ function makeOrder(pool){
     if(pick.length === 4) break;
   }
   if(pick.length < 4) return null;
-  return { kind: "order", items: pick, order: [0,1,2,3], multi: new Set(pick.map(p => p.cid)).size > 1 };
+  return { kind: "order", items: pick, slots: [null,null,null,null], multi: new Set(pick.map(p => p.cid)).size > 1 };
 }
 function makeYear(pool){
   const evs = keyEvents(pool);
@@ -898,19 +903,22 @@ function renderExercise(box){
     const done = !!ex.result;
     const sorted = ex.items.slice().sort((a,b) => a.y - b.y);
     const ord = s => ["1er","2e","3e","4e"][s];
-    const up = `<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>`, down = `<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>`;
+    const filled = ex.slots.filter(x => x !== null).length;
+    const pool = ex.items.map((_, i) => i).filter(i => !ex.slots.includes(i));
     body = `<p class="qtext">Remets ces événements dans l'ordre chronologique.</p>
-      <p class="muted small">${done ? "Ton ordre est conservé : en vert les événements bien placés, en rouge ceux à déplacer." : "Utilise les flèches pour monter ou descendre les événements, puis valide."}</p>
-      <div class="ord"><span class="end">↑ Plus ancien</span>${ex.order.map((i, pos) => {
-        const ev = ex.items[i], right = sorted.indexOf(ev);
-        const cls = done ? (right === pos ? "ok" : "ko") : "";
-        return `<div class="it ${cls}" data-pos="${pos}"><span class="pos">${done ? (right === pos ? "✓" : "✗") : pos + 1}</span>
-          <span>${evText(ev, ex.multi)}${done && right !== pos ? `<span class="fix">Devrait être ${ord(right)}</span>` : ""}</span>
-          ${done ? `<span class="yr">${esc(ev.ys)}</span>` : `<span class="arrows"><button data-ex-mv="${pos}" data-dir="-1" aria-label="Monter" ${pos === 0 ? "disabled" : ""}>${up}</button><button data-ex-mv="${pos}" data-dir="1" aria-label="Descendre" ${pos === 3 ? "disabled" : ""}>${down}</button></span>`}
-        </div>`;
-      }).join("")}<span class="end">↓ Plus récent</span></div>
+      <p class="muted small">${done ? "En vert les événements bien placés, en rouge ceux à déplacer." : "Touche les événements du plus ancien au plus récent. Touche une case remplie pour la vider."}</p>
+      <div class="ord">${ex.slots.map((i, pos) => {
+        if(done){
+          const ev = ex.items[i], right = sorted.indexOf(ev), ok = right === pos;
+          return `<div class="it ${ok ? "ok" : "ko"}"><span class="pos">${ok ? "✓" : "✗"}</span><span>${evText(ev, ex.multi)}${ok ? "" : `<span class="fix">Devrait être ${ord(right)}</span>`}</span><span class="yr">${esc(ev.ys)}</span></div>`;
+        }
+        return i === null
+          ? `<button class="slot" data-ex-slot="${pos}" disabled><span class="pos">${pos + 1}</span><span>${pos === 0 ? "Touche le plus ancien…" : pos === ex.slots.indexOf(null) ? "Touche le suivant…" : pos === 3 ? "Plus récent" : ""}</span><span></span></button>`
+          : `<button class="slot full" data-ex-slot="${pos}" aria-label="Retirer de la case ${pos + 1}"><span class="pos">${pos + 1}</span><span>${evText(ex.items[i], ex.multi)}</span><span class="x">✕</span></button>`;
+      }).join("")}</div>
+      ${!done && pool.length ? `<span class="eyebrow">À placer</span><div class="pool">${pool.map(i => `<button data-ex-pick="${i}">${evText(ex.items[i], ex.multi)}</button>`).join("")}</div>` : ""}
       ${done && !ex.result.good ? `<p class="small"><b>Bon ordre :</b> ${sorted.map(ev => esc(ev.ys)).join(" → ")}</p>` : ""}
-      ${!done ? `<button class="btn primary" data-ex-check>Valider</button>` : ""}`;
+      ${!done ? `<button class="btn primary" data-ex-check ${filled < 4 ? "disabled" : ""}>Valider</button>` : ""}`;
   } else if(ex.kind === "year"){
     const a = ex.answered;
     body = `<p class="qtext">En quelle année ?</p>
@@ -945,21 +953,21 @@ function exMapSVG(ex){
 }
 function exClick(e){
   const ex = S.quiz.ex; if(ex.result) return false;
-  const mv = e.target.closest("[data-ex-mv]");
-  if(mv){
-    const p = +mv.dataset.exMv, q = p + +mv.dataset.dir; if(q < 0 || q > 3) return true;
-    [ex.order[p], ex.order[q]] = [ex.order[q], ex.order[p]];
-    renderQuiz();
-    const moved = document.querySelector(`.ord .it[data-pos="${q}"]`);
-    if(moved){ moved.style.transform = `translateY(${(p - q) * 40}%)`; requestAnimationFrame(() => requestAnimationFrame(() => { moved.style.transform = ""; })); }
-    const btn = document.querySelector(`.ord [data-ex-mv="${q}"][data-dir="${mv.dataset.dir}"]`) || document.querySelector(`.ord [data-ex-mv="${q}"]`);
-    if(btn) btn.focus({ preventScroll: true });
-    return true;
+  const pk = e.target.closest("[data-ex-pick]");
+  if(pk){
+    const free = ex.slots.indexOf(null); if(free < 0) return true;
+    ex.slots[free] = +pk.dataset.exPick;
+    const left = ex.items.map((_, i) => i).filter(i => !ex.slots.includes(i));
+    if(left.length === 1) ex.slots[ex.slots.indexOf(null)] = left[0];
+    renderQuiz(); return true;
   }
+  const sl = e.target.closest("[data-ex-slot]");
+  if(sl){ ex.slots[+sl.dataset.exSlot] = null; renderQuiz(); return true; }
   if(e.target.closest("[data-ex-check]")){
     const sorted = ex.items.slice().sort((a,b) => a.y - b.y);
-    const good = ex.order.every((i, n) => ex.items[i] === sorted[n]);
-    const nOk = ex.order.filter((i, n) => ex.items[i] === sorted[n]).length;
+    if(ex.slots.includes(null)) return true;
+    const good = ex.slots.every((i, n) => ex.items[i] === sorted[n]);
+    const nOk = ex.slots.filter((i, n) => ex.items[i] === sorted[n]).length;
     exDone(good, good ? "Ordre parfait." : nOk ? `${nOk} sur 4 bien placé${nOk > 1 ? "s" : ""}.` : "Aucun événement bien placé.");
     renderQuiz(); return true;
   }
