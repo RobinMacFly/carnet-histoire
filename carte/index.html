@@ -8,8 +8,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Mes pays">
-<meta name="theme-color" content="#fbfbf2" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0d1c24" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbf7f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1714" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,15 +19,14 @@
 /* VOICE: carnet de cartographe, sobre et précis.
    IDEA: une carte d'état-major où l'on colorie les pays traversés.
    PICTURE: la carte du monde elle-même, plein écran, zoomable.
-   COLOUR and TYPE: mer #bfe3ee, terre #fbfbf2, frontières brunes, pays visités magenta ; Overpass.
+   COLOUR and TYPE: thème Terre cuite (mer vert d’eau, terres crème, pays visités terracotta clair) ; Overpass.
    LAYOUT: compteur en haut comme une légende, carte au centre, onglets en bas. */
-:root{color-scheme:light dark;--onvis:#fff;--line:light-dark(#e6e2da,#26343a);--ink:light-dark(#16232a,#ecf1f3);--muted:light-dark(#5e6b72,#9fb0b8)}
-/* Lagon (par défaut) */
-:root,:root[data-pal=lagon]{--route:light-dark(#e0532f,#ff8a65);--paper:light-dark(#fbfaf7,#0e1b1f);--sea:light-dark(#d3ebee,#11252a);--land:light-dark(#efeae0,#26393e);--border:light-dark(#fff,#0e1b1f);--vis:light-dark(#0c8489,#3fc4c2);--vis2:light-dark(#d5eeee,#123a3c);--head:light-dark(#0b6a6e,#82d6d3)}
-:root[data-pal=terre]{--route:light-dark(#1d6782,#7cc4dd);--paper:light-dark(#fcf9f5,#1b1512);--sea:light-dark(#e2eaed,#15202a);--land:light-dark(#fff,#2d2a29);--border:light-dark(#dcd3c6,#1b1512);--vis:light-dark(#d4562b,#f08a5d);--vis2:light-dark(#fbe2d6,#3e2216);--head:light-dark(#a8401c,#f2a27c)}
-:root[data-pal=atlas]{--route:light-dark(#284766,#a9c4dd);--paper:light-dark(#f6f0e3,#1b1813);--sea:light-dark(#c5d9d2,#1c2a28);--land:light-dark(#f0e6cd,#3a3428);--border:light-dark(#c2b18c,#1b1813);--vis:light-dark(#a3392a,#e0745f);--vis2:light-dark(#f1d8cd,#3f1f19);--head:light-dark(#7a5626,#dcb97c);--line:light-dark(#e2d8c3,#2f2a22)}
-:root[data-pal=nuit]{--route:#ffffff;color-scheme:dark;--paper:#0f1726;--sea:#0a111e;--land:#1e2a3f;--border:#0a111e;--vis:#f2b84b;--vis2:#3a2e14;--head:#f2b84b;--ink:#eef2f8;--muted:#9aa7bd;--line:#243149;--onvis:#1a1405}
-:root[data-pal=magenta]{--route:light-dark(#13242e,#e8f1f4);--paper:light-dark(#fbfbf2,#0f2029);--sea:light-dark(#bfe3ee,#14303c);--land:light-dark(#fbfbf2,#2a4552);--border:light-dark(#c39a74,#0d1c24);--vis:light-dark(#d6127e,#ff4fa3);--vis2:light-dark(#fbe1ef,#3d1a2e);--head:light-dark(#a8551b,#e0a070)}
+:root{color-scheme:light dark}
+/* Terre cuite (par défaut), clair et sombre */
+:root,:root[data-pal=terracotta]{--paper:light-dark(#fbf7f1,#1c1714);--sea:light-dark(#dbe7e5,#121a1b);--land:light-dark(#f1e8da,#2f2722);--border:light-dark(#fbf7f1,#1c1714);--ink:light-dark(#2b2420,#f3ece6);--muted:light-dark(#7a6c62,#b3a59a);--line:light-dark(#ebe2d5,#332b25);--vis:light-dark(#dc7f5e,#e8957a);--vis2:light-dark(#f8e3da,#47271c);--head:light-dark(#b0583c,#e8a387);--route:light-dark(#2f4858,#a9c6c9);--onvis:light-dark(#3b1a0e,#2a120a)}
+:root[data-pal=blanc]{color-scheme:light;--paper:#fff;--sea:#edf2f6;--land:#dfe5eb;--border:#fff;--ink:#13263a;--muted:#6b7c8c;--line:#e7ebef;--vis:#e23a5d;--vis2:#fde4ea;--head:#13263a;--route:#13263a;--onvis:#fff}
+:root[data-pal=ocean]{color-scheme:light;--paper:#fbfaf6;--sea:#1d4560;--land:#ece5d6;--border:#1d4560;--ink:#10293a;--muted:#5f6f7a;--line:#e6e1d6;--vis:#f08a3c;--vis2:#fde8d6;--head:#1d4560;--route:#fff;--onvis:#2a1300}
+:root[data-pal=nuit]{color-scheme:dark;--paper:#111824;--sea:#0b1119;--land:#243247;--border:#0b1119;--ink:#eef2f7;--muted:#97a6b8;--line:#233044;--vis:#4fd1b5;--vis2:#123a33;--head:#4fd1b5;--route:#f6c76a;--onvis:#0b1a17}
 *{box-sizing:border-box;min-width:0}
 html,body{height:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 Overpass,system-ui,-apple-system,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
@@ -399,9 +398,10 @@ function setStatus(id, s){
   if(sel === id) openSheet(id);
 }
 
-const PALS = [["lagon", "Lagon", ["#d3ebee", "#efeae0", "#0c8489"]], ["terre", "Terre cuite", ["#e2eaed", "#ffffff", "#d4562b"]], ["atlas", "Atlas ancien", ["#c5d9d2", "#f0e6cd", "#a3392a"]], ["nuit", "Nuit dorée", ["#0a111e", "#1e2a3f", "#f2b84b"]], ["magenta", "Magenta", ["#bfe3ee", "#fbfbf2", "#d6127e"]]];
-let pal = "lagon";
-try{ pal = localStorage.getItem("carte-palette") || "lagon"; }catch(e){}
+const PALS = [["terracotta", "Terre cuite", ["#dbe7e5", "#f1e8da", "#dc7f5e"]], ["blanc", "Carnet blanc", ["#edf2f6", "#dfe5eb", "#e23a5d"]], ["ocean", "Océan et sable", ["#1d4560", "#ece5d6", "#f08a3c"]], ["nuit", "Nuit polaire", ["#0b1119", "#243247", "#4fd1b5"]]];
+let pal = "terracotta";
+try{ pal = localStorage.getItem("carte-palette") || "terracotta"; }catch(e){}
+if(!PALS.some(x => x[0] === pal)) pal = "terracotta";
 function setPal(id){ pal = id; document.documentElement.dataset.pal = id; try{ localStorage.setItem("carte-palette", id); }catch(e){} }
 setPal(pal);
 /* ---------- carte ---------- */
