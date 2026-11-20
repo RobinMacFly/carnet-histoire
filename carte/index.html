@@ -21,12 +21,13 @@
    PICTURE: la carte du monde elle-même, plein écran, zoomable.
    COLOUR and TYPE: mer #bfe3ee, terre #fbfbf2, frontières brunes, pays visités magenta ; Overpass.
    LAYOUT: compteur en haut comme une légende, carte au centre, onglets en bas. */
-:root{color-scheme:light dark;
---paper:light-dark(#fbfbf2,#0f2029);--bg2:light-dark(#dcecf1,#0a161d);--sea:light-dark(#bfe3ee,#14303c);
---land:light-dark(#fbfbf2,#2a4552);--border:light-dark(#c39a74,#0d1c24);--ink:light-dark(#13242e,#e8f1f4);
---muted:light-dark(#566a74,#9db3bd);--line:light-dark(#e2e3d3,#223a46);
---vis:light-dark(#d6127e,#ff4fa3);--vis2:light-dark(#fbe1ef,#3d1a2e);--plan:light-dark(#d6127e,#ff4fa3);
---brown:light-dark(#a8551b,#e0a070);--grat:light-dark(rgba(255,255,255,.55),rgba(255,255,255,.06))}
+:root{color-scheme:light dark;--onvis:#fff;--line:light-dark(#e6e2da,#26343a);--ink:light-dark(#16232a,#ecf1f3);--muted:light-dark(#5e6b72,#9fb0b8)}
+/* Lagon (par défaut) */
+:root,:root[data-pal=lagon]{--paper:light-dark(#fbfaf7,#0e1b1f);--sea:light-dark(#d3ebee,#11252a);--land:light-dark(#efeae0,#26393e);--border:light-dark(#fff,#0e1b1f);--vis:light-dark(#0c8489,#3fc4c2);--vis2:light-dark(#d5eeee,#123a3c);--head:light-dark(#0b6a6e,#82d6d3)}
+:root[data-pal=terre]{--paper:light-dark(#fcf9f5,#1b1512);--sea:light-dark(#e2eaed,#15202a);--land:light-dark(#fff,#2d2a29);--border:light-dark(#dcd3c6,#1b1512);--vis:light-dark(#d4562b,#f08a5d);--vis2:light-dark(#fbe2d6,#3e2216);--head:light-dark(#a8401c,#f2a27c)}
+:root[data-pal=atlas]{--paper:light-dark(#f6f0e3,#1b1813);--sea:light-dark(#c5d9d2,#1c2a28);--land:light-dark(#f0e6cd,#3a3428);--border:light-dark(#c2b18c,#1b1813);--vis:light-dark(#a3392a,#e0745f);--vis2:light-dark(#f1d8cd,#3f1f19);--head:light-dark(#7a5626,#dcb97c);--line:light-dark(#e2d8c3,#2f2a22)}
+:root[data-pal=nuit]{color-scheme:dark;--paper:#0f1726;--sea:#0a111e;--land:#1e2a3f;--border:#0a111e;--vis:#f2b84b;--vis2:#3a2e14;--head:#f2b84b;--ink:#eef2f8;--muted:#9aa7bd;--line:#243149;--onvis:#1a1405}
+:root[data-pal=magenta]{--paper:light-dark(#fbfbf2,#0f2029);--sea:light-dark(#bfe3ee,#14303c);--land:light-dark(#fbfbf2,#2a4552);--border:light-dark(#c39a74,#0d1c24);--vis:light-dark(#d6127e,#ff4fa3);--vis2:light-dark(#fbe1ef,#3d1a2e);--head:light-dark(#a8551b,#e0a070)}
 *{box-sizing:border-box;min-width:0}
 html,body{height:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 Overpass,system-ui,-apple-system,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
@@ -45,20 +46,22 @@ main{position:relative;overflow:hidden}
 .view{position:absolute;inset:0}
 .view[hidden]{display:none}
 /* carte */
-#map{width:100%;height:100%;display:block;touch-action:none;background:var(--bg2);user-select:none;-webkit-user-select:none}
+#map{width:100%;height:100%;display:block;touch-action:none;background:var(--sea);user-select:none;-webkit-user-select:none}
 #sphere{fill:var(--sea)}
-#grat{fill:none;stroke:var(--grat);stroke-width:1;vector-effect:non-scaling-stroke}
-#land path{fill:var(--land);stroke:var(--border);stroke-width:.6;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+#grat{display:none}
+#land path{fill:var(--land);stroke:var(--border);stroke-width:.8;vector-effect:non-scaling-stroke;stroke-linejoin:round}
 #land path.v{fill:var(--vis)}
 #land path.p{fill:url(#hatch)}
+#land path.v,#land path.p{stroke:var(--paper)}
 #land path.sel{stroke:var(--ink);stroke-width:2.2}
 #dots circle{fill:var(--land);stroke:var(--border);stroke-width:1;vector-effect:non-scaling-stroke}
-#dots circle.v{fill:var(--vis);stroke:var(--paper)}
+#dots circle.v{fill:var(--vis);stroke:var(--paper);stroke-width:1.5}
 #dots circle.p{fill:var(--paper);stroke:var(--vis);stroke-width:2}
-#dots circle.t0{display:none}#map.close #dots circle.t0{display:inline}
+#dots circle{display:none}#dots circle.v,#dots circle.p,#dots circle.sel,#map.close #dots circle{display:inline}
 #dots circle.sel{stroke:var(--ink);stroke-width:2.4}
-#labels text{fill:var(--ink);stroke:var(--paper);paint-order:stroke;stroke-linejoin:round;font-weight:600;text-anchor:middle;dominant-baseline:middle;pointer-events:none}
-#labels text.v{fill:var(--vis);font-weight:800}
+#labels text{fill:var(--muted);stroke:var(--paper);paint-order:stroke;stroke-linejoin:round;font-weight:600;text-anchor:middle;dominant-baseline:middle;pointer-events:none}
+#labels text.v{fill:var(--ink);font-weight:800}
+#labels text.p{fill:var(--ink)}
 .tools{position:absolute;right:max(12px,env(safe-area-inset-right));top:12px;display:flex;flex-direction:column;gap:8px}
 .tools button{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;box-shadow:0 2px 8px rgba(19,36,46,.12)}
 .tools svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -76,7 +79,7 @@ main{position:relative;overflow:hidden}
 .x{width:44px;height:44px;border:0;background:none;font-size:26px;color:var(--muted);flex:none}
 .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
 .seg button{min-height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);font-weight:600}
-.seg button[aria-pressed=true]{border-color:var(--vis);background:var(--vis);color:#fff}
+.seg button[aria-pressed=true]{border-color:var(--vis);background:var(--vis);color:var(--onvis)}
 .seg button[data-s=p][aria-pressed=true]{background:var(--vis2);color:var(--vis)}
 .seg button[data-s=""][aria-pressed=true]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
 /* listes et bilan */
@@ -86,7 +89,7 @@ main{position:relative;overflow:hidden}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
 .chips button{min-height:40px;padding:0 14px;border-radius:20px;border:1.5px solid var(--line);background:none;font-weight:600;font-size:14px}
 .chips button[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-h3{font-size:15px;margin:22px 0 6px;color:var(--brown);font-weight:800;display:flex;justify-content:space-between}
+h3{font-size:15px;margin:22px 0 6px;color:var(--head);font-weight:800;display:flex;justify-content:space-between}
 h3 span{color:var(--muted);font-weight:600}
 .rows{list-style:none;margin:0;padding:0}
 .rows li{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--line)}
@@ -94,7 +97,7 @@ h3 span{color:var(--muted);font-weight:600}
 .rows .main .f{font-size:22px;width:28px;text-align:center}
 .rows .main small{color:var(--muted);font-size:13px;margin-left:4px}
 .pill{font-size:13px;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid var(--line);color:var(--muted);white-space:nowrap}
-.pill.v{background:var(--vis);border-color:var(--vis);color:#fff}
+.pill.v{background:var(--vis);border-color:var(--vis);color:var(--onvis)}
 .pill.p{border-color:var(--vis);color:var(--vis)}
 .go{width:44px;height:44px;border:0;background:none;display:grid;place-items:center;flex:none}
 .go svg{width:20px;height:20px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -115,6 +118,11 @@ textarea{width:100%;font-size:16px;border:1.5px solid var(--line);border-radius:
 .btn{min-height:44px;padding:0 16px;border-radius:12px;border:0;background:var(--ink);color:var(--paper);font-weight:700;margin-top:8px}
 .btn.alt{background:none;border:1.5px solid var(--line);color:var(--ink)}
 .msg{font-size:14px;color:var(--vis);min-height:1.5em;margin-top:6px}
+.pals{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.pals button{border:1.5px solid var(--line);background:none;border-radius:12px;padding:8px;font-size:14px;font-weight:600;display:flex;flex-direction:column;gap:6px;align-items:center;min-height:44px}
+.pals button[aria-pressed=true]{border-color:var(--ink)}
+.pals span{display:flex;gap:4px;justify-content:center;align-items:center;width:100%;height:30px;border-radius:8px}
+.pals i{width:16px;height:16px;border-radius:50%;display:block}
 .foot{margin-top:28px;font-size:14px;color:var(--muted)}
 .foot a{color:var(--ink);font-weight:600}
 /* onglets */
@@ -202,29 +210,35 @@ function setStatus(id, s){
   if(sel === id) openSheet(id);
 }
 
+const PALS = [["lagon", "Lagon", ["#d3ebee", "#efeae0", "#0c8489"]], ["terre", "Terre cuite", ["#e2eaed", "#ffffff", "#d4562b"]], ["atlas", "Atlas ancien", ["#c5d9d2", "#f0e6cd", "#a3392a"]], ["nuit", "Nuit dorée", ["#0a111e", "#1e2a3f", "#f2b84b"]], ["magenta", "Magenta", ["#bfe3ee", "#fbfbf2", "#d6127e"]]];
+let pal = "lagon";
+try{ pal = localStorage.getItem("carte-palette") || "lagon"; }catch(e){}
+function setPal(id){ pal = id; document.documentElement.dataset.pal = id; try{ localStorage.setItem("carte-palette", id); }catch(e){} }
+setPal(pal);
 /* ---------- carte ---------- */
 const svg = $("#map");
 let k = 1, tx = 0, ty = 0, kmin = 1, cw = 0, ch = 0, sel = null;
 function build(){
   const P = M.pays;
-  const land = P.map(p => `<path data-id="${p.id}" d="${p.d}"/>`).join("");
+  const land = P.filter(p => p.id !== "ATA").map(p => `<path data-id="${p.id}" d="${p.d}"/>`).join("");
   const dots = P.filter(p => p.dot).map(p => `<circle class="t${p.t}" data-id="${p.id}" cx="${p.x}" cy="${p.y}" r="6"/>`).join("");
   const labels = P.filter(p => p.id !== "ATA").map(p => `<text data-id="${p.id}" x="${p.x}" y="${p.y}">${esc(p.n)}</text>`).join("");
-  svg.innerHTML = `<defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--land)"/><rect width="3" height="8" fill="var(--plan)"/></pattern></defs>
+  svg.innerHTML = `<defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--land)"/><rect width="3" height="8" fill="var(--vis)"/></pattern></defs>
   <g id="vp"><path id="sphere" d="${M.sphere}"/><path id="grat" d="${M.grat}"/><g id="land">${land}</g><g id="dots">${dots}</g><g id="labels">${labels}</g></g>`;
 }
-function size(){ const r = svg.getBoundingClientRect(); cw = r.width; ch = r.height; kmin = Math.min(cw / M.w, ch / M.h); }
+let B = [0, 0, 1, 1];
+function size(){ const r = svg.getBoundingClientRect(); cw = r.width; ch = r.height; kmin = Math.min(cw / (B[2] - B[0]), ch / (B[3] - B[1])); }
 function clamp(){
   k = Math.max(kmin * .9, Math.min(kmin * 40, k));
-  const mw = M.w * k, mh = M.h * k;
-  tx = mw <= cw ? (cw - mw) / 2 : Math.min(cw * .25, Math.max(cw * .75 - mw, tx));
-  ty = mh <= ch ? (ch - mh) / 2 : Math.min(ch * .25, Math.max(ch * .75 - mh, ty));
+  const mw = (B[2] - B[0]) * k, mh = (B[3] - B[1]) * k, ox = B[0] * k, oy = B[1] * k;
+  tx = mw <= cw ? (cw - mw) / 2 - ox : Math.min(cw * .25 - ox, Math.max(cw * .75 - mw - ox, tx));
+  ty = mh <= ch ? (ch - mh) / 2 - oy : Math.min(ch * .25 - oy, Math.max(ch * .75 - mh - oy, ty));
 }
 let raf = 0, detailT = 0;
 function apply(){
   clamp();
   $("#vp").setAttribute("transform", `translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${k.toFixed(5)})`);
-  const g = $("#labels"); g.setAttribute("font-size", (12 / k).toFixed(3)); g.setAttribute("stroke-width", (3 / k).toFixed(3));
+  const g = $("#labels"); g.setAttribute("font-size", (11.5 / k).toFixed(3)); g.setAttribute("stroke-width", (3 / k).toFixed(3));
   clearTimeout(detailT); detailT = setTimeout(detail, 60);
 }
 function req(){ if(!raf) raf = requestAnimationFrame(() => { raf = 0; apply(); }); }
@@ -235,7 +249,7 @@ function detail(){
   pat.setAttribute("width", h); pat.setAttribute("height", h);
   pat.children[0].setAttribute("width", h); pat.children[0].setAttribute("height", h); pat.children[1].setAttribute("width", h * .42); pat.children[1].setAttribute("height", h);
   const z = k / kmin;
-  svg.classList.toggle("close", z > 3);
+  svg.classList.toggle("close", z > 2.6);
   document.querySelectorAll("#labels text").forEach(t => {
     const p = BY[t.dataset.id], w = (p.b[2] - p.b[0]) * k, show = p.id === sel || (z > 1.7 && w > p.n.length * 6.5 + 8) || (p.dot && z > 7);
     t.style.display = show ? "" : "none";
@@ -261,11 +275,13 @@ function mineBox(){
   return b;
 }
 let showingWorld = false;
-function fitMine(anim){ const b = mineBox(); showingWorld = !b; fitBox(b || [0, 0, M.w, M.h], 20, anim); }
+function fitMine(anim){ const b = mineBox(); if(!b){ worldView(); return; } showingWorld = false; fitBox(b, 20, anim); }
 const zc = () => { if(sel){ const b = BY[sel].b, x = tx + (b[0] + b[2]) / 2 * k, y = ty + (b[1] + b[3]) / 2 * k; if(x > 0 && x < cw && y > 0 && y < ch) return [x, y]; } return [cw / 2, ch / 2]; };
 $("#z-in").onclick = () => zoomAt(...zc(), 1.8);
 $("#z-out").onclick = () => zoomAt(...zc(), 1 / 1.8);
-$("#z-fit").onclick = () => { if(showingWorld){ fitMine(true); } else { showingWorld = true; fitBox([0, 0, M.w, M.h], 4); } };
+function worldView(){ const kk = Math.max(kmin, ch / (B[3] - B[1]) * .62), bw = cw / kk, bh = ch / kk, cx = M.w * .56, cy = (B[1] + B[3]) / 2;
+  showingWorld = true; fitBox([cx - bw / 2, cy - bh / 2, cx + bw / 2, cy + bh / 2], 0); }
+$("#z-fit").onclick = () => { if(showingWorld) fitMine(true); else worldView(); };
 
 /* gestes : glisser, pincer, toucher */
 const pts = new Map(); let moved = false, down = null, last = null;
@@ -338,7 +354,7 @@ $("#q").oninput = renderList;
 const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 function renderList(){
   const q = norm($("#q").value.trim());
-  const items = M.pays.filter(p => p.id !== "ATA" || q).filter(p => {
+  const items = M.pays.filter(p => p.id !== "ATA").filter(p => {
     const s = st(p.id);
     if(filt === "v" && s !== "v") return false; if(filt === "p" && s !== "p") return false; if(filt === "n" && s) return false;
     return !q || norm(p.n).includes(q);
@@ -374,6 +390,8 @@ function renderStats(){
   <h3>Pays visités<span>${V.length}</span></h3>${tag(V)}
   <h3>Pays prévus<span>${P.length}</span></h3>${tag(P)}
   ${terr.length ? `<h3>Territoires visités<span>${terr.length}</span></h3>${tag(terr)}` : ""}
+  <h3>Couleurs</h3>
+  <div class="pals">${PALS.map(([id, n, c]) => `<button data-p="${id}" aria-pressed="${id === pal}"><span style="background:${c[0]}"><i style="background:${c[1]}"></i><i style="background:${c[2]}"></i></span>${n}</button>`).join("")}</div>
   <h3>Sauvegarde</h3>
   <div class="box">
     <p>Tes coches sont enregistrées dans ce téléphone. Garde ce code quelque part (Notes, message à Claude) pour les retrouver si besoin.</p>
@@ -389,6 +407,7 @@ function renderStats(){
 function code(){ const ids = s => M.pays.filter(p => st(p.id) === s).map(p => p.id).join(","); return `CARTE1:V=${ids("v")};P=${ids("p")}`; }
 $("#stats").onclick = e => {
   const g = e.target.closest("[data-go]"); if(g){ goMap(g.dataset.go); return; }
+  const pb = e.target.closest("[data-p]"); if(pb){ setPal(pb.dataset.p); renderStats(); return; }
   if(e.target.id === "bk-copy"){
     const ta = $("#bk-out");
     const ok = () => $("#bk-msg").textContent = "Code copié.";
@@ -412,6 +431,7 @@ async function start(){
     fetch("mes-pays.json", {cache: "no-cache"}).then(r => r.json()).catch(() => ({}))
   ]);
   M = m; M.pays.forEach(p => BY[p.id] = p);
+  const vis = M.pays.filter(p => p.id !== "ATA"); B = [0, Math.min(...vis.map(p => p.b[1])) - 20, M.w, Math.max(...vis.map(p => p.b[3])) + 20];
   (b.visites || []).forEach(id => base[id] = "v"); (b.prevus || []).forEach(id => base[id] = "p");
   build(); size(); paint(); renderStats(); fitMine(false);
   setTimeout(() => $("#hint").style.opacity = 0, 3500);
