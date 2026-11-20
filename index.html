@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Carnet d'histoire</title>
+<meta name="description" content="Quiz d'histoire des pays traversés pendant mon voyage">
+<meta name="theme-color" content="#F2F4F8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D1320" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Histoire">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout : app mobile une colonne, deux onglets fixes en bas, feuilles qui montent du bas pour les détails.
+   Palette : bleu lapis et turquoise des faïences de Samarcande, safran pour l'itinéraire. */
+:root{
+  --bg:#F2F4F8; --surface:#FFFFFF; --surface2:#E8EDF4; --ink:#13203A; --muted:#5A6A82; --line:#D8E0EB;
+  --lapis:#1D4C9E; --lapis-ink:#FFFFFF; --turq:#0B8582; --saffron:#C98A0E; --saffron-soft:#FBF0D6;
+  --good:#1C7F47; --good-soft:#E2F4EA; --bad:#B83A33; --bad-soft:#FBE7E5;
+  --sea:#D9E6F2; --land:#FFFFFF; --land-line:#B9C6D6; --visited:#CBDDF6; --current:#8FB4EC;
+  --f-display:"Bricolage Grotesque", ui-rounded, system-ui, sans-serif;
+  --f-body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1320; --surface:#161F31; --surface2:#1E2A40; --ink:#E7ECF4; --muted:#95A4BB; --line:#26334C;
+  --lapis:#7DA5F0; --lapis-ink:#0D1320; --turq:#3EC2BE; --saffron:#F0BD4C; --saffron-soft:#3A2F14;
+  --good:#52C584; --good-soft:#153324; --bad:#F2776C; --bad-soft:#3D1D1B;
+  --sea:#0E1A2C; --land:#1F2B41; --land-line:#3A4B68; --visited:#27416D; --current:#3B66AE; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1320; --surface:#161F31; --surface2:#1E2A40; --ink:#E7ECF4; --muted:#95A4BB; --line:#26334C;
+  --lapis:#7DA5F0; --lapis-ink:#0D1320; --turq:#3EC2BE; --saffron:#F0BD4C; --saffron-soft:#3A2F14;
+  --good:#52C584; --good-soft:#153324; --bad:#F2776C; --bad-soft:#3D1D1B;
+  --sea:#0E1A2C; --land:#1F2B41; --land-line:#3A4B68; --visited:#27416D; --current:#3B66AE; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.app{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px calc(32px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:1.9rem;line-height:1.1}
+h2{font-size:1.3rem;line-height:1.2}
+h3{font-size:1.05rem}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--lapis)}
+:focus-visible{outline:2px solid var(--lapis);outline-offset:2px}
+.eyebrow{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.view{display:flex;flex-direction:column;gap:20px}
+.hero{display:flex;flex-direction:column;gap:6px}
+.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:600;background:var(--surface2);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;text-decoration:none;color:var(--ink);text-align:center}
+.btn.primary{background:var(--lapis);color:var(--lapis-ink)}
+.btn.ghost{background:transparent;border:1px solid var(--line)}
+.btn.sm{min-height:36px;padding:8px 12px;font-size:.88rem}
+.btn:disabled{opacity:.5;cursor:default}
+.grow{flex:1}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 4px 4px;scrollbar-width:none;margin-inline:-4px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:.9rem;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip small{opacity:.7;margin-left:4px;font-size:.78rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.filters{display:flex;flex-direction:column;gap:6px}
+.filters .eyebrow{padding-left:2px}
+
+/* Révision */
+.due{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.due div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.due b{display:block;font-family:var(--f-display);font-size:1.45rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.due span{font-size:.78rem;color:var(--muted)}
+.due .hot b{color:var(--saffron)}
+
+/* Cartes */
+.mapcard{padding:0;overflow:hidden}
+.mapcard header{padding:14px 16px 10px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.map{display:block;width:100%;height:auto;background:var(--sea)}
+.map .land{fill:var(--land);stroke:var(--land-line);stroke-width:.6;stroke-linejoin:round}
+.map .land.visited{fill:var(--visited)}
+.map .land.current{fill:var(--current)}
+.map .grat{stroke:var(--land-line);stroke-width:.5;fill:none;stroke-dasharray:2 3;opacity:.7}
+.map .path{stroke:var(--saffron);stroke-width:2.2;fill:none;stroke-dasharray:5 4;stroke-linecap:round}
+.map .dot{fill:var(--lapis);stroke:var(--surface);stroke-width:2}
+.map .num{fill:var(--lapis-ink);font-size:9.5px;font-weight:700;font-family:var(--f-body);pointer-events:none}
+.map .lab{fill:var(--ink);font-size:10px;font-weight:600;font-family:var(--f-body);paint-order:stroke;stroke:var(--land);stroke-width:3px;stroke-linejoin:round}
+.map .cap{fill:var(--ink);opacity:.75}
+.map .pin{fill:var(--saffron);stroke:var(--surface);stroke-width:2.5}
+.map .hit{fill:transparent;cursor:pointer}
+.legend{display:flex;gap:6px 14px;flex-wrap:wrap;padding:10px 16px 14px;font-size:.82rem;color:var(--muted)}
+.legend b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* Pays */
+.countries{display:flex;flex-direction:column;gap:8px}
+.country{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;text-align:left;width:100%}
+.country .flag{font-size:1.7rem;line-height:1}
+.country .nm{font-weight:600}
+.country .sub{font-size:.82rem;color:var(--muted)}
+.country .sub .hot{color:var(--saffron);font-weight:600}
+.step{font-family:var(--f-display);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{display:flex;height:5px;border-radius:9px;background:var(--surface2);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%}
+.bar .b1{background:var(--turq)} .bar .b2{background:var(--saffron)}
+
+/* Quiz */
+.qcard{display:flex;flex-direction:column;gap:16px}
+.qmeta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.86rem;color:var(--muted)}
+.tag{display:inline-block;background:var(--surface2);border-radius:999px;padding:3px 10px;font-size:.78rem;font-weight:600;color:var(--muted)}
+.tag.new{background:var(--saffron-soft);color:var(--saffron)}
+.qtext{font-family:var(--f-display);font-size:1.35rem;line-height:1.25;font-weight:600;text-wrap:pretty}
+.choices{display:flex;flex-direction:column;gap:8px}
+.choice{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:13px 14px;min-height:50px;display:flex;gap:10px;align-items:center}
+.choice .k{flex:none;width:26px;height:26px;border-radius:50%;background:var(--surface2);display:grid;place-items:center;font-size:.8rem;font-weight:600}
+.choice.ok{border-color:var(--good);background:var(--good-soft)}
+.choice.ok .k{background:var(--good);color:var(--surface)}
+.choice.ko{border-color:var(--bad);background:var(--bad-soft)}
+.choice.ko .k{background:var(--bad);color:var(--surface)}
+.choice:disabled{cursor:default;color:var(--ink)}
+.verdict{border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.verdict.ok{background:var(--good-soft)} .verdict.ko{background:var(--bad-soft)}
+.verdict strong{font-family:var(--f-display);font-size:1.05rem}
+.verdict.ok strong{color:var(--good)} .verdict.ko strong{color:var(--bad)}
+.verdict .next{font-size:.86rem;color:var(--muted)}
+.score{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink)}
+.selinfo{font-size:.86rem;color:var(--muted)}
+
+/* Feuille */
+.sheet{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;justify-content:flex-end}
+.sheet .scrim{position:absolute;inset:0;background:rgba(8,12,22,.45)}
+.sheet .panel{position:relative;background:var(--bg);border-radius:20px 20px 0 0;max-height:calc(100% - env(safe-area-inset-top,0px) - 24px);display:flex;flex-direction:column;animation:up .22s ease-out;width:100%;max-width:640px;margin:0 auto}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet .panel{animation:none}}
+.sheet .bar-top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:14px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+.sheet .body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px max(16px,env(safe-area-inset-right,0px)) calc(28px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:18px}
+.close{border:0;background:var(--surface2);width:36px;height:36px;border-radius:50%;font-size:1.1rem;flex:none}
+.answerline{background:var(--saffron-soft);border-radius:12px;padding:12px 14px}
+.answerline .eyebrow{color:var(--saffron)}
+.prose{display:flex;flex-direction:column;gap:10px;max-width:65ch}
+.prose ul{margin:0;padding-left:20px}
+.thinking{color:var(--muted);font-style:italic}
+.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.timeline li{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+.timeline li:first-child{border-top:0}
+.timeline .y{font-family:var(--f-display);font-weight:700;color:var(--lapis);font-variant-numeric:tabular-nums}
+.links{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.links a{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 6px;font-size:.85rem;font-weight:600;text-align:center}
+.links svg{width:22px;height:22px;stroke:var(--lapis);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.minimap{border-radius:12px;border:1px solid var(--line);overflow:hidden;background:var(--surface)}
+.minimap p{padding:10px 14px;font-size:.88rem}
+.pergroup{display:flex;flex-direction:column}
+.pergroup h3{font-size:.98rem;padding-top:10px}
+.pergroup .r{font-size:.8rem;color:var(--muted);font-weight:500;font-family:var(--f-body)}
+.qlist button{text-align:left;border:0;background:none;padding:11px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:10px;align-items:baseline;width:100%}
+.st{font-size:.76rem;font-weight:600;white-space:nowrap;color:var(--muted)}
+.st.due{color:var(--saffron)} .st.new{color:var(--lapis)}
+.notice{border-radius:12px;padding:12px 14px;background:var(--saffron-soft);font-size:.92rem}
+.err{color:var(--bad);font-size:.92rem}
+.danger{color:var(--bad)}
+
+/* En-tête et menu */
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;position:relative}
+.menu-btn{flex:none;border:1px solid var(--line);background:var(--surface);width:44px;height:44px;border-radius:12px;display:grid;place-items:center}
+.menu-btn svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round}
+.menu{position:absolute;right:0;top:52px;z-index:25;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(8,12,22,.18);min-width:240px;padding:6px;display:flex;flex-direction:column}
+.menu button{border:0;background:none;text-align:left;padding:12px;border-radius:10px;display:flex;gap:12px;align-items:center;font-weight:600}
+.menu button:hover,.menu button:focus-visible{background:var(--surface2)}
+.menu svg{width:20px;height:20px;stroke:var(--lapis);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.menu small{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
+.strip{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:.88rem;color:var(--muted)}
+.strip b{color:var(--ink);font-variant-numeric:tabular-nums}
+.strip .hot b{color:var(--saffron)}
+.done{display:flex;flex-direction:column;gap:12px;text-align:left}
+.done .big{font-family:var(--f-display);font-size:1.3rem;font-weight:700}
+/* Statistiques */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.kpis div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.kpis b{display:block;font-family:var(--f-display);font-size:1.5rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.kpis span{font-size:.8rem;color:var(--muted)}
+.srow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.srow .v{font-variant-numeric:tabular-nums;font-size:.88rem;color:var(--muted);text-align:right}
+.srow .bar{grid-column:1 / -1;margin-top:4px}
+.srow button{all:unset;cursor:pointer}
+.skeleton{height:120px;border-radius:var(--r);background:var(--surface2)}
+</style>
+
+<div class="app view">
+  <header class="top">
+    <div class="hero">
+      <span class="eyebrow" id="h-eyebrow">Carnet de route</span>
+      <h1>Carnet d'histoire</h1>
+    </div>
+    <button class="menu-btn" id="menu-btn" aria-label="Menu" aria-haspopup="true" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="menu" id="menu" hidden role="menu">
+      <button role="menuitem" data-act="stats"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Statistiques<small>Ta progression par pays et par époque</small></span></button>
+      <button role="menuitem" data-act="countries"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><span>Mes pays<small>Itinéraire, questions par pays</small></span></button>
+      <button role="menuitem" data-act="add-country"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>Ajouter un pays<small>Claude prépare les questions</small></span></button>
+      <button role="menuitem" data-act="backup"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/></svg><span>Sauvegarde<small>Exporter ou importer ta progression</small></span></button>
+    </div>
+  </header>
+  <div class="strip" id="strip"></div>
+  <div class="filters">
+    <span class="eyebrow">Pays</span>
+    <div class="chips" id="f-country" role="group" aria-label="Choisir un pays"></div>
+    <span class="eyebrow" style="margin-top:6px">Période</span>
+    <div class="chips" id="f-period" role="group" aria-label="Choisir une période"></div>
+    <p class="selinfo" id="f-info"></p>
+  </div>
+  <div id="quiz-body"><div class="skeleton"></div></div>
+</div>
+
+<div id="sheet-root"></div>
+
+<script>
+(() => {
+"use strict";
+const STANDALONE = true;
+/* ---------- état ---------- */
+const S = {
+  countries: [], db: null, sample: null, loaded: false,
+  srs: load("qh-srs", {}),
+  quiz: { country: "all", period: "all", cur: null, answered: null, score: 0, total: 0, recent: [] }
+};
+function load(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
+function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])).replace(/ ([?!:;»%])/g, "\u00a0$1").replace(/« /g, "«\u00a0");
+const slug = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,60) || ("pays-" + Date.now());
+const allQ = () => S.countries.flatMap(c => (c.questions||[]).map(q => ({...q, cid:c.id})));
+const byId = id => S.countries.find(c => c.id === id);
+const periodOf = (c, q) => (c?.periods||[]).find(p => p.id === q.per);
+const L = ["A","B","C","D","E"];
+const pl = (n, w) => `${n} ${w}${n > 1 ? "s" : ""}`;
+
+/* Grandes époques pour le mode « tous les pays » */
+const ERAS = [
+  { id:"e1", n:"Avant 1800", t:y => y < 1800 },
+  { id:"e2", n:"XIXe siècle", t:y => y >= 1800 && y < 1914 },
+  { id:"e3", n:"1914-1945", t:y => y >= 1914 && y < 1945 },
+  { id:"e4", n:"1945-1991", t:y => y >= 1945 && y < 1991 },
+  { id:"e5", n:"Depuis 1991", t:y => y >= 1991 }
+];
+
+/* ---------- révision espacée ---------- */
+const MIN = 6e4, DAY = 864e5;
+const STEPS = [10*MIN, 1*DAY, 3*DAY, 7*DAY, 16*DAY, 35*DAY, 90*DAY];
+function srsState(qid, now = Date.now()){
+  const s = S.srs[qid];
+  if(!s) return "new";
+  return s.due <= now ? "due" : "later";
+}
+function review(qid, ok){
+  const now = Date.now();
+  const s = S.srs[qid] || { b: 0, ok: 0, ko: 0 };
+  if(ok){ s.b = Math.min((S.srs[qid] ? s.b : 0) + 1, STEPS.length - 1); s.ok++; }
+  else { s.b = 0; s.ko++; }
+  s.due = now + STEPS[s.b]; s.last = now;
+  S.srs[qid] = s; save("qh-srs", S.srs);
+  return s;
+}
+function inWords(ms){
+  if(ms < 60*MIN) return "dans " + Math.max(1, Math.round(ms/MIN)) + " minutes";
+  const d = Math.round(ms/DAY);
+  if(d <= 1) return "demain";
+  if(d < 14) return "dans " + d + " jours";
+  if(d < 60) return "dans " + Math.round(d/7) + " semaines";
+  return "dans " + Math.round(d/30) + " mois";
+}
+function laterLabel(qid){
+  const s = S.srs[qid]; if(!s) return "nouvelle";
+  const ms = s.due - Date.now();
+  if(ms <= 0) return "à revoir";
+  return inWords(ms).replace("dans ", "dans ");
+}
+function counts(qs){
+  const now = Date.now(); let due = 0, nw = 0, learned = 0;
+  for(const q of qs){ const st = srsState(q.id, now); if(st === "due" || (st === "later" && S.srs[q.id].b === 0)) due++; else if(st === "new") nw++; else learned++; }
+  return { due, nw, learned, n: qs.length };
+}
+
+/* ---------- menu ---------- */
+const menu = $("#menu"), menuBtn = $("#menu-btn");
+function toggleMenu(open){ menu.hidden = !open; menuBtn.setAttribute("aria-expanded", String(open)); }
+menuBtn.addEventListener("click", () => toggleMenu(menu.hidden));
+document.addEventListener("click", e => { if(!menu.hidden && !e.target.closest("#menu") && !e.target.closest("#menu-btn")) toggleMenu(false); }, true);
+document.addEventListener("keydown", e => { if(e.key === "Escape") toggleMenu(false); });
+
+/* ---------- données ---------- */
+function setCountries(list, persist){
+  S.countries = list.slice().sort((a,b) => (a.order||0) - (b.order||0));
+  S.loaded = true;
+  if(persist) save("qh-cache2", S.countries);
+  renderAll();
+}
+async function initData(){
+  const cached = load("qh-cache2", null);
+  if(cached && cached.length) setCountries(cached, false);
+  if(STANDALONE){
+    try{
+      const r = await fetch("pays.json", { cache: "no-cache" });
+      if(!r.ok) throw new Error(r.status);
+      setCountries(await r.json(), true);
+    }catch(e){ if(!S.loaded){ S.loaded = true; renderAll(); } }
+    return;
+  }
+  let db = null;
+  try{ db = window.claude && await window.claude.use("db"); }catch(e){ db = null; }
+  S.db = db;
+  if(!db){ if(!S.loaded){ S.loaded = true; renderAll(); } return; }
+  const timer = setTimeout(() => { if(!S.countries.length){ S.loaded = true; renderAll(); } }, 10000);
+  db.collection("countries").onSnapshot(snap => {
+    clearTimeout(timer);
+    setCountries(snap.docs.map(d => ({ id: d.id, ...d.data() })), !snap.docs.some(d => d.metadata && d.metadata.fromCache));
+  }, () => { clearTimeout(timer); S.loaded = true; renderAll(); });
+}
+async function getSample(){
+  if(S.sample) return S.sample;
+  try{ S.sample = window.claude && await window.claude.use("sample"); }catch(e){ S.sample = null; }
+  return S.sample;
+}
+
+/* ---------- fond de carte ---------- */
+const WORLD = { feats: null, state: "loading" };
+function decodeWorld(json){
+  const scale = json.UTF8Scale || 1024;
+  const dec = (str, off) => {
+    let px = off[0], py = off[1]; const out = [];
+    for(let i = 0; i < str.length; i += 2){
+      let x = str.charCodeAt(i) - 64, y = str.charCodeAt(i+1) - 64;
+      x = (x >> 1) ^ (-(x & 1)); y = (y >> 1) ^ (-(y & 1));
+      x += px; y += py; px = x; py = y;
+      out.push([x/scale, y/scale]);
+    }
+    return out;
+  };
+  const feats = [];
+  for(const f of json.features || []){
+    const g = f.geometry; if(!g) continue;
+    let polys, offs;
+    if(g.type === "Polygon"){ polys = [g.coordinates]; offs = [g.encodeOffsets]; }
+    else if(g.type === "MultiPolygon"){ polys = g.coordinates; offs = g.encodeOffsets; }
+    else continue;
+    polys = polys.map((poly, pi) => poly.map((ring, ri) => typeof ring === "string" ? dec(ring, offs[pi][ri]) : ring));
+    let x0 = 180, x1 = -180, y0 = 90, y1 = -90;
+    for(const poly of polys) for(const ring of poly) for(const [x,y] of ring){ if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; }
+    feats.push({ name: (f.properties && f.properties.name) || "", key: norm((f.properties && f.properties.name) || ""), polys, bb:[x0,y0,x1,y1] });
+  }
+  return feats;
+}
+function norm(s){ return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z]/g,""); }
+const ALIAS = { kyrgyzstan:["kyrgyzrepublic","kirghizistan"], vietnam:["vietnam","vietnam"], china:["china","peoplesrepublicofchina"], laos:["laopdr","lao"], southkorea:["korea","republicofkorea"], northkorea:["dempreprkorea","democraticpeoplesrepublicofkorea"], russia:["russianfederation"], iran:["iranislamicrepublicof"] };
+function matchKey(en){
+  const k = norm(en); const keys = new Set([k, ...(ALIAS[k]||[])]);
+  return f => keys.has(f.key);
+}
+function loadWorld(){
+  const srcs = ["https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js", "https://unpkg.com/echarts@4.9.0/map/js/world.js"];
+  let raw = null;
+  if(!window.echarts) window.echarts = { registerMap(name, json){ if(name === "world") raw = json; } };
+  const tryNext = i => {
+    if(i >= srcs.length){ WORLD.state = "failed"; renderMaps(); return; }
+    const s = document.createElement("script");
+    s.src = srcs[i]; s.async = true;
+    s.onload = () => {
+      if(!raw){ tryNext(i+1); return; }
+      try{ WORLD.feats = decodeWorld(raw); WORLD.state = "ok"; }catch(e){ WORLD.state = "failed"; }
+      renderMaps();
+    };
+    s.onerror = () => tryNext(i+1);
+    document.head.appendChild(s);
+  };
+  tryNext(0);
+  setTimeout(() => { if(WORLD.state === "loading"){ WORLD.state = "failed"; renderMaps(); } }, 15000);
+}
+
+/* projection équirectangulaire corrigée à la latitude moyenne */
+function project(points, W, H, pad, minSpanX, minSpanY){
+  const lats = points.map(p => p.lat), lons = points.map(p => p.lon);
+  const minLa = Math.min(...lats), maxLa = Math.max(...lats), minLo = Math.min(...lons), maxLo = Math.max(...lons);
+  const cy = (minLa+maxLa)/2, cx = (minLo+maxLo)/2;
+  const k = Math.cos(cy * Math.PI/180);
+  const spanX = Math.max((maxLo-minLo)*k, minSpanX), spanY = Math.max(maxLa-minLa, minSpanY);
+  const s = Math.min((W-2*pad)/spanX, (H-2*pad)/spanY);
+  const f = (lat, lon) => [W/2 + (lon-cx)*k*s, H/2 - (lat-cy)*s];
+  const view = [cx - (W/2)/(k*s), cy - (H/2)/s, cx + (W/2)/(k*s), cy + (H/2)/s];
+  return { f, s, k, cx, cy, W, H, view };
+}
+function landSVG(P, visited, current){
+  if(!WORLD.feats) return "";
+  const [vx0, vy0, vx1, vy1] = P.view;
+  const isV = visited.map(matchKey), isC = current ? matchKey(current) : null;
+  let out = "";
+  for(const f of WORLD.feats){
+    const [x0,y0,x1,y1] = f.bb;
+    if(x1 < vx0 || x0 > vx1 || y1 < vy0 || y0 > vy1) continue;
+    let d = "";
+    for(const poly of f.polys) for(const ring of poly){
+      let lx = null, ly = null, seg = "";
+      for(const [lon, lat] of ring){
+        const [x, y] = P.f(lat, lon);
+        if(lx !== null && Math.abs(x-lx) < .7 && Math.abs(y-ly) < .7) continue;
+        seg += (seg ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
+        lx = x; ly = y;
+      }
+      if(seg) d += seg + "Z";
+    }
+    if(!d) continue;
+    const cls = isC && isC(f) ? "land current" : isV.some(m => m(f)) ? "land visited" : "land";
+    out += `<path class="${cls}" d="${d}"><title>${esc(f.name)}</title></path>`;
+  }
+  return out;
+}
+function gratSVG(P, step){
+  if(WORLD.feats) return "";
+  const [vx0, vy0, vx1, vy1] = P.view; let out = "";
+  for(let lo = Math.ceil(vx0/step)*step; lo <= vx1; lo += step){ const [x] = P.f(P.cy, lo); out += `<line class="grat" x1="${x.toFixed(1)}" y1="0" x2="${x.toFixed(1)}" y2="${P.H}"/>`; }
+  for(let la = Math.ceil(vy0/step)*step; la <= vy1; la += step){ const [,y] = P.f(la, P.cx); out += `<line class="grat" x1="0" y1="${y.toFixed(1)}" x2="${P.W}" y2="${y.toFixed(1)}"/>`; }
+  return out;
+}
+function routeSVG(){
+  const cs = S.countries.filter(c => c.cap && isFinite(c.cap.lat));
+  if(!cs.length) return "";
+  const W = 400, H = 250, P = project(cs.map(c => c.cap), W, H, 30, 12, 8);
+  const pts = cs.map(c => P.f(c.cap.lat, c.cap.lon));
+  const d = pts.map((p,i) => (i?"L":"M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+  let g = "";
+  cs.forEach((c,i) => {
+    const [x,y] = pts[i];
+    g += `<circle class="dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="8.5"/>
+      <text class="num" x="${x.toFixed(1)}" y="${(y+3.4).toFixed(1)}" text-anchor="middle">${i+1}</text>
+      <circle class="hit" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="16" data-country="${esc(c.id)}"><title>${esc(c.name)}</title></circle>`;
+  });
+  return `<svg class="map" viewBox="0 0 ${W} ${H}" role="img" aria-label="Itinéraire de ${esc(cs[0].name)} à ${esc(cs[cs.length-1].name)}">
+    ${landSVG(P, cs.map(c => c.en || c.name), null)}${gratSVG(P, 10)}<path class="path" d="${d}"/>${g}</svg>`;
+}
+function miniMapSVG(q, c){
+  const W = 400, H = 240;
+  const pts = [q.p]; if(c && c.cap) pts.push(c.cap);
+  const P = project(pts, W, H, 44, 9, 6);
+  let g = "";
+  S.countries.forEach(x => {
+    if(!x.cap) return; const [cx, cy] = P.f(x.cap.lat, x.cap.lon);
+    if(cx < 8 || cx > W-8 || cy < 8 || cy > H-8) return;
+    g += `<circle class="cap" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="2.6"/><text class="lab" x="${(cx+5).toFixed(1)}" y="${(cy-5).toFixed(1)}">${esc(x.cap.n)}</text>`;
+  });
+  const [px, py] = P.f(q.p.lat, q.p.lon);
+  g += `<circle class="pin" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="8.5"/><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="2.8" fill="var(--surface)"/>`;
+  return `<svg class="map" viewBox="0 0 ${W} ${H}" role="img" aria-label="Situation de ${esc(q.p.n)}">${landSVG(P, S.countries.map(x => x.en || x.name), c?.en || c?.name)}${gratSVG(P, 5)}${g}</svg>`;
+}
+function renderMaps(){
+  const r = $("#route-map"); if(r) r.innerHTML = routeSVG();
+  const m = $("#mini-map"); if(m && m.dataset.q){ const q = allQ().find(x => x.id === m.dataset.q); if(q) m.innerHTML = miniMapSVG(q, byId(q.cid)); }
+}
+
+/* ---------- en-tête ---------- */
+function renderTop(){
+  if(!S.loaded) return;
+  const n = S.countries.length, qs = allQ(), ct = counts(qs);
+  $("#h-eyebrow").textContent = n ? `${n} pays · ${qs.length} questions` : "Carnet de route";
+  $("#strip").innerHTML = n ? `<span class="${ct.due ? "hot" : ""}"><b>${ct.due}</b> à revoir maintenant</span><span><b>${ct.nw}</b> jamais vues</span><span><b>${ct.learned}</b> en mémoire</span>` : "";
+}
+
+/* ---------- mes pays ---------- */
+function openCountries(){
+  const html = `
+    <div class="card mapcard">
+      <header><h3>Mon itinéraire</h3><span class="muted small">Touche une étape</span></header>
+      <div id="route-map">${routeSVG()}</div>
+      ${WORLD.state === "failed" ? `<p class="legend">Le fond de carte n'a pas pu se charger. Vérifie ta connexion.</p>` : ""}
+    </div>
+    <div class="countries">${S.countries.map((c,i) => { const k = counts((c.questions||[]).map(q => ({id:q.id}))); return `
+      <button class="country" data-act="open-country" data-country="${esc(c.id)}">
+        <span class="flag" aria-hidden="true">${esc(c.flag||"🏳️")}</span>
+        <span><span class="nm">${esc(c.name)}</span><br><span class="sub">${k.n} questions · ${k.due ? `<span class="hot">${k.due} à revoir</span> · ` : ""}${k.nw} jamais vues</span>
+          <span class="bar"><i class="b1" style="width:${k.n ? k.learned/k.n*100 : 0}%"></i><i class="b2" style="width:${k.n ? k.due/k.n*100 : 0}%"></i></span></span>
+        <span class="step">Étape ${i+1}</span>
+      </button>`; }).join("")}</div>
+    ${S.db ? `<button class="btn" data-act="add-country">+ Ajouter un pays</button>` : `<p class="muted small">${STANDALONE ? "Pour ajouter un pays, demande-le à Claude dans ton projet « Quizz histoire » : il mettra le site à jour." : "Version hors ligne : connecte-toi à Claude pour ajouter des pays."}</p>`}`;
+  openSheet("Mes pays", html);
+}
+
+/* ---------- statistiques ---------- */
+function statOf(qs){
+  let ok = 0, ko = 0, seen = 0, solid = 0;
+  for(const q of qs){ const s = S.srs[q.id]; if(s){ seen++; ok += s.ok||0; ko += s.ko||0; if(s.b >= 4) solid++; } }
+  return { n: qs.length, seen, ok, ko, solid, rate: ok+ko ? Math.round(ok/(ok+ko)*100) : null };
+}
+function statRow(label, qs, act){
+  const st = statOf(qs), k = counts(qs);
+  return `<div class="srow">${act ? `<button ${act}>${label}</button>` : `<span>${label}</span>`}
+    <span class="v">${st.seen}/${st.n} vues${st.rate !== null ? ` · ${st.rate} %` : ""}</span>
+    <span class="bar"><i class="b1" style="width:${k.n ? k.learned/k.n*100 : 0}%"></i><i class="b2" style="width:${k.n ? k.due/k.n*100 : 0}%"></i></span></div>`;
+}
+function openStats(){
+  const qs = allQ(), st = statOf(qs), ct = counts(qs), now = Date.now();
+  const endDay = new Date(); endDay.setHours(23,59,59,999);
+  const dues = qs.map(q => S.srs[q.id]?.due).filter(Boolean);
+  const today = dues.filter(d => d <= endDay.getTime()).length;
+  const week = dues.filter(d => d <= now + 7*DAY).length;
+  const weak = qs.filter(q => (S.srs[q.id]?.ko||0) > 0).sort((a,b) => ((S.srs[b.id].ko - S.srs[b.id].ok) - (S.srs[a.id].ko - S.srs[a.id].ok))).slice(0, 6);
+  const html = `
+    <div class="kpis">
+      <div><b>${st.seen}<span style="font-size:.9rem;color:var(--muted)"> / ${st.n}</span></b><span>questions déjà vues</span></div>
+      <div><b>${st.rate === null ? "–" : st.rate + " %"}</b><span>de bonnes réponses</span></div>
+      <div><b>${st.solid}</b><span>bien ancrées (révision dans 2 semaines ou plus)</span></div>
+      <div><b>${ct.due}</b><span>à revoir maintenant</span></div>
+    </div>
+    <div class="stack" style="gap:4px"><span class="eyebrow">Révisions à venir</span>
+      <p class="small">${today} d'ici ce soir · ${week} dans les 7 prochains jours</p></div>
+    <div class="stack" style="gap:0"><span class="eyebrow">Par pays</span>
+      ${S.countries.map(c => statRow(`${esc(c.flag||"")} ${esc(c.name)}`, qs.filter(q => q.cid === c.id), `data-act="quiz-country" data-country="${esc(c.id)}"`)).join("")}</div>
+    <div class="stack" style="gap:0"><span class="eyebrow">Par époque</span>
+      ${ERAS.map(e => statRow(esc(e.n), qs.filter(q => e.t(q.y ?? 0)), `data-act="quiz-era" data-era="${e.id}"`)).join("")}</div>
+    ${weak.length ? `<div class="stack" style="gap:0"><span class="eyebrow">Les plus souvent ratées</span>
+      <div class="qlist">${weak.map(q => `<button data-act="detail" data-q="${esc(q.id)}"><span>${esc(q.q)}</span><span class="st due">${S.srs[q.id].ko} ✗</span></button>`).join("")}</div></div>` : ""}
+    <p class="muted small">Une question ratée revient dans 10 minutes. Une question réussie revient de plus en plus tard : demain, puis 3 jours, 1 semaine, 16 jours, 35 jours et 3 mois. Ta progression est enregistrée sur cet appareil.</p>
+    <div id="reset-zone"><button class="btn ghost sm danger" data-act="reset-ask">Remettre ma progression à zéro</button></div>`;
+  openSheet("Statistiques", html);
+}
+
+/* ---------- quiz ---------- */
+function filtered(){
+  let qs = allQ();
+  const { country, period } = S.quiz;
+  if(country !== "all") qs = qs.filter(q => q.cid === country);
+  if(period !== "all"){
+    if(country === "all"){ const e = ERAS.find(x => x.id === period); if(e) qs = qs.filter(q => e.t(q.y ?? 0)); }
+    else qs = qs.filter(q => q.per === period);
+  }
+  return qs;
+}
+function renderFilters(){
+  const { country, period } = S.quiz;
+  $("#f-country").innerHTML = `<button class="chip" data-fc="all" aria-pressed="${country==="all"}">Tous les pays</button>` +
+    S.countries.map(c => `<button class="chip" data-fc="${esc(c.id)}" aria-pressed="${country===c.id}">${esc(c.flag||"")} ${esc(c.name)}</button>`).join("");
+  const c = byId(country);
+  const pers = c ? (c.periods||[]).map(p => ({ id:p.id, n:p.n, r:p.r })) : ERAS.map(e => ({ id:e.id, n:e.n }));
+  $("#f-period").innerHTML = `<button class="chip" data-fp="all" aria-pressed="${period==="all"}">Toutes</button>` +
+    pers.map(p => `<button class="chip" data-fp="${esc(p.id)}" aria-pressed="${period===p.id}">${esc(p.n)}${p.r ? `<small>${esc(p.r)}</small>` : ""}</button>`).join("");
+  const k = counts(filtered());
+  $("#f-info").textContent = `${pl(k.n, "question")} · ${k.due} à revoir · ${k.nw} jamais vue${k.nw > 1 ? "s" : ""}`;
+}
+$("#f-country").addEventListener("click", e => {
+  const b = e.target.closest("[data-fc]"); if(!b) return;
+  S.quiz.country = b.dataset.fc; S.quiz.period = "all"; S.quiz.ahead = false; resetSession(); renderFilters(); nextQuestion();
+});
+$("#f-period").addEventListener("click", e => {
+  const b = e.target.closest("[data-fp]"); if(!b) return;
+  S.quiz.period = b.dataset.fp; S.quiz.ahead = false; resetSession(); renderFilters(); nextQuestion();
+});
+function resetSession(){ S.quiz.score = 0; S.quiz.total = 0; S.quiz.recent = []; }
+const shuffle = a => { for(let i = a.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+function pickQuestion(){
+  const pool = filtered(); if(!pool.length) return { q: null, empty: true };
+  const now = Date.now();
+  const notRecent = q => !S.quiz.recent.includes(q.id);
+  const due = pool.filter(q => srsState(q.id, now) === "due");
+  if(due.length){
+    const fresh = due.filter(notRecent);
+    const list = shuffle(fresh.length ? fresh : due).sort((a,b) => S.srs[a.id].b - S.srs[b.id].b);
+    return { q: list[0], why: "due" };
+  }
+  const nw = shuffle(pool.filter(q => srsState(q.id, now) === "new"));
+  if(nw.length) return { q: nw[0], why: "new" };
+  if(S.quiz.ahead){
+    const byDue = (a,b) => (S.srs[a.id]?.due||0) - (S.srs[b.id]?.due||0);
+    let later = pool.filter(notRecent).sort(byDue);
+    if(!later.length){ S.quiz.recent = []; later = pool.slice().sort(byDue); }
+    return { q: later[0], why: "ahead" };
+  }
+  return { q: null, done: true };
+}
+let doneTimer = null;
+function nextQuestion(){
+  const r = pickQuestion();
+  S.quiz.cur = r.q; S.quiz.why = r.why; S.quiz.done = !!r.done; S.quiz.answered = null; S.quiz.nextIn = null;
+  S.quiz.order = r.q ? shuffle(r.q.c.map((_,i) => i)) : null;
+  if(r.q){ S.quiz.recent.push(r.q.id); if(S.quiz.recent.length > 8) S.quiz.recent.shift(); }
+  clearTimeout(doneTimer);
+  if(r.done){
+    const next = filtered().map(q => S.srs[q.id]?.due).filter(Boolean).sort((a,b) => a-b)[0];
+    if(next && next - Date.now() < 30*MIN) doneTimer = setTimeout(() => { if(S.quiz.done) nextQuestion(); }, next - Date.now() + 500);
+  }
+  renderQuiz();
+}
+function selLabel(){
+  const c = byId(S.quiz.country);
+  const per = c ? (c.periods||[]).find(p => p.id === S.quiz.period) : ERAS.find(e => e.id === S.quiz.period);
+  if(c) return `${c.flag||""} ${c.name}${per ? " · " + per.n : ""}`;
+  return per ? `tout le voyage · ${per.n}` : "tout le voyage";
+}
+function renderDone(box){
+  const pool = filtered(), now = Date.now();
+  const st = statOf(pool);
+  const lastOk = pool.filter(q => S.srs[q.id] && S.srs[q.id].b > 0).length;
+  const next = pool.map(q => S.srs[q.id]?.due).filter(Boolean).sort((a,b) => a-b)[0];
+  const c = byId(S.quiz.country);
+  let others = [];
+  if(c){
+    others = (c.periods||[]).filter(p => p.id !== S.quiz.period).map(p => ({ p, k: counts((c.questions||[]).filter(q => q.per === p.id)) }))
+      .filter(x => x.k.due + x.k.nw > 0).map(x => `<button class="chip" data-act="quiz-period" data-country="${esc(c.id)}" data-period="${esc(x.p.id)}">${esc(x.p.n)}<small>${x.k.due + x.k.nw}</small></button>`);
+  }
+  if(!others.length){
+    others = S.countries.filter(x => x.id !== S.quiz.country).map(x => ({ x, k: counts((x.questions||[]).map(q => ({id:q.id}))) }))
+      .filter(o => o.k.due + o.k.nw > 0).map(o => `<button class="chip" data-act="quiz-country" data-country="${esc(o.x.id)}">${esc(o.x.flag||"")} ${esc(o.x.name)}<small>${o.k.due + o.k.nw}</small></button>`);
+  }
+  box.innerHTML = `<div class="card done" role="status">
+    <span class="eyebrow">${esc(selLabel())}</span>
+    <p class="big">Tu as répondu à toutes les questions de cette sélection.</p>
+    <p>${pl(pool.length, "question")} vue${pool.length > 1 ? "s" : ""}, dont ${lastOk} réussie${lastOk > 1 ? "s" : ""} la dernière fois${st.rate !== null ? ` (${st.rate} % de bonnes réponses au total)` : ""}.</p>
+    ${next ? `<p class="muted">Prochaine révision ici ${esc(inWords(next - now))}. D'ici là, ces questions ne reviendront pas.</p>` : ""}
+    ${others.length ? `<span class="eyebrow" style="margin-top:4px">Encore des questions à faire</span><div class="chips">${others.join("")}</div>` : `<p>Plus rien à revoir ailleurs non plus. Reviens plus tard !</p>`}
+    <button class="btn ghost" data-act="ahead">Réviser quand même cette sélection en avance</button>
+  </div>`;
+}
+function renderQuiz(){
+  const box = $("#quiz-body"), q = S.quiz.cur;
+  if(!S.loaded){ box.innerHTML = `<div class="skeleton"></div>`; return; }
+  if(!S.countries.length){ box.innerHTML = `<div class="notice">${S.db ? "Ton carnet est vide pour l'instant. Ajoute le premier pays que tu traverses." : (STANDALONE ? "Les questions n'ont pas pu se charger. Vérifie ta connexion internet et rouvre l'appli." : "Ouvre cette page en étant connecté à Claude pour charger tes pays et tes questions.")}</div>${S.db ? `<button class="btn primary" style="margin-top:12px" data-act="add-country">Ajouter un pays</button>` : ""}`; return; }
+  if(S.quiz.done){ renderDone(box); return; }
+  if(!q){ box.innerHTML = `<div class="notice">Aucune question dans cette sélection.</div>`; return; }
+  const c = byId(q.cid), per = periodOf(c, q), a = S.quiz.answered;
+  const order = S.quiz.order && S.quiz.order.length === q.c.length ? S.quiz.order : q.c.map((_,i) => i);
+  const choices = order.map((i, pos) => {
+    let cls = ""; if(a !== null){ if(i === q.a) cls = "ok"; else if(i === a) cls = "ko"; }
+    return `<button class="choice ${cls}" data-choice="${i}" ${a!==null?"disabled":""}><span class="k">${L[pos]}</span><span>${esc(q.c[i])}</span></button>`;
+  }).join("");
+  const good = a === q.a;
+  const why = S.quiz.why === "new" ? `<span class="tag new">Nouvelle</span>` : S.quiz.why === "ahead" ? `<span class="tag">En avance</span>` : `<span class="tag">À revoir</span>`;
+  box.innerHTML = `<div class="card qcard">
+    <div class="qmeta"><span>${esc(c?.flag||"")} ${esc(c?.name||"")}${per ? " · " + esc(per.n) : ""}</span><span class="score">${S.quiz.score} / ${S.quiz.total}</span></div>
+    <div>${why}</div>
+    <p class="qtext">${esc(q.q)}</p>
+    <div class="choices">${choices}</div>
+    ${a !== null ? `
+      <div class="verdict ${good?"ok":"ko"}" role="status"><strong>${good ? "Bonne réponse" : "Réponse : " + esc(q.c[q.a])}</strong><p>${esc(q.e)}</p>
+        <p class="next">Cette question reviendra ${esc(S.quiz.nextIn || "")}.</p></div>
+      <div class="row"><button class="btn grow" data-act="detail" data-q="${esc(q.id)}">En savoir plus</button>
+      <button class="btn primary grow" data-act="next">Question suivante</button></div>` : ""}
+  </div>`;
+}
+$("#quiz-body").addEventListener("click", e => {
+  const ch = e.target.closest("[data-choice]");
+  if(ch && S.quiz.answered === null){
+    const i = +ch.dataset.choice, q = S.quiz.cur;
+    S.quiz.answered = i; S.quiz.total++; if(i === q.a) S.quiz.score++;
+    const s = review(q.id, i === q.a);
+    S.quiz.nextIn = inWords(s.due - Date.now());
+    renderQuiz(); renderFilters(); renderTop();
+  }
+});
+
+/* ---------- feuilles ---------- */
+let sheetAbort = null;
+function openSheet(title, html, onMount){
+  closeSheet();
+  $("#sheet-root").innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    <div class="scrim" data-act="close"></div>
+    <div class="panel"><div class="bar-top"><h2 style="font-size:1.1rem">${esc(title)}</h2><button class="close" data-act="close" aria-label="Fermer">✕</button></div>
+    <div class="body">${html}</div></div></div>`;
+  document.body.style.overflow = "hidden";
+  onMount && onMount($(".sheet .body"));
+}
+function closeSheet(){
+  if(sheetAbort){ sheetAbort.abort(); sheetAbort = null; }
+  $("#sheet-root").innerHTML = ""; document.body.style.overflow = "";
+}
+document.addEventListener("keydown", e => { if(e.key === "Escape") closeSheet(); });
+
+const ICON = {
+  photo:`<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-8 8"/></svg>`,
+  map:`<svg viewBox="0 0 24 24"><path d="M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>`,
+  book:`<svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M8 7h7"/></svg>`
+};
+function linksFor(q, c){
+  const name = q.p?.n || c?.name || "";
+  const photos = "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(name);
+  const map = q.p ? `https://maps.apple.com/?ll=${q.p.lat},${q.p.lon}&q=${encodeURIComponent(name)}&z=12` : "https://maps.apple.com/?q=" + encodeURIComponent(name);
+  const wiki = q.w ? "https://fr.wikipedia.org/wiki/" + encodeURIComponent(q.w.replace(/ /g,"_")) : "https://fr.wikipedia.org/w/index.php?search=" + encodeURIComponent(name);
+  return `<div class="links">
+    <a href="${photos}" target="_blank" rel="noopener">${ICON.photo}Photos</a>
+    <a href="${map}" target="_blank" rel="noopener">${ICON.map}Plans</a>
+    <a href="${wiki}" target="_blank" rel="noopener">${ICON.book}Wikipédia</a></div>`;
+}
+function md(t){
+  return esc(t).trim().split(/\n{2,}/).map(b => {
+    const inl = s => s.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
+    const lines = b.split("\n");
+    if(lines.every(l => /^\s*[-•]\s+/.test(l))) return "<ul>" + lines.map(l => "<li>" + inl(l.replace(/^\s*[-•]\s+/,"")) + "</li>").join("") + "</ul>";
+    return "<p>" + inl(lines.join("<br>")) + "</p>";
+  }).join("");
+}
+function openDetail(qid){
+  const q = allQ().find(x => x.id === qid); if(!q) return;
+  const c = byId(q.cid), per = periodOf(c, q);
+  const html = `
+    ${per ? `<span class="eyebrow">${esc(per.n)} · ${esc(per.r||"")}</span>` : ""}
+    <p class="qtext" style="font-size:1.15rem">${esc(q.q)}</p>
+    <div class="answerline"><span class="eyebrow">Réponse</span><p style="font-weight:600">${esc(q.c[q.a])}</p></div>
+    <div class="prose">${md(q.d || q.e)}</div>
+    ${q.dt && q.dt.length ? `<div class="stack" style="gap:8px"><span class="eyebrow">Repères</span><ol class="timeline">${q.dt.map(([y,t]) => `<li><span class="y">${esc(y)}</span><span>${esc(t)}</span></li>`).join("")}</ol></div>` : ""}
+    ${q.p && isFinite(q.p.lat) ? `<div class="stack" style="gap:8px"><span class="eyebrow">Où c'est</span><div class="minimap"><div id="mini-map" data-q="${esc(q.id)}">${miniMapSVG(q, c)}</div><p>${esc(q.p.n)}</p></div></div>` : ""}
+    <div class="stack" style="gap:8px"><span class="eyebrow">Voir</span>${linksFor(q, c)}</div>
+    ${STANDALONE ? "" : `<div class="stack" style="gap:10px">
+      <span class="eyebrow">Aller plus loin</span>
+      <button class="btn" data-act="deeper" data-q="${esc(q.id)}">Raconte-m'en plus</button>
+      <div id="deeper-out" class="prose"></div>
+    </div>`}`;
+  openSheet(`${c?.flag||""} ${c?.name||""}`, html);
+}
+function errMsg(e){
+  const c = e && e.code;
+  if(c === "not_granted") return "L'accès à Claude est refusé pour cette page. Tu peux le réactiver dans les autorisations de la page.";
+  if(c === "rate_limited") return "Limite d'utilisation atteinte pour le moment. Réessaie un peu plus tard.";
+  if(c === "permission_denied") return "Tu n'as pas le droit de modifier ce carnet.";
+  return "Claude n'a pas pu répondre (" + esc((e && (e.message || e.code)) || "erreur") + "). Vérifie ta connexion et réessaie.";
+}
+async function deeper(qid, btn){
+  const q = allQ().find(x => x.id === qid); const c = byId(q.cid);
+  const out = $("#deeper-out"); const sample = await getSample();
+  if(!sample){ out.innerHTML = `<p class="err">Claude n'est pas disponible ici. Ouvre la page en étant connecté à Claude.</p>`; return; }
+  btn.disabled = true; out.innerHTML = `<p class="thinking">Claude rassemble ses notes…</p>`;
+  sheetAbort = new AbortController();
+  const prompt = `Tu es un guide passionné d'histoire qui accompagne un voyageur francophone en ${c.name}.
+Il vient de répondre à cette question de quiz : « ${q.q} » (réponse : ${q.c[q.a]}).
+Ce qu'il sait déjà : ${q.d || q.e}
+
+Raconte-lui la suite en français, en 180 à 260 mots : une anecdote marquante, les conséquences à long terme, et ce qu'il peut voir sur place aujourd'hui (lieux précis). Ton vivant mais exact ; si un point est débattu par les historiens, dis-le. Paragraphes courts, **gras** pour 2 ou 3 noms clés. Pas de titre.`;
+  try{
+    const r = await sample(prompt, { signal: sheetAbort.signal, cache: true, onText: ({text}) => { out.innerHTML = md(text); } });
+    out.innerHTML = md(r.text);
+  }catch(e){
+    if(e && e.code === "aborted") return;
+    out.innerHTML = `<p class="err">${errMsg(e)}</p>`; btn.disabled = false;
+  }
+}
+
+/* ---------- fiche pays ---------- */
+function openCountry(cid){
+  const c = byId(cid); if(!c) return;
+  const qs = (c.questions || []).slice().sort((a,b) => (a.y??0) - (b.y??0));
+  const k = counts(qs);
+  const groups = (c.periods || []).map(p => ({ p, qs: qs.filter(q => q.per === p.id) })).filter(g => g.qs.length);
+  const orphan = qs.filter(q => !(c.periods||[]).some(p => p.id === q.per));
+  if(orphan.length) groups.push({ p: { n: "Autres", r: "" }, qs: orphan });
+  const item = q => { const st = srsState(q.id); return `<button data-act="detail" data-q="${esc(q.id)}"><span>${esc(q.q)}</span><span class="st ${st}">${esc(laterLabel(q.id))}</span></button>`; };
+  const html = `
+    <p class="muted">${k.n} questions · ${k.due} à revoir · ${k.nw} jamais vues</p>
+    <button class="btn primary" data-act="quiz-country" data-country="${esc(c.id)}">Quiz sur ce pays</button>
+    ${groups.map(g => `<div class="pergroup"><h3>${esc(g.p.n)} <span class="r">${esc(g.p.r||"")}</span></h3><div class="qlist">${g.qs.map(item).join("")}</div>
+      ${g.p.id ? `<button class="btn ghost sm" style="margin-top:8px;align-self:flex-start" data-act="quiz-period" data-country="${esc(c.id)}" data-period="${esc(g.p.id)}">Quiz sur cette période</button>` : ""}</div>`).join("")}
+    ${S.db ? `<div class="stack" style="gap:8px;margin-top:8px">
+      <button class="btn" data-act="more-q" data-country="${esc(c.id)}">Ajouter 5 questions avec Claude</button>
+      <p id="more-status" class="muted small" role="status"></p>
+      <div id="del-zone"><button class="btn ghost sm danger" data-act="del-ask">Retirer ce pays du carnet</button></div>
+    </div>` : ""}`;
+  openSheet(`${c.flag||""} ${c.name}`, html);
+  $(".sheet").dataset.country = c.id;
+}
+
+/* ---------- génération par Claude ---------- */
+const Q_SCHEMA = `Chaque question est un objet JSON :
+{"q": "question en français", "c": ["4 choix plausibles"], "a": index (0-3) de la bonne réponse, "e": "explication de 1 à 2 phrases", "d": "détail en 2 paragraphes courts (90 à 130 mots au total), séparés par \\n\\n : contexte, anecdote, ce qu'on peut voir aujourd'hui", "dt": [["année","événement court"], ... 2 à 4 repères], "per": "id de la période", "y": année représentative (nombre entier, négatif avant J.-C.), "p": {"n": "lieu précis lié à la question, avec la ville", "lat": latitude décimale, "lon": longitude décimale}, "w": "titre exact de l'article Wikipédia en français le plus pertinent"}`;
+function cleanQ(q, prefix, i, perIds){
+  if(!q || typeof q.q !== "string" || !Array.isArray(q.c) || q.c.length < 2) return null;
+  const a = Number.isInteger(q.a) && q.a >= 0 && q.a < q.c.length ? q.a : null; if(a === null) return null;
+  const out = { id: prefix + "-" + Date.now().toString(36) + i, q: q.q, c: q.c.slice(0,5).map(String), a, e: String(q.e||""), d: String(q.d||""),
+    dt: Array.isArray(q.dt) ? q.dt.filter(x => Array.isArray(x) && x.length >= 2).slice(0,5).map(x => [String(x[0]), String(x[1])]) : [],
+    w: String(q.w||""), per: perIds.includes(q.per) ? q.per : perIds[perIds.length-1], y: Number.isFinite(+q.y) ? Math.round(+q.y) : 1900 };
+  if(q.p && isFinite(+q.p.lat) && isFinite(+q.p.lon)) out.p = { n: String(q.p.n||""), lat: +q.p.lat, lon: +q.p.lon };
+  return out;
+}
+async function addCountry(name, statusEl, btn){
+  const sample = await getSample();
+  if(!sample || !S.db){ statusEl.innerHTML = `<span class="err">Il faut être connecté à Claude pour ajouter un pays.</span>`; return; }
+  if(byId(slug(name))){ statusEl.innerHTML = `<span class="err">${esc(name)} est déjà dans ton carnet.</span>`; return; }
+  btn.disabled = true; statusEl.textContent = "Claude prépare les périodes et une quinzaine de questions sur " + name + "… (une à deux minutes)";
+  const prompt = `Un voyageur francophone fait un tour du monde d'un an. Il a déjà traversé : ${S.countries.map(c => c.name).join(", ") || "aucun pays"}. Il arrive maintenant dans ce pays : « ${name} ».
+1. Découpe l'histoire de ce pays en 5 ou 6 périodes PROPRES à ce pays (par exemple « Royaume de Lan Xang », « Protectorat français », « République démocratique populaire »), avec des périodes plus fines pour les XIXe, XXe et XXIe siècles.
+2. Écris 15 questions de quiz d'histoire : environ 10 sur la période depuis 1800 et 5 sur les époques plus anciennes, centrées sur des lieux qu'un voyageur peut visiter. Faits exacts et vérifiables uniquement ; si un fait est débattu, dis-le dans le détail. Difficulté moyenne, distracteurs plausibles.
+${Q_SCHEMA}
+Réponds UNIQUEMENT avec un objet JSON de cette forme :
+{"name": "nom du pays en français", "en": "nom anglais courant du pays", "flag": "emoji drapeau", "cap": {"n": "capitale", "lat": 0, "lon": 0}, "periods": [{"id": "p1", "n": "nom de la période", "r": "dates, ex. 1893-1953"}], "questions": [ ...15 questions... ]}`;
+  try{
+    const r = await sample.json(prompt, { modelTier: "default" });
+    const periods = (Array.isArray(r.periods) ? r.periods : []).filter(p => p && p.id && p.n).map(p => ({ id: String(p.id), n: String(p.n), r: String(p.r||"") }));
+    if(!periods.length) periods.push({ id: "p1", n: "Histoire", r: "" });
+    const perIds = periods.map(p => p.id);
+    const id = slug(r.name || name);
+    const qs = (r.questions || []).map((q,i) => cleanQ(q, id.slice(0,6), i, perIds)).filter(Boolean);
+    if(!qs.length) throw { message: "réponse incomplète" };
+    const order = Math.max(0, ...S.countries.map(c => c.order||0)) + 1;
+    const doc = { name: String(r.name||name), en: String(r.en||r.name||name), flag: String(r.flag||"🏳️"), order, addedAt: new Date().toISOString(), periods, questions: qs };
+    if(r.cap && isFinite(+r.cap.lat) && isFinite(+r.cap.lon)) doc.cap = { n: String(r.cap.n||""), lat: +r.cap.lat, lon: +r.cap.lon };
+    await S.db.collection("countries").doc(id).set(doc);
+    statusEl.textContent = doc.name + " est ajouté avec " + qs.length + " questions.";
+    setTimeout(() => { closeSheet(); openCountry(id); }, 700);
+  }catch(e){ btn.disabled = false; statusEl.innerHTML = `<span class="err">${errMsg(e)}</span>`; }
+}
+async function moreQuestions(cid, btn){
+  const c = byId(cid); const el = $("#more-status"); const sample = await getSample();
+  if(!sample || !S.db){ el.innerHTML = `<span class="err">Il faut être connecté à Claude.</span>`; return; }
+  btn.disabled = true; el.textContent = "Claude écrit 5 nouvelles questions…";
+  const periods = c.periods || [];
+  const prompt = `Quiz d'histoire pour un voyageur francophone en ${c.name}.
+Périodes de ce pays (utilise ces id) : ${periods.map(p => `${p.id} = ${p.n} (${p.r})`).join(" ; ")}
+Questions déjà posées (ne pas répéter ni reprendre le même sujet) :
+${(c.questions||[]).map(q => "- " + q.q).join("\n")}
+Écris 5 NOUVELLES questions : au moins 4 sur la période depuis 1800, liées à des lieux visitables. Faits exacts uniquement.
+${Q_SCHEMA}
+Réponds UNIQUEMENT avec un objet JSON : {"questions": [ ...5 questions... ]}`;
+  try{
+    const r = await sample.json(prompt, { modelTier: "default" });
+    const qs = (r.questions || []).map((q,i) => cleanQ(q, cid.slice(0,6), i, periods.map(p => p.id))).filter(Boolean);
+    if(!qs.length) throw { message: "réponse incomplète" };
+    await S.db.collection("countries").doc(cid).update({ questions: [...(c.questions||[]), ...qs] });
+    el.textContent = qs.length + " questions ajoutées.";
+    setTimeout(() => openCountry(cid), 600);
+  }catch(e){ btn.disabled = false; el.innerHTML = `<span class="err">${errMsg(e)}</span>`; }
+}
+function openAddCountry(){
+  const next = ["Laos","Cambodge","Thaïlande","Inde","Népal","Mongolie","Iran","Japon"];
+  openSheet("Ajouter un pays", `
+    <p>Tape le pays où tu arrives. Claude découpe son histoire en périodes et prépare une quinzaine de questions, surtout sur les deux derniers siècles. Le pays s'ajoute à la fin de ton itinéraire.</p>
+    <form id="add-form" class="stack" autocomplete="off">
+      <label class="eyebrow" for="add-name">Pays</label>
+      <input type="text" id="add-name" placeholder="Laos" required maxlength="60" style="width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px">
+      <div class="chips">${next.filter(n => !byId(slug(n))).map(n => `<button type="button" class="chip" data-fill="${n}">${n}</button>`).join("")}</div>
+      <button class="btn primary" id="add-go" type="submit">Créer les questions</button>
+      <p id="add-status" class="muted" role="status"></p>
+    </form>`, body => {
+      body.querySelector(".chips").addEventListener("click", e => { const b = e.target.closest("[data-fill]"); if(b) $("#add-name").value = b.dataset.fill; });
+      $("#add-form").addEventListener("submit", e => { e.preventDefault(); const v = $("#add-name").value.trim(); if(v) addCountry(v, $("#add-status"), $("#add-go")); });
+    });
+}
+
+/* ---------- sauvegarde ---------- */
+function exportCode(){
+  const json = JSON.stringify({ v: 1, at: Date.now(), srs: S.srs });
+  return "CARNET1:" + btoa(unescape(encodeURIComponent(json)));
+}
+function importCode(code){
+  const m = String(code).trim().match(/^CARNET1:([A-Za-z0-9+/=\s]+)$/);
+  if(!m) throw new Error("format");
+  const data = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/\s/g, "")))));
+  if(!data || typeof data.srs !== "object") throw new Error("format");
+  let added = 0;
+  for(const [id, v] of Object.entries(data.srs)){
+    if(!v || typeof v.due !== "number") continue;
+    const cur = S.srs[id];
+    if(!cur || (v.last||0) > (cur.last||0)){ S.srs[id] = { b: +v.b||0, ok: +v.ok||0, ko: +v.ko||0, due: v.due, last: +v.last||0 }; added++; }
+  }
+  save("qh-srs", S.srs);
+  return added;
+}
+function openBackup(){
+  const n = Object.keys(S.srs).length;
+  openSheet("Sauvegarde", `
+    <p>Ta progression est enregistrée sur cet appareil, pour cette adresse. Pour la transférer vers une autre version de l'appli ou un autre téléphone, copie ton code de sauvegarde puis colle-le dans « Importer » de l'autre côté.</p>
+    <div class="stack" style="gap:8px"><span class="eyebrow">Exporter (${pl(n, "question")} suivie${n > 1 ? "s" : ""})</span>
+      <textarea id="bk-out" readonly rows="4" style="width:100%;font:12px/1.4 ui-monospace,monospace;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px;word-break:break-all">${esc(exportCode())}</textarea>
+      <button class="btn primary" data-act="bk-copy">Copier le code</button>
+      <p id="bk-copy-msg" class="muted small" role="status"></p></div>
+    <div class="stack" style="gap:8px"><span class="eyebrow">Importer</span>
+      <textarea id="bk-in" rows="4" placeholder="Colle ici un code qui commence par CARNET1:" style="width:100%;font:12px/1.4 ui-monospace,monospace;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px;word-break:break-all"></textarea>
+      <button class="btn" data-act="bk-import">Importer ma progression</button>
+      <p id="bk-in-msg" class="small" role="status"></p>
+      <p class="muted small">L'import fusionne : pour chaque question, il garde la révision la plus récente. Rien n'est effacé.</p></div>`);
+}
+
+/* ---------- actions ---------- */
+function startQuiz(country, period){
+  closeSheet(); toggleMenu(false);
+  S.quiz.country = country; S.quiz.period = period; S.quiz.ahead = false; resetSession();
+  renderFilters(); nextQuestion(); window.scrollTo(0,0);
+}
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-act],circle.hit"); if(!t) return;
+  if(t.closest("#menu")) toggleMenu(false);
+  if(t.classList && t.classList.contains("hit")){ openCountry(t.dataset.country); return; }
+  const act = t.dataset.act;
+  if(act === "close") closeSheet();
+  else if(act === "next") nextQuestion();
+  else if(act === "ahead"){ S.quiz.ahead = true; nextQuestion(); }
+  else if(act === "detail") openDetail(t.dataset.q);
+  else if(act === "deeper") deeper(t.dataset.q, t);
+  else if(act === "stats") openStats();
+  else if(act === "backup") openBackup();
+  else if(act === "bk-copy"){
+    const ta = $("#bk-out"), msg = $("#bk-copy-msg");
+    const done = () => { msg.textContent = "Code copié. Colle-le dans « Importer » de l'autre version."; };
+    try{ navigator.clipboard.writeText(ta.value).then(done, () => { ta.focus(); ta.select(); msg.textContent = "Le code est sélectionné : touche « Copier »."; }); }
+    catch(err){ ta.focus(); ta.select(); msg.textContent = "Le code est sélectionné : touche « Copier »."; }
+  }
+  else if(act === "bk-import"){
+    const msg = $("#bk-in-msg");
+    try{ const n = importCode($("#bk-in").value); msg.style.color = "var(--good)"; msg.textContent = n ? `Progression importée : ${pl(n, "question")} mise${n > 1 ? "s" : ""} à jour.` : "Rien de nouveau : ta progression ici est déjà plus récente."; renderAll(); }
+    catch(err){ msg.style.color = "var(--bad)"; msg.textContent = "Ce code n'est pas reconnu. Vérifie que tu as bien copié tout le code, depuis CARNET1:"; }
+  }
+  else if(act === "countries") openCountries();
+  else if(act === "open-country") openCountry(t.dataset.country);
+  else if(act === "add-country") openAddCountry();
+  else if(act === "more-q") moreQuestions(t.dataset.country, t);
+  else if(act === "quiz-all") startQuiz("all", "all");
+  else if(act === "quiz-country") startQuiz(t.dataset.country, "all");
+  else if(act === "quiz-period") startQuiz(t.dataset.country, t.dataset.period);
+  else if(act === "quiz-era") startQuiz("all", t.dataset.era);
+  else if(act === "reset-ask") $("#reset-zone").innerHTML = `<div class="row"><span>Effacer toute ta progression sur cet appareil ?</span><button class="btn sm ghost danger" data-act="reset-yes">Oui, effacer</button><button class="btn sm" data-act="reset-no">Annuler</button></div>`;
+  else if(act === "reset-no") $("#reset-zone").innerHTML = `<button class="btn ghost sm danger" data-act="reset-ask">Remettre ma progression à zéro</button>`;
+  else if(act === "reset-yes"){ S.srs = {}; save("qh-srs", S.srs); closeSheet(); resetSession(); renderAll(); nextQuestion(); }
+  else if(act === "del-ask") $("#del-zone").innerHTML = `<div class="row"><span>Retirer ce pays et ses questions ?</span><button class="btn sm ghost danger" data-act="del-yes">Oui, retirer</button><button class="btn sm" data-act="del-no">Annuler</button></div>`;
+  else if(act === "del-no") $("#del-zone").innerHTML = `<button class="btn ghost sm danger" data-act="del-ask">Retirer ce pays du carnet</button>`;
+  else if(act === "del-yes"){ const cid = $(".sheet").dataset.country; S.db.collection("countries").doc(cid).delete().then(closeSheet).catch(err => { $("#del-zone").innerHTML = `<p class="err">${errMsg(err)}</p>`; }); }
+});
+
+function renderAll(){
+  renderTop(); renderFilters();
+  if(!S.loaded){ return; }
+  if(!S.quiz.cur || !allQ().some(q => q.id === S.quiz.cur.id)) nextQuestion(); else renderQuiz();
+}
+
+if(STANDALONE){ const a = $('#menu [data-act="add-country"]'); if(a) a.remove(); }
+renderAll();
+loadWorld();
+initData();
+})();
+</script>
+<script>
+if("serviceWorker" in navigator){ window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); }); }
+</script>
+</body>
+</html>
