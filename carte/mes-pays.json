@@ -1,60 +1,336 @@
 {
-  "_note": "Codes pays à 3 lettres (ISO). « visites » = pays visités, « prevus » = pays prévus. « sejours » = années et compagnons par pays (un pays peut avoir plusieurs séjours). « voyages » = grands voyages tracés sur la carte ; chaque étape : v = ville, p = pays, c = [longitude, latitude], m = moyen pour y arriver (train, route, bateau, avion, ? si inconnu), prevu = étape à venir. Ce que tu changes dans l'appli passe avant ces listes.",
+  "_note": "Liste de départ, fusionnée une seule fois dans l'appli à chaque nouvelle « version » (ensuite, tout se modifie dans l'appli). Codes pays à 3 lettres (ISO). « visites » / « prevus » : statuts. « sejours » : {pays: [{an, avec}]}. « voyages » : {id, nom, an, periode, avec, etapes: [{p pays, v ville facultative, c [lon, lat] facultatif, m moyen pour y arriver : terre, avion, bateau ou ?, prevu: true si à venir}]}.",
+  "version": 2,
   "chez_moi": "FRA",
-  "visites": ["FRA", "ESP", "NOR", "CHE", "HUN", "ROU", "BGR", "MKD", "ALB", "ITA", "BEL", "AUT", "TUR", "GEO", "ARM", "KAZ", "UZB", "TJK", "AFG", "KGZ", "CHN", "HKG", "VNM", "KHM"],
-  "prevus": ["LAO", "THA", "MYS", "SGP", "IDN", "AUS", "NZL", "USA"],
-  "sejours": {
-    "TUR": [{"an": 2026, "avec": ["Éléonore"], "voyage": "tdm"}],
-    "GEO": [{"an": 2026, "avec": ["Éléonore"], "voyage": "tdm"}],
-    "ARM": [{"an": 2026, "avec": ["Éléonore"], "voyage": "tdm"}],
-    "KAZ": [{"an": 2026, "avec": ["Éléonore"], "voyage": "tdm"}],
-    "UZB": [{"an": 2026, "avec": ["Éléonore"], "voyage": "tdm"}],
-    "TJK": [{"an": 2026, "avec": ["Éléonore"], "voyage": "tdm"}],
-    "KGZ": [{"an": 2026, "avec": ["Éléonore"], "voyage": "tdm"}],
-    "CHN": [{"an": 2026, "avec": ["Éléonore"], "voyage": "tdm"}],
-    "HKG": [{"an": 2026, "avec": ["Éléonore"], "voyage": "tdm"}],
-    "VNM": [{"an": 2026, "avec": ["Éléonore"], "voyage": "tdm"}],
-    "KHM": [{"an": 2026, "avec": ["Éléonore"], "voyage": "tdm"}]
-  },
+  "visites": [
+    "FRA",
+    "ESP",
+    "NOR",
+    "CHE",
+    "HUN",
+    "ROU",
+    "BGR",
+    "MKD",
+    "ALB",
+    "ITA",
+    "BEL",
+    "AUT",
+    "TUR",
+    "GEO",
+    "ARM",
+    "KAZ",
+    "UZB",
+    "TJK",
+    "KGZ",
+    "CHN",
+    "HKG",
+    "VNM",
+    "KHM"
+  ],
+  "prevus": [
+    "LAO",
+    "THA",
+    "MYS",
+    "SGP",
+    "IDN",
+    "AUS",
+    "NZL",
+    "USA"
+  ],
+  "sejours": {},
   "voyages": [
     {
       "id": "tdm",
       "nom": "Le tour du monde",
       "periode": "2026-2027",
-      "avec": ["Éléonore"],
+      "avec": [
+        "Éléonore"
+      ],
       "brouillon": true,
       "etapes": [
-        {"v": "Paris", "p": "FRA", "c": [2.35, 48.86]},
-        {"v": "Istanbul", "p": "TUR", "c": [28.98, 41.01], "m": "?"},
-        {"v": "Tbilissi", "p": "GEO", "c": [44.79, 41.72], "m": "?"},
-        {"v": "Erevan", "p": "ARM", "c": [44.51, 40.18], "m": "?"},
-        {"v": "Almaty", "p": "KAZ", "c": [76.95, 43.24], "m": "?"},
-        {"v": "Samarcande", "p": "UZB", "c": [66.96, 39.65], "m": "?"},
-        {"v": "Douchanbé", "p": "TJK", "c": [68.78, 38.56], "m": "?"},
-        {"v": "Och", "p": "KGZ", "c": [72.8, 40.53], "m": "?"},
-        {"v": "Kachgar", "p": "CHN", "c": [75.99, 39.47], "m": "?"},
-        {"v": "Xi'an", "p": "CHN", "c": [108.94, 34.34], "m": "?"},
-        {"v": "Pékin", "p": "CHN", "c": [116.4, 39.9], "m": "?"},
-        {"v": "Chongqing", "p": "CHN", "c": [106.55, 29.56], "m": "?"},
-        {"v": "Xingping", "p": "CHN", "c": [110.52, 24.92], "m": "?"},
-        {"v": "Hong Kong", "p": "HKG", "c": [114.17, 22.32], "m": "?"},
-        {"v": "Hanoï", "p": "VNM", "c": [105.85, 21.03], "m": "?"},
-        {"v": "Cao Bang", "p": "VNM", "c": [106.25, 22.67], "m": "?"},
-        {"v": "Hô-Chi-Minh-Ville", "p": "VNM", "c": [106.7, 10.78], "m": "?"},
-        {"v": "Phnom Penh", "p": "KHM", "c": [104.92, 11.56], "m": "?"},
-        {"v": "Bangkok", "p": "THA", "c": [100.5, 13.76], "m": "route", "prevu": true},
-        {"v": "Kuala Lumpur", "p": "MYS", "c": [101.69, 3.14], "m": "train", "prevu": true},
-        {"v": "Singapour", "p": "SGP", "c": [103.82, 1.35], "m": "train", "prevu": true},
-        {"v": "Sulawesi", "p": "IDN", "c": [124.84, 1.49], "m": "avion", "prevu": true},
-        {"v": "Bali", "p": "IDN", "c": [115.19, -8.65], "m": "avion", "prevu": true},
-        {"v": "Auckland", "p": "NZL", "c": [174.76, -36.85], "m": "avion", "prevu": true},
-        {"v": "Sydney", "p": "AUS", "c": [151.21, -33.87], "m": "avion", "prevu": true},
-        {"v": "San Francisco", "p": "USA", "c": [-122.42, 37.77], "m": "avion", "prevu": true},
-        {"v": "Chicago", "p": "USA", "c": [-87.63, 41.88], "m": "train", "prevu": true},
-        {"v": "Detroit", "p": "USA", "c": [-83.05, 42.33], "m": "train", "prevu": true},
-        {"v": "New York", "p": "USA", "c": [-74.01, 40.71], "m": "train", "prevu": true},
-        {"v": "Paris", "p": "FRA", "c": [2.35, 48.86], "m": "avion", "prevu": true}
-      ]
+        {
+          "v": "Paris",
+          "p": "FRA",
+          "c": [
+            2.35,
+            48.86
+          ]
+        },
+        {
+          "v": "Istanbul",
+          "p": "TUR",
+          "c": [
+            28.98,
+            41.01
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Tbilissi",
+          "p": "GEO",
+          "c": [
+            44.79,
+            41.72
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Erevan",
+          "p": "ARM",
+          "c": [
+            44.51,
+            40.18
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Almaty",
+          "p": "KAZ",
+          "c": [
+            76.95,
+            43.24
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Samarcande",
+          "p": "UZB",
+          "c": [
+            66.96,
+            39.65
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Douchanbé",
+          "p": "TJK",
+          "c": [
+            68.78,
+            38.56
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Och",
+          "p": "KGZ",
+          "c": [
+            72.8,
+            40.53
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Kachgar",
+          "p": "CHN",
+          "c": [
+            75.99,
+            39.47
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Xi'an",
+          "p": "CHN",
+          "c": [
+            108.94,
+            34.34
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Pékin",
+          "p": "CHN",
+          "c": [
+            116.4,
+            39.9
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Chongqing",
+          "p": "CHN",
+          "c": [
+            106.55,
+            29.56
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Xingping",
+          "p": "CHN",
+          "c": [
+            110.52,
+            24.92
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Hong Kong",
+          "p": "HKG",
+          "c": [
+            114.17,
+            22.32
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Hanoï",
+          "p": "VNM",
+          "c": [
+            105.85,
+            21.03
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Cao Bang",
+          "p": "VNM",
+          "c": [
+            106.25,
+            22.67
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Hô-Chi-Minh-Ville",
+          "p": "VNM",
+          "c": [
+            106.7,
+            10.78
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Phnom Penh",
+          "p": "KHM",
+          "c": [
+            104.92,
+            11.56
+          ],
+          "m": "?"
+        },
+        {
+          "v": "Bangkok",
+          "p": "THA",
+          "c": [
+            100.5,
+            13.76
+          ],
+          "m": "route",
+          "prevu": true
+        },
+        {
+          "v": "Kuala Lumpur",
+          "p": "MYS",
+          "c": [
+            101.69,
+            3.14
+          ],
+          "m": "train",
+          "prevu": true
+        },
+        {
+          "v": "Singapour",
+          "p": "SGP",
+          "c": [
+            103.82,
+            1.35
+          ],
+          "m": "train",
+          "prevu": true
+        },
+        {
+          "v": "Sulawesi",
+          "p": "IDN",
+          "c": [
+            124.84,
+            1.49
+          ],
+          "m": "avion",
+          "prevu": true
+        },
+        {
+          "v": "Bali",
+          "p": "IDN",
+          "c": [
+            115.19,
+            -8.65
+          ],
+          "m": "avion",
+          "prevu": true
+        },
+        {
+          "v": "Auckland",
+          "p": "NZL",
+          "c": [
+            174.76,
+            -36.85
+          ],
+          "m": "avion",
+          "prevu": true
+        },
+        {
+          "v": "Sydney",
+          "p": "AUS",
+          "c": [
+            151.21,
+            -33.87
+          ],
+          "m": "avion",
+          "prevu": true
+        },
+        {
+          "v": "San Francisco",
+          "p": "USA",
+          "c": [
+            -122.42,
+            37.77
+          ],
+          "m": "avion",
+          "prevu": true
+        },
+        {
+          "v": "Chicago",
+          "p": "USA",
+          "c": [
+            -87.63,
+            41.88
+          ],
+          "m": "train",
+          "prevu": true
+        },
+        {
+          "v": "Detroit",
+          "p": "USA",
+          "c": [
+            -83.05,
+            42.33
+          ],
+          "m": "train",
+          "prevu": true
+        },
+        {
+          "v": "New York",
+          "p": "USA",
+          "c": [
+            -74.01,
+            40.71
+          ],
+          "m": "train",
+          "prevu": true
+        },
+        {
+          "v": "Paris",
+          "p": "FRA",
+          "c": [
+            2.35,
+            48.86
+          ],
+          "m": "avion",
+          "prevu": true
+        }
+      ],
+      "an": 2026
     }
   ]
 }

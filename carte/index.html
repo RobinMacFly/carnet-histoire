@@ -212,6 +212,52 @@ textarea{width:100%;font-size:16px;border:1.5px solid var(--line);border-radius:
 .ppl{display:flex;flex-wrap:wrap;gap:8px}
 .ppl span{border-radius:20px;padding:8px 14px;background:color-mix(in srgb,var(--vis) 12%,var(--paper));font-weight:600;font-size:15px}
 .ppl em{font-style:normal;color:var(--muted);font-weight:400}
+
+/* réglages, formulaires, éditeur */
+.hr{display:flex;align-items:center;gap:12px}
+.gear{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;flex:none}
+.gear svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.panel{position:absolute;inset:0;background:var(--paper);z-index:7;display:flex;flex-direction:column}
+.panel[hidden]{display:none}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:12px max(16px,env(safe-area-inset-right)) 8px max(16px,env(safe-area-inset-left));border-bottom:1px solid var(--line)}
+.ph h2{margin:0;font-size:22px;font-weight:800}
+.pb{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px max(16px,env(safe-area-inset-right)) 40px max(16px,env(safe-area-inset-left))}
+.pb>*{max-width:720px;margin-left:auto;margin-right:auto}
+#map.noroutes #routes,#map.noroutes #hits{display:none}
+.sheet{max-height:72%;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sej li .del{margin-left:auto;width:36px;height:36px;border:0;background:none;font-size:22px;color:var(--muted);flex:none}
+.addsej{display:block;width:100%;min-height:44px;margin-top:10px;border:1.5px dashed var(--line);background:none;border-radius:12px;font-weight:600;color:var(--vis);font-size:15px;padding:6px 12px;text-align:left}
+.sform{margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:14px}
+.frow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:10px}
+.frow .btn{margin-top:0}
+.fld,.sform label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted);margin-top:10px}
+.frow .fld,.sform .frow label{margin-top:0}
+.fld input,.sform input{font-size:16px;font-weight:400;color:var(--ink);padding:11px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);min-height:46px;width:100%}
+.frow label:first-child:not(.grow){width:7.5em;flex:none}
+.grow{flex:1}
+.pchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pchips button{border:1px solid var(--line);background:none;border-radius:16px;padding:4px 10px;font-size:14px;min-height:34px}
+.steps{list-style:none;margin:8px 0 0;padding:0}
+.step{display:flex;align-items:center;gap:8px;padding:8px 0}
+.step .f{font-size:24px;width:30px;text-align:center}
+.step .nm{flex:1;font-weight:600}
+.step .nm small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.ib{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:none;font-size:18px;flex:none}
+.ib:disabled{opacity:.3}
+.pvb{height:34px;border-radius:17px;border:1px solid var(--line);background:none;font-size:13px;color:var(--muted);padding:0 10px;flex:none}
+.pvb.on{border-color:var(--vis);color:var(--vis);font-weight:700}
+.mrow{display:flex;align-items:center;gap:10px;padding:2px 0 2px 38px;font-size:13px;color:var(--muted)}
+.mrow>span{width:5.5em}
+.mseg{display:flex;gap:6px;flex:1}
+.mseg button{flex:1;min-height:36px;border-radius:10px;border:1.5px solid var(--line);background:none;font-size:14px;font-weight:600}
+.mseg button[aria-pressed=true]{background:var(--vis);border-color:var(--vis);color:var(--onvis)}
+.picker{margin-top:14px}
+#ed-res{display:flex;flex-direction:column}
+#ed-res button{text-align:left;border:0;border-bottom:1px solid var(--line);background:none;min-height:46px;font-size:16px}
+.btn.danger{background:none;color:#c0392b;border:1.5px solid #e6b3ad;margin-top:24px;width:100%}
+#new-trip{width:100%;margin:4px 0 4px}
+.sheet.tsheet{max-height:46%}
+.yb{border:0;background:none;padding:0;font-size:22px;line-height:1.2}
 /* onglets */
 nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);background:var(--paper);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{border:0;background:none;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
@@ -228,7 +274,7 @@ nav button[aria-selected=true]{color:var(--vis)}
       <h1>Mes pays du monde</h1>
       <div class="count"><b id="n-vis">0</b><span id="n-lab">pays visités</span></div>
     </div>
-    <div class="sub" id="sub"></div>
+    <div class="hr"><div class="sub" id="sub"></div><button class="gear" id="gear" aria-label="Réglages"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
   </header>
   <main>
     <section class="view" id="v-map" aria-label="Carte">
@@ -250,7 +296,6 @@ nav button[aria-selected=true]{color:var(--vis)}
           <button data-f="p" aria-pressed="false">Prévus</button>
           <button data-f="n" aria-pressed="false">Pas encore</button>
         </div>
-        <label class="switch"><input type="checkbox" id="terr"><span class="tr" aria-hidden="true"></span>Afficher les territoires<small>Groenland, Hong Kong, Polynésie…</small></label>
         <div id="list"></div>
       </div>
     </section>
@@ -280,6 +325,14 @@ nav button[aria-selected=true]{color:var(--vis)}
       </div>
       <div id="ts-body"></div>
     </div>
+    <div class="panel" id="settings" hidden role="dialog" aria-labelledby="set-t">
+      <div class="ph"><h2 id="set-t">Réglages</h2><button class="x" data-close="settings" aria-label="Fermer">×</button></div>
+      <div class="pb" id="set-body"></div>
+    </div>
+    <div class="panel" id="editor" hidden role="dialog" aria-labelledby="ed-t">
+      <div class="ph"><h2 id="ed-t">Nouveau voyage</h2><button class="x" data-close="editor" aria-label="Fermer">×</button></div>
+      <div class="pb" id="ed-body"></div>
+    </div>
   </main>
   <nav role="tablist">
     <button role="tab" data-v="map" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>Carte</button>
@@ -297,15 +350,17 @@ const CONT = {eu:"Europe", as:"Asie", af:"Afrique", na:"Amérique du Nord", sa:"
 const CORDER = ["eu","as","af","na","sa","oc","an"];
 const LABEL = {v:"Visité", p:"Prévu", "":"Pas encore"};
 let M = null, BY = {}, base = {}, over = {};
-let HOME = "FRA", SEJ = {}, TRIPS = [], selTrip = null;
+let HOME = "FRA", TRIPS = [], selTrip = null;
 /* projection Equal Earth, identique à celle du fond de carte */
 const EA = [1.340264, -0.081106, 0.000893, 0.003796], EM = Math.sqrt(3) / 2;
 function ee(lon, lat){ const l = lon * Math.PI / 180, ph = lat * Math.PI / 180, t = Math.asin(EM * Math.sin(ph)), t2 = t * t, t6 = t2 ** 3;
   return [l * Math.cos(t) / (EM * (EA[0] + 3 * EA[1] * t2 + t6 * (7 * EA[2] + 9 * EA[3] * t2))), t * (EA[0] + EA[1] * t2 + t6 * (EA[2] + EA[3] * t2))]; }
 const EXM = ee(180, 0)[0], EYM = ee(0, 90)[1];
+const C = e => e.c || (BY[e.p] && BY[e.p].ll) || [0, 0];
+const tYear = t => t.an || (String(t.periode || "").match(/\d{4}/) || [""])[0];
 function proj(c){ const sc = M.w / (2 * EXM), [x, y] = ee(c[0], c[1]); return [(x + EXM) * sc, (EYM - y) * sc]; }
-const LANDM = ["route", "train", "bus", "pied", "velo", "moto", "4l", "terre", "voiture", "stop"];
-const MODE = {route: "route", train: "train", bus: "bus", pied: "à pied", velo: "vélo", moto: "moto", "4l": "4L", terre: "voie terrestre", voiture: "voiture", stop: "stop", bateau: "bateau", ferry: "ferry", avion: "avion", "?": "à préciser"};
+const LANDM = ["terre", "route", "train", "bus", "pied", "velo", "moto", "4l", "terre", "voiture", "stop"];
+const MODE = {terre: "terre", route: "route", train: "train", bus: "bus", pied: "à pied", velo: "vélo", moto: "moto", "4l": "4L", terre: "voie terrestre", voiture: "voiture", stop: "stop", bateau: "bateau", ferry: "ferry", avion: "avion", "?": "à préciser"};
 const kind = m => !m || m === "?" ? "unk" : LANDM.includes(m) ? "land" : (m === "bateau" || m === "ferry") ? "sea" : "air";
 function hav(a, b){ const R = 6371, r = Math.PI / 180, dl = (b[1] - a[1]) * r, dn = (b[0] - a[0]) * r;
   const h = Math.sin(dl / 2) ** 2 + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.sin(dn / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); }
@@ -313,11 +368,11 @@ function tripInfo(t){
   const E = t.etapes, done = E.filter(e => !e.prevu), borders = [];
   let km = 0;
   for(let i = 1; i < E.length; i++){
-    if(!E[i].prevu) km += hav(E[i - 1].c, E[i].c);
+    if(!E[i].prevu) km += hav(C(E[i - 1]), C(E[i]));
     if(E[i].p !== E[i - 1].p) borders.push({a: E[i - 1].p, b: E[i].p, m: E[i].m || "?", k: kind(E[i].m), pv: !!E[i].prevu});
   }
   const countries = [...new Set(done.map(e => e.p))], all = [...new Set(E.map(e => e.p))];
-  const b = [1e9, 1e9, -1e9, -1e9]; E.forEach(e => { const q = proj(e.c); b[0] = Math.min(b[0], q[0]); b[1] = Math.min(b[1], q[1]); b[2] = Math.max(b[2], q[0]); b[3] = Math.max(b[3], q[1]); });
+  const b = [1e9, 1e9, -1e9, -1e9]; E.forEach(e => { const q = proj(C(e)); b[0] = Math.min(b[0], q[0]); b[1] = Math.min(b[1], q[1]); b[2] = Math.max(b[2], q[0]); b[3] = Math.max(b[3], q[1]); });
   return {borders, km, countries, all, land: borders.filter(x => !x.pv && x.k === "land").length, done: borders.filter(x => !x.pv).length, box: b};
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -325,8 +380,19 @@ const flag = iso => iso && iso.length === 2 ? String.fromCodePoint(...[...iso.to
 const st = id => (id in over ? over[id] : (base[id] || ""));
 const fmt = n => n.toLocaleString("fr-FR");
 
-function load(){ try{ over = JSON.parse(localStorage.getItem(KEY) || "{}").o || {}; }catch(e){ over = {}; } }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify({o: over})); }catch(e){} }
+/* tout ce que tu modifies dans l'appli : statuts (o), séjours (sej), voyages (trips), éléments supprimés (del), réglages (opt) */
+let ST = {o: {}, sej: {}, trips: null, del: [], seed: 0, opt: {terr: true, routes: true}};
+function load(){ try{ const j = JSON.parse(localStorage.getItem(KEY) || "{}"); ST = Object.assign(ST, j); ST.opt = Object.assign({terr: true, routes: true}, j.opt || {}); if(localStorage.getItem("carte-territoires") === "0" && !j.opt) ST.opt.terr = false; }catch(e){} over = ST.o || {}; ST.o = over; ST.sej = ST.sej || {}; ST.del = ST.del || []; }
+function save(){ ST.o = over; try{ localStorage.setItem(KEY, JSON.stringify(ST)); }catch(e){} }
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+/* séjours d'un pays : ceux que tu as ajoutés + ceux qui viennent des grands voyages */
+function sejOf(id){
+  const own = (ST.sej[id] || []).map(x => Object.assign({own: true}, x)), L = [...own];
+  TRIPS.forEach(t => { if(t.etapes.some(e => e.p === id && !e.prevu) && !own.some(x => x.voyage === t.id)) L.push({an: tYear(t), avec: t.avec || [], voyage: t.id}); });
+  return L.sort((a, b) => String(b.an || "").localeCompare(String(a.an || "")));
+}
+function people(){ const S = new Set(); Object.values(ST.sej).forEach(L => L.forEach(x => (x.avec || []).forEach(n => S.add(n)))); TRIPS.forEach(t => (t.avec || []).forEach(n => S.add(n))); return [...S].sort((a, b) => a.localeCompare(b, "fr")); }
+const splitNames = v => v.split(/[,;]+| et /).map(x => x.trim()).filter(Boolean);
 function setStatus(id, s){
   if((base[id] || "") === s) delete over[id]; else over[id] = s;
   save(); paint(); renderStats(); if(!$("#v-list").hidden) renderList();
@@ -350,9 +416,9 @@ function build(){
   <g id="vp"><path id="sphere" d="${M.sphere}"/><path id="grat" d="${M.grat}"/><g id="land">${land}</g><g id="routes">${routesSvg()}</g><g id="dots">${dots}</g><g id="hits">${hitsSvg()}</g><g id="labels">${labels}</g><g id="stops"></g></g>`;
 }
 function segPath(E, P, i){
-  const a = P[i - 1], b = P[i], k = kind(E[i].m), dl = E[i].c[0] - E[i - 1].c[0];
+  const a = P[i - 1], b = P[i], k = kind(E[i].m), dl = C(E[i])[0] - C(E[i - 1])[0];
   if(Math.abs(dl) > 180){ /* traverse le Pacifique : on coupe au bord de la carte */
-    const l2 = E[i].c[0] + (dl > 0 ? -360 : 360), edge = dl > 0 ? -180 : 180, f = (edge - E[i - 1].c[0]) / (l2 - E[i - 1].c[0]), lat = E[i - 1].c[1] + (E[i].c[1] - E[i - 1].c[1]) * f;
+    const l2 = C(E[i])[0] + (dl > 0 ? -360 : 360), edge = dl > 0 ? -180 : 180, f = (edge - C(E[i - 1])[0]) / (l2 - C(E[i - 1])[0]), lat = C(E[i - 1])[1] + (C(E[i])[1] - C(E[i - 1])[1]) * f;
     const e1 = proj([edge, lat]), e2 = proj([-edge, lat]);
     return `M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${e1[0].toFixed(1)} ${e1[1].toFixed(1)}M${e2[0].toFixed(1)} ${e2[1].toFixed(1)}L${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
   }
@@ -362,21 +428,21 @@ function segPath(E, P, i){
     const o = L * .18; return `M${a[0].toFixed(1)} ${a[1].toFixed(1)}Q${(mx + nx * o).toFixed(1)} ${(my + ny * o).toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
   }
   if(k === "sea") return `M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
-  const sm = j => j >= 1 && j < P.length && ["land", "unk"].includes(kind(E[j].m)) && Math.abs(E[j].c[0] - E[j - 1].c[0]) <= 180;
+  const sm = j => j >= 1 && j < P.length && ["land", "unk"].includes(kind(E[j].m)) && Math.abs(C(E[j])[0] - C(E[j - 1])[0]) <= 180;
   const p0 = sm(i - 1) ? P[i - 2] : a, p3 = sm(i + 1) ? P[i + 1] : b;
   const c1 = [a[0] + (b[0] - p0[0]) / 6, a[1] + (b[1] - p0[1]) / 6], c2 = [b[0] - (p3[0] - a[0]) / 6, b[1] - (p3[1] - a[1]) / 6];
   return `M${a[0].toFixed(1)} ${a[1].toFixed(1)}C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
 }
 const DASH = {air: "7 6", sea: "1 6", unk: "2 5", land: ""};
 function routesSvg(){
-  return TRIPS.map(t => { const E = t.etapes, P = E.map(e => proj(e.c));
+  return TRIPS.map(t => { const E = t.etapes, P = E.map(e => proj(C(e)));
     let out = ""; for(let i = 1; i < E.length; i++){ const k = kind(E[i].m), d = DASH[k] || (E[i].prevu ? "5 6" : "");
       out += `<path class="${k}${E[i].prevu ? " prevu" : ""}"${d ? ` data-dash="${d}"` : ""} d="${segPath(E, P, i)}"/>`; }
     return `<g data-t="${t.id}">${out}</g>`; }).join("");
 }
 function hitsSvg(){
-  return TRIPS.map(t => { const E = t.etapes, P = E.map(e => proj(e.c)); let d = `M${P[0][0].toFixed(0)} ${P[0][1].toFixed(0)}`;
-    for(let i = 1; i < P.length; i++) d += (Math.abs(E[i].c[0] - E[i - 1].c[0]) > 180 ? "M" : "L") + P[i][0].toFixed(0) + " " + P[i][1].toFixed(0);
+  return TRIPS.map(t => { const E = t.etapes, P = E.map(e => proj(C(e))); let d = `M${P[0][0].toFixed(0)} ${P[0][1].toFixed(0)}`;
+    for(let i = 1; i < P.length; i++) d += (Math.abs(C(E[i])[0] - C(E[i - 1])[0]) > 180 ? "M" : "L") + P[i][0].toFixed(0) + " " + P[i][1].toFixed(0);
     return `<path data-trip="${t.id}" d="${d}"/>`; }).join("");
 }
 let B = [0, 0, 1, 1];
@@ -482,23 +548,47 @@ function paint(){
   document.querySelectorAll("#land path,#dots circle,#labels text").forEach(el => { const s = st(el.dataset.id); el.classList.toggle("v", s === "v"); el.classList.toggle("p", s === "p"); el.classList.toggle("sel", el.dataset.id === sel); });
   const land = $("#land"), dots = $("#dots");
   if(sel){ const el = land.querySelector(`[data-id="${sel}"]`); if(el) land.appendChild(el); const d = dots.querySelector(`[data-id="${sel}"]`); if(d) dots.appendChild(d); }
-  const VA = M.pays.filter(p => p.t && st(p.id) === "v"), V = VA.filter(p => p.id !== HOME).length, homeV = VA.length > V;
-  $("#n-vis").textContent = V; $("#n-lab").textContent = (V > 1 ? "pays visités" : "pays visité") + (homeV && BY[HOME] ? " + " + (HOME === "FRA" ? "la France" : BY[HOME].n) : "");
+  const VA = M.pays.filter(p => p.t && st(p.id) === "v"), V = VA.length;
+  $("#n-vis").textContent = V; $("#n-lab").textContent = V > 1 ? "pays visités" : "pays visité";
   const P = M.pays.filter(p => p.t && st(p.id) === "p").length, tot = M.pays.filter(p => p.t).length;
   $("#sub").innerHTML = `<strong>${Math.round(VA.length / tot * 100)} %</strong> du monde<br>${P} prévu${P > 1 ? "s" : ""}`;
 }
-function select(id){ if(selTrip) closeTrip(); sel = id; paint(); detail(); openSheet(id); }
+function select(id){ if(selTrip) closeTrip(); sejForm = false; sel = id; paint(); detail(); openSheet(id); }
 function openSheet(id){
   const p = BY[id], s = st(id);
   $("#sh-flag").textContent = flag(p.iso);
   $("#sh-name").textContent = p.n;
   $("#sh-info").textContent = (CONT[p.c] || "") + (p.t ? "" : " · territoire" + (p.s && BY[p.s] ? " (" + BY[p.s].n + ")" : "") + ", hors décompte");
   $("#sh-seg").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.s === s)));
-  const L = SEJ[id] || [];
-  $("#sh-sej").innerHTML = id === HOME ? `<p class="home">Chez toi</p>` : L.length ? `<ul class="sej">${L.map(x => `<li><b>${esc(x.an || "?")}</b><span>${x.avec && x.avec.length ? "avec " + esc(x.avec.join(", ")) : "seul"}${x.voyage && TRIPS.find(t => t.id === x.voyage) ? " · " + esc(TRIPS.find(t => t.id === x.voyage).nom) : ""}</span></li>`).join("")}</ul>` : s === "v" ? `<p class="home" style="color:var(--muted);font-weight:400">Année et compagnons à préciser</p>` : "";
+  renderSej(id);
   $("#tsheet").hidden = true;
   $("#sheet").hidden = false;
 }
+let sejForm = false;
+function renderSej(id){
+  const s = st(id), L = sejOf(id), tn = v => { const t = TRIPS.find(x => x.id === v); return t ? t.nom : ""; };
+  if(id === HOME){ $("#sh-sej").innerHTML = `<p class="home">Chez toi : pas de séjours à noter.</p>`; return; }
+  const list = L.length ? `<ul class="sej">${L.map(x => `<li><b>${esc(x.an || "?")}</b><span>${x.avec && x.avec.length ? "avec " + esc(x.avec.join(", ")) : "seul"}${x.voyage && tn(x.voyage) ? " · " + esc(tn(x.voyage)) : ""}</span>${x.own ? `<button class="del" data-del-sej="${x.id}" aria-label="Supprimer ce séjour">×</button>` : ""}</li>`).join("")}</ul>` : "";
+  const ppl = people();
+  const form = sejForm ? `<form class="sform" id="sform"><div class="frow"><label>Année<input id="sf-an" type="number" inputmode="numeric" min="1950" max="2100" placeholder="2019"></label><label class="grow">Avec qui<input id="sf-avec" list="ppl-list" placeholder="Éléonore, Thomas… (vide = seul)" autocomplete="off"></label></div>
+    ${ppl.length ? `<div class="pchips">${ppl.map(n => `<button type="button" data-addp="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div>` : ""}
+    <div class="frow"><button class="btn" type="submit">Ajouter</button><button class="btn alt" type="button" id="sf-cancel">Annuler</button></div></form>`
+    : `<button class="addsej" id="sf-open">+ Ajouter un séjour (année, avec qui)</button>`;
+  $("#sh-sej").innerHTML = `<p class="tsub2">Séjours</p>${list || (s === "v" ? `<p class="home" style="color:var(--muted);font-weight:400;margin-top:4px">Aucun séjour noté.</p>` : "")}${form}<datalist id="ppl-list">${ppl.map(n => `<option value="${esc(n)}">`).join("")}</datalist>`;
+}
+$("#sh-sej").addEventListener("click", e => {
+  if(e.target.id === "sf-open"){ sejForm = true; renderSej(sel); setTimeout(() => { const a = $("#sf-an"); if(a) a.focus(); }, 50); }
+  if(e.target.id === "sf-cancel"){ sejForm = false; renderSej(sel); }
+  const ap = e.target.closest("[data-addp]"); if(ap){ const f = $("#sf-avec"), cur = splitNames(f.value); if(!cur.includes(ap.dataset.addp)) cur.push(ap.dataset.addp); f.value = cur.join(", "); }
+  const d = e.target.closest("[data-del-sej]"); if(d){ if(d.dataset.delSej.startsWith("f-")) ST.del.push(d.dataset.delSej); ST.sej[sel] = (ST.sej[sel] || []).filter(x => x.id !== d.dataset.delSej); save(); renderSej(sel); renderStats(); if(!$("#v-list").hidden) renderList(); }
+});
+$("#sh-sej").addEventListener("submit", e => {
+  e.preventDefault(); const an = parseInt($("#sf-an").value, 10);
+  if(!(an > 1900 && an < 2101)){ $("#sf-an").focus(); return; }
+  (ST.sej[sel] = ST.sej[sel] || []).push({id: uid(), an, avec: splitNames($("#sf-avec").value)});
+  if(st(sel) !== "v") setStatus(sel, "v");
+  sejForm = false; save(); renderSej(sel); renderStats(); if(!$("#v-list").hidden) renderList();
+});
 function closeSheet(){ $("#sheet").hidden = true; if(sel){ sel = null; paint(); detail(); } }
 $("#sh-x").onclick = closeSheet;
 $("#sh-seg").onclick = e => { const b = e.target.closest("button"); if(b && sel) setStatus(sel, b.dataset.s); };
@@ -511,7 +601,7 @@ function openTrip(id, fit = true){
   svg.classList.add("trip-on");
   $("#routes").querySelectorAll("g").forEach(g => g.classList.toggle("on", g.dataset.t === id));
   $("#land").querySelectorAll("path").forEach(p => p.classList.toggle("intrip", I.all.includes(p.dataset.id)));
-  $("#stops").innerHTML = t.etapes.map((e, i) => { const q = proj(e.c); if(i === t.etapes.length - 1 && e.v === t.etapes[0].v && e.p === t.etapes[0].p) return "";
+  $("#stops").innerHTML = t.etapes.map((e, i) => { const q = proj(C(e)); if(i === t.etapes.length - 1 && e.v === t.etapes[0].v && e.p === t.etapes[0].p) return "";
     return `<circle class="${e.prevu ? "pv" : ""}" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="4"/><text x="${q[0].toFixed(1)}" y="${q[1].toFixed(1)}" data-y="${q[1].toFixed(1)}" text-anchor="middle">${esc(e.v)}</text>`; }).join("");
   const nm = c => BY[c] ? BY[c].n : c, fg = c => BY[c] ? flag(BY[c].iso) : "";
   const row = x => `<li class="${x.pv ? "pv" : ""}"><span class="fl2">${fg(x.a)} → ${fg(x.b)}</span><span>${esc(nm(x.a))} → ${esc(nm(x.b))}</span><span class="md ${x.k}">${esc(MODE[x.m] || x.m)}</span></li>`;
@@ -521,7 +611,8 @@ function openTrip(id, fit = true){
   $("#ts-body").innerHTML = `<div class="tchips"><span><b>${I.countries.length}</b>pays</span><span><b>${I.done}</b>frontière${I.done > 1 ? "s" : ""}</span><span><b>${I.land}</b>par la terre</span><span><b>${fmt(Math.round(I.km / 100) * 100)}</b>km</span></div>
     ${D.length ? `<p class="tsub2">Frontières franchies</p><ul class="bord">${D.map(row).join("")}</ul>` : ""}
     ${F.length ? `<p class="tsub2">À venir</p><ul class="bord">${F.map(row).join("")}</ul>` : ""}
-    ${t.brouillon ? `<p class="tsub2" style="font-weight:400">Itinéraire provisoire : les étapes et les moyens de transport sont à préciser avec Claude.</p>` : ""}`;
+    ${t.brouillon ? `<p class="tsub2" style="font-weight:400">Itinéraire provisoire : touche « Modifier » pour corriger les étapes et les frontières.</p>` : ""}
+    <button class="btn alt" data-edit="${t.id}" style="margin-top:14px">Modifier ce voyage</button>`;
   $("#tsheet").hidden = false; $("#tsheet").scrollTop = 0;
   if(fit){ const b = I.box, pad = 40; fitBox([b[0] - pad, b[1] - pad, b[2] + pad, b[3] + pad], 16, true, $("#tsheet").offsetHeight - 10); } else detail();
 }
@@ -530,16 +621,79 @@ function closeTrip(){
   $("#routes").querySelectorAll("g").forEach(g => g.classList.remove("on")); $("#land").querySelectorAll(".intrip").forEach(p => p.classList.remove("intrip")); detail();
 }
 $("#ts-x").onclick = closeTrip;
+$("#ts-body").addEventListener("click", e => { const b = e.target.closest("[data-edit]"); if(b) openEditor(b.dataset.edit); });
 function renderTrips(){
   const cards = TRIPS.map(t => { const I = tripInfo(t), seq = [];
     t.etapes.forEach(e => { if(!seq.length || seq[seq.length - 1].p !== e.p) seq.push({p: e.p, pv: !!e.prevu}); });
     return `<button class="tcard" data-trip="${t.id}"><h4>${esc(t.nom)}${t.brouillon ? `<span class="badge">brouillon</span>` : ""}</h4><p>${esc([t.periode, t.avec && t.avec.length ? "avec " + t.avec.join(", ") : ""].filter(Boolean).join(" · "))}</p>
       <div class="chain">${seq.map((x, i) => `${i ? "<i>›</i>" : ""}<span class="${x.pv ? "pv" : ""}">${BY[x.p] ? flag(BY[x.p].iso) : x.p}</span>`).join("")}</div>
       <div class="tchips"><span><b>${I.countries.length}</b>pays</span><span><b>${I.land}</b>frontières par la terre</span><span><b>${fmt(Math.round(I.km / 100) * 100)}</b>km</span></div></button>`; }).join("");
-  $("#trips").innerHTML = `<h2 class="sec">Mes grands voyages</h2>${cards || `<p class="empty">Aucun voyage pour l'instant.</p>`}
-    <p class="foot">Les tracés sont volontairement simplifiés : une étape par grande ville. Pour ajouter ou corriger un voyage, envoie à Claude la liste des étapes et les moyens de transport.</p>`;
+  $("#trips").innerHTML = `<h2 class="sec">Mes grands voyages</h2><button class="btn" id="new-trip">+ Nouveau voyage</button>${cards || `<p class="empty">Aucun voyage pour l'instant.</p>`}
+    <p class="foot">Les tracés sont simplifiés : un point par pays (ou par grande ville si tu me la donnes). Pour chaque passage d'un pays à l'autre, tu indiques si c'était par la terre, en avion ou par la mer.</p>`;
 }
-$("#trips").onclick = e => { const c = e.target.closest("[data-trip]"); if(c){ show("map"); openTrip(c.dataset.trip); } };
+$("#trips").onclick = e => { if(e.target.id === "new-trip"){ openEditor(null); return; } const c = e.target.closest("[data-trip]"); if(c){ show("map"); openTrip(c.dataset.trip); } };
+function setTrips(){
+  TRIPS = (ST.trips || []).filter(t => t.etapes && t.etapes.length > 1);
+  if($("#routes")){ $("#routes").innerHTML = routesSvg(); $("#hits").innerHTML = hitsSvg(); if(selTrip && !TRIPS.some(t => t.id === selTrip)) closeTrip(); detail(); }
+  if(!$("#v-trips").hidden) renderTrips();
+}
+
+/* ---------- éditeur de voyage ---------- */
+let ED = null;
+const MBTN = [["terre", "Terre"], ["avion", "Avion"], ["bateau", "Mer"]];
+const mk = m => ({land: "terre", air: "avion", sea: "bateau"})[kind(m)] || "";
+function openEditor(id){
+  const t = id && TRIPS.find(x => x.id === id);
+  ED = t ? {id: t.id, nom: t.nom, an: tYear(t), avec: (t.avec || []).join(", "), etapes: t.etapes.map(e => Object.assign({}, e)), orig: t, confirm: false}
+         : {id: null, nom: "", an: "", avec: "", etapes: [], confirm: false};
+  renderEditor(); openPanel("editor");
+}
+function grab(){ if(!ED || !$("#ed-nom")) return; ED.nom = $("#ed-nom").value; ED.an = $("#ed-an").value; ED.avec = $("#ed-avec").value; }
+function renderEditor(){
+  const E = ED.etapes, ppl = people();
+  $("#ed-t").textContent = ED.id ? "Modifier le voyage" : "Nouveau voyage";
+  $("#ed-body").innerHTML = `
+  <label class="fld">Nom du voyage<input id="ed-nom" value="${esc(ED.nom)}" placeholder="Road trip en Amérique latine" autocomplete="off"></label>
+  <div class="frow"><label class="fld">Année<input id="ed-an" type="number" inputmode="numeric" value="${esc(ED.an)}" placeholder="2018"></label>
+  <label class="fld grow">Avec qui<input id="ed-avec" list="ppl-list2" value="${esc(ED.avec)}" placeholder="Éléonore, Thomas… (vide = seul)" autocomplete="off"></label></div>
+  <datalist id="ppl-list2">${ppl.map(n => `<option value="${esc(n)}">`).join("")}</datalist>
+  <h3>Étapes dans l'ordre<span>${E.length}</span></h3>
+  ${E.length ? `<ol class="steps">${E.map((e, i) => `${i ? `<li class="mrow"><span>${e.p !== E[i - 1].p ? "Frontière" : "Trajet"}</span><div class="mseg">${MBTN.map(([m, l]) => `<button data-mode="${m}" data-i="${i}" aria-pressed="${mk(e.m) === m}">${l}</button>`).join("")}</div></li>` : ""}
+    <li class="step"><span class="f">${BY[e.p] ? flag(BY[e.p].iso) : ""}</span><span class="nm">${esc(BY[e.p] ? BY[e.p].n : e.p)}${e.v ? `<small>${esc(e.v)}</small>` : ""}</span>
+    <button class="pvb${e.prevu ? " on" : ""}" data-pv="${i}" aria-pressed="${!!e.prevu}">à venir</button><button class="ib" data-up="${i}" aria-label="Monter"${i ? "" : " disabled"}>↑</button><button class="ib" data-rm="${i}" aria-label="Retirer">×</button></li>`).join("")}</ol>` : `<p class="empty" style="padding:8px 0">Ajoute les pays dans l'ordre où tu les as traversés.</p>`}
+  <div class="picker"><input class="search" id="ed-q" type="search" placeholder="Ajouter un pays…" autocomplete="off"><div id="ed-res"></div></div>
+  <div class="msg" id="ed-msg" role="status"></div>
+  <div class="frow"><button class="btn" id="ed-save">Enregistrer</button><button class="btn alt" id="ed-cancel">Annuler</button></div>
+  ${ED.id ? `<button class="btn danger" id="ed-del">${ED.confirm ? "Confirmer la suppression" : "Supprimer ce voyage"}</button>` : ""}`;
+}
+$("#ed-body").addEventListener("input", e => {
+  if(e.target.id !== "ed-q") return;
+  const q = norm(e.target.value.trim());
+  $("#ed-res").innerHTML = q ? M.pays.filter(p => p.id !== "ATA" && norm(p.n).includes(q)).sort((a, b) => (norm(a.n).startsWith(q) ? 0 : 1) - (norm(b.n).startsWith(q) ? 0 : 1) || a.n.localeCompare(b.n, "fr")).slice(0, 8)
+    .map(p => `<button data-add="${p.id}">${flag(p.iso)} ${esc(p.n)}</button>`).join("") : "";
+});
+$("#ed-body").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return; grab(); const E = ED.etapes;
+  if(b.dataset.add){ E.push({p: b.dataset.add, m: E.length ? "terre" : undefined}); renderEditor(); const q = $("#ed-q"); q.focus(); q.scrollIntoView({block: "center"}); return; }
+  if(b.dataset.mode){ E[+b.dataset.i].m = b.dataset.mode; renderEditor(); return; }
+  if(b.dataset.pv){ const i = +b.dataset.pv; E[i].prevu = !E[i].prevu; if(!E[i].prevu) delete E[i].prevu; renderEditor(); return; }
+  if(b.dataset.up){ const i = +b.dataset.up; if(i > 0){ [E[i - 1], E[i]] = [E[i], E[i - 1]]; } renderEditor(); return; }
+  if(b.dataset.rm){ E.splice(+b.dataset.rm, 1); renderEditor(); return; }
+  if(b.id === "ed-cancel"){ $("#editor").hidden = true; return; }
+  if(b.id === "ed-del"){ if(!ED.confirm){ ED.confirm = true; renderEditor(); return; }
+    ST.trips = ST.trips.filter(t => t.id !== ED.id); ST.del.push(ED.id); save(); $("#editor").hidden = true; if(selTrip === ED.id) closeTrip(); setTrips(); renderStats(); return; }
+  if(b.id === "ed-save"){
+    if(!ED.nom.trim()){ $("#ed-msg").textContent = "Donne un nom au voyage."; $("#ed-nom").focus(); return; }
+    if(E.length < 2){ $("#ed-msg").textContent = "Ajoute au moins deux étapes."; return; }
+    const an = parseInt(ED.an, 10);
+    const t = Object.assign({}, ED.orig || {}, {id: ED.id || "u" + uid(), nom: ED.nom.trim(), an: an || "", periode: ED.orig && ED.orig.periode && String(ED.orig.periode).includes(String(an)) ? ED.orig.periode : (an || ""), avec: splitNames(ED.avec), etapes: E.map((e, i) => { const x = Object.assign({}, e); if(!i) delete x.m; return x; }), edited: true});
+    delete t.brouillon;
+    const i = ST.trips.findIndex(x => x.id === t.id); if(i < 0) ST.trips.push(t); else ST.trips[i] = t;
+    E.filter(e => !e.prevu).forEach(e => { if(st(e.p) !== "v"){ if((base[e.p] || "") === "v") delete over[e.p]; else over[e.p] = "v"; } });
+    save(); $("#editor").hidden = true; setTrips(); paint(); renderStats();
+    if(!$("#v-trips").hidden) renderTrips();
+  }
+});
 
 /* ---------- onglets ---------- */
 function show(v){
@@ -555,23 +709,20 @@ document.querySelector("nav").onclick = e => { const b = e.target.closest("butto
 function goMap(id){ show("map"); if(selTrip) closeTrip(); select(id); fitBox(BY[id].b, 60); }
 
 /* ---------- liste ---------- */
-let filt = "all", openRow = null, showTerr = true;
-try{ showTerr = localStorage.getItem("carte-territoires") !== "0"; }catch(e){}
-$("#terr").checked = showTerr;
-$("#terr").onchange = () => { showTerr = $("#terr").checked; try{ localStorage.setItem("carte-territoires", showTerr ? "1" : "0"); }catch(e){} renderList(); };
+let filt = "all", openRow = null;
 $("#chips").onclick = e => { const b = e.target.closest("button"); if(!b) return; filt = b.dataset.f; $("#chips").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); renderList(); };
 $("#q").oninput = renderList;
 const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 function rowHtml(p){
   const s = st(p.id), o = openRow === p.id, par = p.s && BY[p.s] ? BY[p.s].n : "";
-  return `<li class="${o ? "open" : ""}${p.t ? "" : " terr"}"><div class="row"><button class="main" data-row="${p.id}" aria-expanded="${o}"><span class="f">${flag(p.iso)}</span><span class="nm">${esc(p.n)}${p.t ? "" : `<small>${par ? "Territoire · " + esc(par) : "Territoire"}</small>`}</span></button><button class="pill ${s}" data-row="${p.id}">${LABEL[s]}<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button><button class="go" data-go="${p.id}" aria-label="Voir ${esc(p.n)} sur la carte"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></button></div>${o ? `<div class="seg rowseg">${["v", "p", ""].map(x => `<button data-set="${x}" data-id="${p.id}" aria-pressed="${x === s}">${LABEL[x]}</button>`).join("")}</div>` : ""}</li>`;
+  return `<li class="${o ? "open" : ""}${p.t ? "" : " terr"}"><div class="row"><button class="main" data-row="${p.id}" aria-expanded="${o}"><span class="f">${flag(p.iso)}</span><span class="nm">${esc(p.n)}${p.t ? "" : `<small>${par ? "Territoire · " + esc(par) : "Territoire"}</small>`}</span></button><button class="pill ${s}" data-row="${p.id}">${LABEL[s]}<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button><button class="go" data-go="${p.id}" aria-label="Voir ${esc(p.n)} sur la carte"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></button></div>${o ? `<div class="seg rowseg">${["v", "p", ""].map(x => `<button data-set="${x}" data-id="${p.id}" aria-pressed="${x === s}">${LABEL[x]}</button>`).join("")}</div>${p.id === HOME ? "" : `<button class="addsej" data-sej="${p.id}">Séjours : ${sejOf(p.id).length ? sejOf(p.id).map(x => x.an || "?").join(", ") : "aucun"} · noter un séjour</button>`}` : ""}</li>`;
 }
 function renderList(){
   const q = norm($("#q").value.trim());
   const items = M.pays.filter(p => p.id !== "ATA").filter(p => {
     const s = st(p.id);
     if(filt === "v" && s !== "v") return false; if(filt === "p" && s !== "p") return false; if(filt === "n" && s) return false;
-    if(!showTerr && !p.t && !q) return false;
+    if(!ST.opt.terr && !p.t && !q) return false;
     return !q || norm(p.n).includes(q);
   }).sort((a, b) => a.n.localeCompare(b.n, "fr"));
   if(!items.length){ $("#list").innerHTML = `<p class="empty">Aucun pays ne correspond.</p>`; return; }
@@ -584,6 +735,7 @@ $("#list").onclick = e => {
   const c = e.target.closest("[data-row]"), g = e.target.closest("[data-go]");
   const set = e.target.closest("[data-set]");
   if(set){ setStatus(set.dataset.id, set.dataset.set); return; }
+  const sj = e.target.closest("[data-sej]"); if(sj){ sel = sj.dataset.sej; sejForm = true; openSheet(sel); setTimeout(() => { const a = $("#sf-an"); if(a) a.focus(); }, 80); return; }
   if(c){ openRow = openRow === c.dataset.row ? null : c.dataset.row; renderList(); }
   else if(g) goMap(g.dataset.go);
 };
@@ -613,7 +765,7 @@ function contMap(on){
     <g filter="url(#wc)">${M.pays.filter(p => p.id !== "ATA").map(p => { const c = on.includes(p.c) ? CCOL[p.c] : "#cfd5db"; return `<path d="${p.d}" fill="${c}" stroke="${c}" stroke-width="1.2"/>`; }).join("")}</g></svg>`;
 }
 function renderStats(){
-  const C = M.pays.filter(p => p.t), VA = C.filter(p => st(p.id) === "v"), V = VA.filter(p => p.id !== HOME), P = C.filter(p => st(p.id) === "p");
+  const C = M.pays.filter(p => p.t), VA = C.filter(p => st(p.id) === "v"), V = VA, P = C.filter(p => st(p.id) === "p");
   const terrV = M.pays.filter(p => !p.t && st(p.id) === "v");
   const on = CORDER.filter(c => c !== "an" && VA.some(p => p.c === c));
   const conts = CORDER.filter(c => c !== "an").map(c => { const all = C.filter(p => p.c === c), v = all.filter(p => st(p.id) === "v").length; return {c, all: all.length, v}; });
@@ -621,7 +773,7 @@ function renderStats(){
   const TI = TRIPS.map(tripInfo), land = TI.reduce((a, x) => a + x.land, 0), km = TI.reduce((a, x) => a + x.km, 0);
   /* par année et compagnons, depuis les séjours */
   const years = {}, ppl = {}, nodate = [];
-  [...V, ...terrV].forEach(p => { const L = SEJ[p.id] || []; if(!L.length) nodate.push(p);
+  [...V, ...terrV].filter(p => p.id !== HOME).forEach(p => { const L = sejOf(p.id); if(!L.length) nodate.push(p);
     L.forEach(x => { const y = x.an || "?"; (years[y] = years[y] || new Set()).add(p.id); (x.avec || []).forEach(n => (ppl[n] = ppl[n] || new Set()).add(p.id)); }); });
   const ys = Object.keys(years).sort((a, b) => b.localeCompare(a));
   const fb = p => `<button data-go="${p.id}" aria-label="${esc(p.n)}"><span class="fl"><span>${flag(p.iso)}</span></span></button>`;
@@ -630,7 +782,7 @@ function renderStats(){
   $("#stats").innerHTML = `
   <h2 class="sec">Tu as vu</h2>
   <div class="hero">
-    <div class="card">${mountains(V.length)}<div class="ov"><b>${V.length}</b><span>pays</span>${VA.length > V.length ? `<small>+ ${HOME === "FRA" ? "la France" : esc(BY[HOME].n)}</small>` : ""}</div></div>
+    <div class="card">${mountains(V.length)}<div class="ov"><b>${V.length}</b><span>pays</span></div></div>
     <div class="card"><img src="globe-nuit.jpg" alt=""><div class="ov"><b>${pct} %</b><span>du monde</span></div></div>
   </div>
   <div class="tiles">
@@ -643,32 +795,56 @@ function renderStats(){
   <div class="clegend">${CORDER.filter(c => c !== "an").map(c => `<span class="${on.includes(c) ? "on" : ""}"><i style="background:${on.includes(c) ? CCOL[c] : "#b9c1c9"}"></i>${CONT[c]}</span>`).join("")}</div>
   <h2 class="sec">Drapeaux collectés</h2>
   <div class="flags">${flagsL.map(fb).join("")}</div>
-  ${VA.length > V.length ? `<p class="homeflag">${BY[HOME] ? flag(BY[HOME].iso) : ""} ${HOME === "FRA" ? "La France" : esc(BY[HOME].n)}, chez toi, est comptée à part.</p>` : ""}
   <h2 class="sec">Année par année</h2>
   <ul class="years">${ys.map(y => `<li><b>${esc(y)}</b><div class="yf">${[...years[y]].map(id => `<span title="${esc(BY[id].n)}">${flag(BY[id].iso)}</span>`).join("")}</div><small>${years[y].size} pays</small></li>`).join("")}
-  ${nodate.length ? `<li><b style="color:var(--muted);font-size:15px">À dater</b><div class="yf">${nodate.map(p => `<span title="${esc(p.n)}">${flag(p.iso)}</span>`).join("")}</div><small>${nodate.length} pays sans année ni compagnons</small></li>` : ""}</ul>
+  ${nodate.length ? `<li><b style="color:var(--muted);font-size:15px">À dater</b><div class="yf">${nodate.map(p => `<button class="yb" data-sejgo="${p.id}" aria-label="${esc(p.n)}">${flag(p.iso)}</button>`).join("")}</div><small>${nodate.length} pays sans séjour noté : touche un pays pour l'ajouter</small></li>` : ""}</ul>
   ${Object.keys(ppl).length ? `<h2 class="sec">Compagnons de route</h2><div class="ppl">${Object.entries(ppl).sort((a, b) => b[1].size - a[1].size).map(([n, S]) => `<span>${esc(n)} <em>${S.size} pays</em></span>`).join("")}</div>` : ""}
   <h2 class="sec">Par continent</h2>
   ${conts.map(x => `<div class="bar"><span>${CONT[x.c]}</span><span class="t"><i style="width:${x.all ? x.v / x.all * 100 : 0}%"></i></span><em>${x.v} / ${x.all}</em></div>`).join("")}
   <h3>Pays prévus<span>${P.length}</span></h3>${tag(P)}
+  <p class="foot">${C.length} pays comptés : les 193 membres de l'ONU, plus le Vatican, la Palestine, le Kosovo et Taïwan. Les territoires (Hong Kong, Groenland…) ont leur drapeau mais ne comptent pas dans le total.</p>`;
+}
+function code(){ const ids = s => M.pays.filter(p => st(p.id) === s).map(p => p.id).join(","); return `CARTE1:V=${ids("v")};P=${ids("p")}`; }
+$("#stats").onclick = e => {
+  const sg = e.target.closest("[data-sejgo]"); if(sg){ goMap(sg.dataset.sejgo); sejForm = true; renderSej(sg.dataset.sejgo); return; }
+  const g = e.target.closest("[data-go]"); if(g){ goMap(g.dataset.go); return; }
+};
+
+/* ---------- réglages ---------- */
+function code(){
+  const ids = s => M.pays.filter(p => st(p.id) === s).map(p => p.id).join(",");
+  const data = {v: ids("v"), p: ids("p"), sej: ST.sej, trips: ST.trips, del: ST.del};
+  return "CARTE2:" + btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+}
+function sw(id, on, label, sub){ return `<label class="switch"><input type="checkbox" id="${id}"${on ? " checked" : ""}><span class="tr" aria-hidden="true"></span>${label}${sub ? `<small>${sub}</small>` : ""}</label>`; }
+function renderSettings(){
+  $("#set-body").innerHTML = `
+  <h3>Affichage</h3>
+  ${sw("o-terr", ST.opt.terr, "Territoires dans la liste", "Groenland, Hong Kong, Polynésie…")}
+  ${sw("o-routes", ST.opt.routes, "Tracés des voyages sur la carte", "")}
   <h3>Couleurs</h3>
   <div class="pals">${PALS.map(([id, n, c]) => `<button data-p="${id}" aria-pressed="${id === pal}"><span style="background:${c[0]}"><i style="background:${c[1]}"></i><i style="background:${c[2]}"></i></span>${n}</button>`).join("")}</div>
   <h3>Sauvegarde</h3>
   <div class="box">
-    <p>Tes coches sont enregistrées dans ce téléphone. Garde ce code quelque part (Notes, message à Claude) pour les retrouver si besoin.</p>
+    <p>Tout ce que tu notes (pays, séjours, voyages) est enregistré dans ce téléphone. Copie ce code de temps en temps dans Notes, ou envoie-le à Claude : il permet de tout retrouver.</p>
     <textarea id="bk-out" readonly>${esc(code())}</textarea>
     <button class="btn" id="bk-copy">Copier le code</button>
     <p style="margin-top:16px">Pour restaurer, colle un code ci-dessous.</p>
-    <textarea id="bk-in" placeholder="CARTE1:V=…;P=…"></textarea>
+    <textarea id="bk-in" placeholder="CARTE2:…"></textarea>
     <button class="btn alt" id="bk-imp">Importer</button>
     <div class="msg" id="bk-msg" role="status"></div>
   </div>
-  <p class="foot">${C.length} pays comptés : les 193 membres de l'ONU, plus le Vatican, la Palestine, le Kosovo et Taïwan. Les territoires (Hong Kong, Groenland…) ont leur drapeau mais ne comptent pas dans le total.<br><br><a href="../">Carnet d'histoire →</a></p>`;
+  <p class="foot"><a href="../">Carnet d'histoire →</a></p>`;
 }
-function code(){ const ids = s => M.pays.filter(p => st(p.id) === s).map(p => p.id).join(","); return `CARTE1:V=${ids("v")};P=${ids("p")}`; }
-$("#stats").onclick = e => {
-  const g = e.target.closest("[data-go]"); if(g){ goMap(g.dataset.go); return; }
-  const pb = e.target.closest("[data-p]"); if(pb){ setPal(pb.dataset.p); renderStats(); return; }
+function openPanel(id){ $("#" + id).hidden = false; $("#" + id).querySelector(".pb").scrollTop = 0; }
+$("#gear").onclick = () => { renderSettings(); openPanel("settings"); };
+document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => $("#" + b.dataset.close).hidden = true);
+$("#set-body").addEventListener("change", e => {
+  if(e.target.id === "o-terr"){ ST.opt.terr = e.target.checked; save(); renderList(); }
+  if(e.target.id === "o-routes"){ ST.opt.routes = e.target.checked; save(); svg.classList.toggle("noroutes", !ST.opt.routes); }
+});
+$("#set-body").addEventListener("click", e => {
+  const pb = e.target.closest("[data-p]"); if(pb){ setPal(pb.dataset.p); renderSettings(); return; }
   if(e.target.id === "bk-copy"){
     const ta = $("#bk-out");
     const ok = () => $("#bk-msg").textContent = "Code copié.";
@@ -676,13 +852,17 @@ $("#stats").onclick = e => {
     try{ navigator.clipboard.writeText(ta.value).then(ok, ko); }catch(err){ ko(); }
   }
   if(e.target.id === "bk-imp"){
-    const v = $("#bk-in").value.trim(), m = v.match(/^CARTE1:V=([A-Z0-9,]*);P=([A-Z0-9,]*)$/);
-    if(!m){ $("#bk-msg").textContent = "Ce code n'est pas reconnu. Il doit commencer par CARTE1:"; return; }
-    const S = {}; m[1].split(",").filter(Boolean).forEach(id => S[id] = "v"); m[2].split(",").filter(Boolean).forEach(id => S[id] = "p");
+    const v = $("#bk-in").value.trim(); let S = {}, data = null;
+    const m1 = v.match(/^CARTE1:V=([A-Z0-9,]*);P=([A-Z0-9,]*)$/);
+    try{ if(v.startsWith("CARTE2:")) data = JSON.parse(decodeURIComponent(escape(atob(v.slice(7))))); }catch(err){}
+    if(!m1 && !data){ $("#bk-msg").textContent = "Ce code n'est pas reconnu. Il doit commencer par CARTE2: (ou CARTE1:)."; return; }
+    const V = m1 ? m1[1] : data.v || "", P = m1 ? m1[2] : data.p || "";
+    V.split(",").filter(Boolean).forEach(id => S[id] = "v"); P.split(",").filter(Boolean).forEach(id => S[id] = "p");
     over = {}; M.pays.forEach(p => { const s = S[p.id] || ""; if((base[p.id] || "") !== s) over[p.id] = s; });
-    save(); paint(); renderStats(); $("#bk-msg").textContent = "Importé.";
+    if(data){ ST.sej = data.sej || {}; ST.trips = data.trips || []; ST.del = data.del || []; }
+    save(); setTrips(); paint(); renderStats(); $("#bk-msg").textContent = "Importé.";
   }
-};
+});
 
 /* ---------- démarrage ---------- */
 async function start(){
@@ -694,7 +874,17 @@ async function start(){
   M = m; M.pays.forEach(p => BY[p.id] = p);
   const vis = M.pays.filter(p => p.id !== "ATA"); B = [0, Math.min(...vis.map(p => p.b[1])) - 20, M.w, Math.max(...vis.map(p => p.b[3])) + 20];
   (b.visites || []).forEach(id => base[id] = "v"); (b.prevus || []).forEach(id => base[id] = "p");
-  HOME = b.chez_moi || "FRA"; SEJ = b.sejours || {}; TRIPS = (b.voyages || []).filter(t => t.etapes && t.etapes.length > 1);
+  HOME = b.chez_moi || "FRA";
+  /* la liste de départ (fichier) est fusionnée une fois par version ; ensuite tout se modifie dans l'appli */
+  const ver = b.version || 1;
+  if(!Array.isArray(ST.trips)) ST.trips = [];
+  if(ver > (ST.seed || 0)){
+    (b.voyages || []).forEach(t => { if(ST.del.includes(t.id)) return; const i = ST.trips.findIndex(x => x.id === t.id); if(i < 0) ST.trips.push(t); else if(!ST.trips[i].edited) ST.trips[i] = t; });
+    Object.entries(b.sejours || {}).forEach(([pid, L]) => L.forEach((x, n) => { const id = `f-${pid}-${x.an || ""}-${n}`; if(ST.del.includes(id)) return; const A = ST.sej[pid] = ST.sej[pid] || []; if(!A.some(y => y.id === id)) A.push(Object.assign({}, x, {id})); }));
+    ST.seed = ver; save();
+  }
+  TRIPS = ST.trips.filter(t => t.etapes && t.etapes.length > 1);
+  svg.classList.toggle("noroutes", !ST.opt.routes);
   build(); size(); paint(); renderStats(); fitMine(false);
   setTimeout(() => $("#hint").style.opacity = 0, 3500);
   setTimeout(() => $("#hint").remove(), 4200);
