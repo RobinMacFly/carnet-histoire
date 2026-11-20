@@ -23,11 +23,11 @@
    LAYOUT: compteur en haut comme une légende, carte au centre, onglets en bas. */
 :root{color-scheme:light dark;--onvis:#fff;--line:light-dark(#e6e2da,#26343a);--ink:light-dark(#16232a,#ecf1f3);--muted:light-dark(#5e6b72,#9fb0b8)}
 /* Lagon (par défaut) */
-:root,:root[data-pal=lagon]{--paper:light-dark(#fbfaf7,#0e1b1f);--sea:light-dark(#d3ebee,#11252a);--land:light-dark(#efeae0,#26393e);--border:light-dark(#fff,#0e1b1f);--vis:light-dark(#0c8489,#3fc4c2);--vis2:light-dark(#d5eeee,#123a3c);--head:light-dark(#0b6a6e,#82d6d3)}
-:root[data-pal=terre]{--paper:light-dark(#fcf9f5,#1b1512);--sea:light-dark(#e2eaed,#15202a);--land:light-dark(#fff,#2d2a29);--border:light-dark(#dcd3c6,#1b1512);--vis:light-dark(#d4562b,#f08a5d);--vis2:light-dark(#fbe2d6,#3e2216);--head:light-dark(#a8401c,#f2a27c)}
-:root[data-pal=atlas]{--paper:light-dark(#f6f0e3,#1b1813);--sea:light-dark(#c5d9d2,#1c2a28);--land:light-dark(#f0e6cd,#3a3428);--border:light-dark(#c2b18c,#1b1813);--vis:light-dark(#a3392a,#e0745f);--vis2:light-dark(#f1d8cd,#3f1f19);--head:light-dark(#7a5626,#dcb97c);--line:light-dark(#e2d8c3,#2f2a22)}
-:root[data-pal=nuit]{color-scheme:dark;--paper:#0f1726;--sea:#0a111e;--land:#1e2a3f;--border:#0a111e;--vis:#f2b84b;--vis2:#3a2e14;--head:#f2b84b;--ink:#eef2f8;--muted:#9aa7bd;--line:#243149;--onvis:#1a1405}
-:root[data-pal=magenta]{--paper:light-dark(#fbfbf2,#0f2029);--sea:light-dark(#bfe3ee,#14303c);--land:light-dark(#fbfbf2,#2a4552);--border:light-dark(#c39a74,#0d1c24);--vis:light-dark(#d6127e,#ff4fa3);--vis2:light-dark(#fbe1ef,#3d1a2e);--head:light-dark(#a8551b,#e0a070)}
+:root,:root[data-pal=lagon]{--route:light-dark(#e0532f,#ff8a65);--paper:light-dark(#fbfaf7,#0e1b1f);--sea:light-dark(#d3ebee,#11252a);--land:light-dark(#efeae0,#26393e);--border:light-dark(#fff,#0e1b1f);--vis:light-dark(#0c8489,#3fc4c2);--vis2:light-dark(#d5eeee,#123a3c);--head:light-dark(#0b6a6e,#82d6d3)}
+:root[data-pal=terre]{--route:light-dark(#1d6782,#7cc4dd);--paper:light-dark(#fcf9f5,#1b1512);--sea:light-dark(#e2eaed,#15202a);--land:light-dark(#fff,#2d2a29);--border:light-dark(#dcd3c6,#1b1512);--vis:light-dark(#d4562b,#f08a5d);--vis2:light-dark(#fbe2d6,#3e2216);--head:light-dark(#a8401c,#f2a27c)}
+:root[data-pal=atlas]{--route:light-dark(#284766,#a9c4dd);--paper:light-dark(#f6f0e3,#1b1813);--sea:light-dark(#c5d9d2,#1c2a28);--land:light-dark(#f0e6cd,#3a3428);--border:light-dark(#c2b18c,#1b1813);--vis:light-dark(#a3392a,#e0745f);--vis2:light-dark(#f1d8cd,#3f1f19);--head:light-dark(#7a5626,#dcb97c);--line:light-dark(#e2d8c3,#2f2a22)}
+:root[data-pal=nuit]{--route:#ffffff;color-scheme:dark;--paper:#0f1726;--sea:#0a111e;--land:#1e2a3f;--border:#0a111e;--vis:#f2b84b;--vis2:#3a2e14;--head:#f2b84b;--ink:#eef2f8;--muted:#9aa7bd;--line:#243149;--onvis:#1a1405}
+:root[data-pal=magenta]{--route:light-dark(#13242e,#e8f1f4);--paper:light-dark(#fbfbf2,#0f2029);--sea:light-dark(#bfe3ee,#14303c);--land:light-dark(#fbfbf2,#2a4552);--border:light-dark(#c39a74,#0d1c24);--vis:light-dark(#d6127e,#ff4fa3);--vis2:light-dark(#fbe1ef,#3d1a2e);--head:light-dark(#a8551b,#e0a070)}
 *{box-sizing:border-box;min-width:0}
 html,body{height:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 Overpass,system-ui,-apple-system,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
@@ -143,8 +143,77 @@ textarea{width:100%;font-size:16px;border:1.5px solid var(--line);border-radius:
 .rows .nm small{display:block;margin:0;font-size:12px}
 .foot{margin-top:28px;font-size:14px;color:var(--muted)}
 .foot a{color:var(--ink);font-weight:600}
+
+/* voyages sur la carte */
+#routes path{fill:none;stroke:var(--route);stroke-linecap:round;stroke-linejoin:round}
+#routes .prevu{opacity:.45}
+#routes .unk{opacity:.8}
+#hits path{fill:none;stroke:transparent;pointer-events:stroke;cursor:pointer}
+#map.trip-on #routes g:not(.on){opacity:.18}
+#map.trip-on #land path:not(.intrip){opacity:.55}
+#stops circle{fill:var(--paper);stroke:var(--route)}
+#stops circle.pv{fill:var(--land);opacity:.7}
+#stops text{fill:var(--ink);stroke:var(--paper);paint-order:stroke;stroke-linejoin:round;font-weight:700;pointer-events:none}
+.legend b.rl{display:inline-block;width:16px;height:0;border-top:2.5px solid var(--route);margin-right:6px;vertical-align:3px}
+.tsheet{max-height:46%;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.tchips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.tchips span{background:color-mix(in srgb,var(--vis) 12%,var(--paper));border-radius:10px;padding:6px 10px;font-size:14px}
+.tchips b{font-size:17px;color:var(--vis);margin-right:3px}
+.badge{display:inline-block;font-size:12px;font-weight:700;color:var(--route);border:1.5px solid var(--route);border-radius:6px;padding:0 6px;margin-left:6px;vertical-align:2px}
+.bord{list-style:none;margin:6px 0 0;padding:0}
+.bord li{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+.bord .fl2{font-size:20px;white-space:nowrap}
+.bord .md{margin-left:auto;font-size:13px;color:var(--muted);white-space:nowrap}
+.bord .md.land{color:var(--vis);font-weight:700}
+.bord li.pv{opacity:.55}
+.tsub2{font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 0}
+/* onglet voyages */
+.tcard{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:18px;padding:16px;margin-top:12px;box-shadow:0 2px 10px rgba(15,30,40,.06)}
+.tcard h4{margin:0;font-size:20px;font-weight:800;line-height:1.2}
+.tcard p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:2px 4px;margin-top:10px;font-size:22px;line-height:1.2}
+.chain i{font-style:normal;font-size:13px;color:var(--muted)}
+.chain .pv{opacity:.4}
+/* fiche pays : séjours */
+.sej{list-style:none;margin:12px 0 0;padding:0}
+.sej li{display:flex;gap:10px;align-items:baseline;padding:6px 0;border-top:1px solid var(--line);font-size:15px}
+.sej b{font-size:17px;min-width:3em}
+.sej span{color:var(--muted)}
+.home{margin:12px 0 0;font-weight:700;color:var(--vis)}
+/* bilan façon carnet */
+.sec{font-size:clamp(22px,6vw,28px);font-weight:800;margin:34px 0 14px;line-height:1.15;color:var(--ink)}
+.sec:first-child{margin-top:6px}
+.hero{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{position:relative;aspect-ratio:1;border-radius:18px;overflow:hidden;color:#fff;background:#24344a}
+.card>svg,.card>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.card .ov{position:absolute;left:14px;bottom:14px;right:10px;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.card .ov b{display:block;font-size:clamp(40px,12vw,58px);font-weight:800;line-height:1}
+.card .ov span{font-size:clamp(17px,4.6vw,22px);font-weight:600}
+.card .ov small{display:block;font-size:13px;opacity:.9;font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.tiles div{border-radius:16px;padding:12px 10px;background:linear-gradient(160deg,color-mix(in srgb,var(--vis) 22%,var(--paper)),color-mix(in srgb,var(--vis) 6%,var(--paper)))}
+.tiles b{display:block;font-size:clamp(22px,6.5vw,30px);font-weight:800;color:var(--ink);line-height:1.1;white-space:nowrap}
+.tiles span{font-size:13px;color:var(--muted);line-height:1.25;display:block}
+.cmap{width:100%;height:auto;display:block}
+.clegend{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 12px;margin-top:12px;font-size:17px}
+.clegend span{display:flex;align-items:center;gap:10px;color:var(--muted)}
+.clegend span.on{color:var(--ink);font-weight:700}
+.clegend i{width:12px;height:12px;border-radius:50%;flex:none}
+.flags{display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:12px 10px}
+.flags button{border:0;padding:0;background:none;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+.fl{width:48px;height:48px;border-radius:50%;overflow:hidden;display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.18);background:var(--line)}
+.fl span{font-size:76px;line-height:1;display:block}
+.homeflag{margin-top:12px;color:var(--muted);font-size:14px}
+.years{list-style:none;margin:0;padding:0}
+.years li{display:grid;grid-template-columns:4.2em minmax(0,1fr);gap:4px 12px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
+.years b{font-size:22px;font-weight:800;color:var(--vis);line-height:1.3}
+.years .yf{display:flex;flex-wrap:wrap;gap:4px;font-size:22px}
+.years small{display:block;font-size:13px;color:var(--muted);grid-column:2}
+.ppl{display:flex;flex-wrap:wrap;gap:8px}
+.ppl span{border-radius:20px;padding:8px 14px;background:color-mix(in srgb,var(--vis) 12%,var(--paper));font-weight:600;font-size:15px}
+.ppl em{font-style:normal;color:var(--muted);font-weight:400}
 /* onglets */
-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);background:var(--paper);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);background:var(--paper);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{border:0;background:none;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
 nav svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 nav button[aria-selected=true]{color:var(--vis)}
@@ -169,7 +238,7 @@ nav button[aria-selected=true]{color:var(--vis)}
         <button id="z-out" aria-label="Dézoomer"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
         <button id="z-fit" aria-label="Voir tout le monde / mes pays"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></button>
       </div>
-      <div class="legend"><span><i></i>Visité</span><span><i class="p"></i>Prévu</span></div>
+      <div class="legend"><span><i></i>Visité</span><span><i class="p"></i>Prévu</span><span><b class="rl"></b>Voyage</span></div>
       <div class="hint" id="hint">Touche un pays pour le cocher</div>
     </section>
     <section class="view scrollv" id="v-list" hidden aria-label="Liste des pays">
@@ -185,6 +254,9 @@ nav button[aria-selected=true]{color:var(--vis)}
         <div id="list"></div>
       </div>
     </section>
+    <section class="view scrollv" id="v-trips" hidden aria-label="Mes grands voyages">
+      <div class="inner" id="trips"></div>
+    </section>
     <section class="view scrollv" id="v-stats" hidden aria-label="Bilan">
       <div class="inner" id="stats"></div>
     </section>
@@ -194,16 +266,25 @@ nav button[aria-selected=true]{color:var(--vis)}
         <div style="flex:1"><h2 id="sh-name"></h2><p id="sh-info"></p></div>
         <button class="x" id="sh-x" aria-label="Fermer">×</button>
       </div>
+      <div id="sh-sej"></div>
       <div class="seg" id="sh-seg">
         <button data-s="v" aria-pressed="false">Visité</button>
         <button data-s="p" aria-pressed="false">Prévu</button>
         <button data-s="" aria-pressed="false">Pas encore</button>
       </div>
     </div>
+    <div class="sheet tsheet" id="tsheet" hidden role="dialog" aria-labelledby="ts-name">
+      <div class="sh-top">
+        <div style="flex:1"><h2 id="ts-name"></h2><p id="ts-info"></p></div>
+        <button class="x" id="ts-x" aria-label="Fermer">×</button>
+      </div>
+      <div id="ts-body"></div>
+    </div>
   </main>
   <nav role="tablist">
     <button role="tab" data-v="map" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>Carte</button>
     <button role="tab" data-v="list" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Liste</button>
+    <button role="tab" data-v="trips" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></svg>Voyages</button>
     <button role="tab" data-v="stats" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Bilan</button>
   </nav>
 </div>
@@ -216,6 +297,29 @@ const CONT = {eu:"Europe", as:"Asie", af:"Afrique", na:"Amérique du Nord", sa:"
 const CORDER = ["eu","as","af","na","sa","oc","an"];
 const LABEL = {v:"Visité", p:"Prévu", "":"Pas encore"};
 let M = null, BY = {}, base = {}, over = {};
+let HOME = "FRA", SEJ = {}, TRIPS = [], selTrip = null;
+/* projection Equal Earth, identique à celle du fond de carte */
+const EA = [1.340264, -0.081106, 0.000893, 0.003796], EM = Math.sqrt(3) / 2;
+function ee(lon, lat){ const l = lon * Math.PI / 180, ph = lat * Math.PI / 180, t = Math.asin(EM * Math.sin(ph)), t2 = t * t, t6 = t2 ** 3;
+  return [l * Math.cos(t) / (EM * (EA[0] + 3 * EA[1] * t2 + t6 * (7 * EA[2] + 9 * EA[3] * t2))), t * (EA[0] + EA[1] * t2 + t6 * (EA[2] + EA[3] * t2))]; }
+const EXM = ee(180, 0)[0], EYM = ee(0, 90)[1];
+function proj(c){ const sc = M.w / (2 * EXM), [x, y] = ee(c[0], c[1]); return [(x + EXM) * sc, (EYM - y) * sc]; }
+const LANDM = ["route", "train", "bus", "pied", "velo", "moto", "4l", "terre", "voiture", "stop"];
+const MODE = {route: "route", train: "train", bus: "bus", pied: "à pied", velo: "vélo", moto: "moto", "4l": "4L", terre: "voie terrestre", voiture: "voiture", stop: "stop", bateau: "bateau", ferry: "ferry", avion: "avion", "?": "à préciser"};
+const kind = m => !m || m === "?" ? "unk" : LANDM.includes(m) ? "land" : (m === "bateau" || m === "ferry") ? "sea" : "air";
+function hav(a, b){ const R = 6371, r = Math.PI / 180, dl = (b[1] - a[1]) * r, dn = (b[0] - a[0]) * r;
+  const h = Math.sin(dl / 2) ** 2 + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.sin(dn / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); }
+function tripInfo(t){
+  const E = t.etapes, done = E.filter(e => !e.prevu), borders = [];
+  let km = 0;
+  for(let i = 1; i < E.length; i++){
+    if(!E[i].prevu) km += hav(E[i - 1].c, E[i].c);
+    if(E[i].p !== E[i - 1].p) borders.push({a: E[i - 1].p, b: E[i].p, m: E[i].m || "?", k: kind(E[i].m), pv: !!E[i].prevu});
+  }
+  const countries = [...new Set(done.map(e => e.p))], all = [...new Set(E.map(e => e.p))];
+  const b = [1e9, 1e9, -1e9, -1e9]; E.forEach(e => { const q = proj(e.c); b[0] = Math.min(b[0], q[0]); b[1] = Math.min(b[1], q[1]); b[2] = Math.max(b[2], q[0]); b[3] = Math.max(b[3], q[1]); });
+  return {borders, km, countries, all, land: borders.filter(x => !x.pv && x.k === "land").length, done: borders.filter(x => !x.pv).length, box: b};
+}
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const flag = iso => iso && iso.length === 2 ? String.fromCodePoint(...[...iso.toUpperCase()].map(c => 0x1F1A5 + c.charCodeAt(0))) : "";
 const st = id => (id in over ? over[id] : (base[id] || ""));
@@ -243,7 +347,37 @@ function build(){
   const dots = P.filter(p => p.dot).map(p => `<circle class="t${p.t}" data-id="${p.id}" cx="${p.x}" cy="${p.y}" r="6"/>`).join("");
   const labels = P.filter(p => p.id !== "ATA").map(p => `<text data-id="${p.id}" x="${p.x}" y="${p.y}">${esc(p.n)}</text>`).join("");
   svg.innerHTML = `<defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--land)"/><rect width="3" height="8" fill="var(--vis)"/></pattern></defs>
-  <g id="vp"><path id="sphere" d="${M.sphere}"/><path id="grat" d="${M.grat}"/><g id="land">${land}</g><g id="dots">${dots}</g><g id="labels">${labels}</g></g>`;
+  <g id="vp"><path id="sphere" d="${M.sphere}"/><path id="grat" d="${M.grat}"/><g id="land">${land}</g><g id="routes">${routesSvg()}</g><g id="dots">${dots}</g><g id="hits">${hitsSvg()}</g><g id="labels">${labels}</g><g id="stops"></g></g>`;
+}
+function segPath(E, P, i){
+  const a = P[i - 1], b = P[i], k = kind(E[i].m), dl = E[i].c[0] - E[i - 1].c[0];
+  if(Math.abs(dl) > 180){ /* traverse le Pacifique : on coupe au bord de la carte */
+    const l2 = E[i].c[0] + (dl > 0 ? -360 : 360), edge = dl > 0 ? -180 : 180, f = (edge - E[i - 1].c[0]) / (l2 - E[i - 1].c[0]), lat = E[i - 1].c[1] + (E[i].c[1] - E[i - 1].c[1]) * f;
+    const e1 = proj([edge, lat]), e2 = proj([-edge, lat]);
+    return `M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${e1[0].toFixed(1)} ${e1[1].toFixed(1)}M${e2[0].toFixed(1)} ${e2[1].toFixed(1)}L${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
+  }
+  if(k === "air"){
+    const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
+    let nx = -dy / L, ny = dx / L; if(ny > 0){ nx = -nx; ny = -ny; }
+    const o = L * .18; return `M${a[0].toFixed(1)} ${a[1].toFixed(1)}Q${(mx + nx * o).toFixed(1)} ${(my + ny * o).toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
+  }
+  if(k === "sea") return `M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
+  const sm = j => j >= 1 && j < P.length && ["land", "unk"].includes(kind(E[j].m)) && Math.abs(E[j].c[0] - E[j - 1].c[0]) <= 180;
+  const p0 = sm(i - 1) ? P[i - 2] : a, p3 = sm(i + 1) ? P[i + 1] : b;
+  const c1 = [a[0] + (b[0] - p0[0]) / 6, a[1] + (b[1] - p0[1]) / 6], c2 = [b[0] - (p3[0] - a[0]) / 6, b[1] - (p3[1] - a[1]) / 6];
+  return `M${a[0].toFixed(1)} ${a[1].toFixed(1)}C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
+}
+const DASH = {air: "7 6", sea: "1 6", unk: "2 5", land: ""};
+function routesSvg(){
+  return TRIPS.map(t => { const E = t.etapes, P = E.map(e => proj(e.c));
+    let out = ""; for(let i = 1; i < E.length; i++){ const k = kind(E[i].m), d = DASH[k] || (E[i].prevu ? "5 6" : "");
+      out += `<path class="${k}${E[i].prevu ? " prevu" : ""}"${d ? ` data-dash="${d}"` : ""} d="${segPath(E, P, i)}"/>`; }
+    return `<g data-t="${t.id}">${out}</g>`; }).join("");
+}
+function hitsSvg(){
+  return TRIPS.map(t => { const E = t.etapes, P = E.map(e => proj(e.c)); let d = `M${P[0][0].toFixed(0)} ${P[0][1].toFixed(0)}`;
+    for(let i = 1; i < P.length; i++) d += (Math.abs(E[i].c[0] - E[i - 1].c[0]) > 180 ? "M" : "L") + P[i][0].toFixed(0) + " " + P[i][1].toFixed(0);
+    return `<path data-trip="${t.id}" d="${d}"/>`; }).join("");
 }
 let B = [0, 0, 1, 1];
 function size(){ const r = svg.getBoundingClientRect(); cw = r.width; ch = r.height; kmin = Math.min(cw / (B[2] - B[0]), ch / (B[3] - B[1])); }
@@ -268,17 +402,26 @@ function detail(){
   pat.setAttribute("width", h); pat.setAttribute("height", h);
   pat.children[0].setAttribute("width", h); pat.children[0].setAttribute("height", h); pat.children[1].setAttribute("width", h * .42); pat.children[1].setAttribute("height", h);
   const z = k / kmin;
+  const rt = $("#routes"); rt.setAttribute("stroke-width", (2.4 / k).toFixed(4));
+  rt.querySelectorAll("[data-dash]").forEach(p => p.setAttribute("stroke-dasharray", p.dataset.dash.split(" ").map(v => (v / k).toFixed(3)).join(" ")));
+  const on = selTrip && rt.querySelector(`[data-t="${selTrip}"]`); rt.querySelectorAll("g").forEach(g => g.setAttribute("stroke-width", g === on ? (3.6 / k).toFixed(4) : ""));
+  $("#hits").setAttribute("stroke-width", (22 / k).toFixed(3));
+  const sg = $("#stops"); if(sg.childElementCount){
+    sg.querySelectorAll("circle").forEach(c => { c.setAttribute("r", (4.2 / k).toFixed(3)); c.setAttribute("stroke-width", (2 / k).toFixed(3)); });
+    sg.setAttribute("font-size", (11.5 / k).toFixed(3)); sg.setAttribute("stroke-width", (3 / k).toFixed(3));
+    let last = []; sg.querySelectorAll("text").forEach(t => { t.setAttribute("y", (+t.dataset.y - 11 / k).toFixed(2)); const x = +t.getAttribute("x") * k, y = +t.getAttribute("y") * k, ok = last.every(q => Math.hypot(q[0] - x, q[1] - y) > 46); t.style.display = ok ? "" : "none"; if(ok) last.push([x, y]); });
+  }
   svg.classList.toggle("close", z > 2.6);
   document.querySelectorAll("#labels text").forEach(t => {
     const p = BY[t.dataset.id], w = (p.b[2] - p.b[0]) * k, show = p.id === sel || (z > 1.7 && w > p.n.length * 6.5 + 8) || (p.dot && z > 7);
-    t.style.display = show ? "" : "none";
+    t.style.display = show && !selTrip ? "" : "none";
   });
 }
 function zoomAt(px, py, f){ const nk = Math.max(kmin * .9, Math.min(kmin * 40, k * f)); tx = px - (px - tx) * nk / k; ty = py - (py - ty) * nk / k; k = nk; req(); }
-function fitBox(b, pad = 28, anim = true){
-  const bw = Math.max(b[2] - b[0], 40), bh = Math.max(b[3] - b[1], 40);
-  const nk = Math.min((cw - pad * 2) / bw, (ch - pad * 2) / bh, kmin * 40);
-  const ntx = cw / 2 - (b[0] + b[2]) / 2 * nk, nty = ch / 2 - (b[1] + b[3]) / 2 * nk;
+function fitBox(b, pad = 28, anim = true, inset = 0){
+  const bw = Math.max(b[2] - b[0], 40), bh = Math.max(b[3] - b[1], 40), hh = Math.max(120, ch - inset);
+  const nk = Math.min((cw - pad * 2) / bw, (hh - pad * 2) / bh, kmin * 40);
+  const ntx = cw / 2 - (b[0] + b[2]) / 2 * nk, nty = hh / 2 - (b[1] + b[3]) / 2 * nk;
   if(!anim || matchMedia("(prefers-reduced-motion: reduce)").matches){ k = nk; tx = ntx; ty = nty; apply(); return; }
   const k0 = k, x0 = tx, y0 = ty, t0 = performance.now();
   const step = now => { const u = Math.min(1, (now - t0) / 420), e = 1 - Math.pow(1 - u, 3);
@@ -326,7 +469,9 @@ const up = e => {
   if(!pts.has(e.pointerId)) return;
   pts.delete(e.pointerId); last = null;
   if(pts.size === 0 && !moved && down && Date.now() - down.t < 600 && e.type === "pointerup"){
-    const t = document.elementFromPoint(e.clientX, e.clientY), el = t && t.closest("[data-id]");
+    const t = document.elementFromPoint(e.clientX, e.clientY), tr = t && t.closest("[data-trip]"), el = t && t.closest("[data-id]");
+    if(tr){ openTrip(tr.dataset.trip, false); return; }
+    if(selTrip){ closeTrip(); return; }
     if(el) select(el.dataset.id); else closeSheet();
   }
 };
@@ -337,34 +482,77 @@ function paint(){
   document.querySelectorAll("#land path,#dots circle,#labels text").forEach(el => { const s = st(el.dataset.id); el.classList.toggle("v", s === "v"); el.classList.toggle("p", s === "p"); el.classList.toggle("sel", el.dataset.id === sel); });
   const land = $("#land"), dots = $("#dots");
   if(sel){ const el = land.querySelector(`[data-id="${sel}"]`); if(el) land.appendChild(el); const d = dots.querySelector(`[data-id="${sel}"]`); if(d) dots.appendChild(d); }
-  const V = M.pays.filter(p => p.t && st(p.id) === "v").length;
-  $("#n-vis").textContent = V; $("#n-lab").textContent = V > 1 ? "pays visités" : "pays visité";
+  const VA = M.pays.filter(p => p.t && st(p.id) === "v"), V = VA.filter(p => p.id !== HOME).length, homeV = VA.length > V;
+  $("#n-vis").textContent = V; $("#n-lab").textContent = (V > 1 ? "pays visités" : "pays visité") + (homeV && BY[HOME] ? " + " + (HOME === "FRA" ? "la France" : BY[HOME].n) : "");
   const P = M.pays.filter(p => p.t && st(p.id) === "p").length, tot = M.pays.filter(p => p.t).length;
-  $("#sub").innerHTML = `sur ${tot}, soit <strong>${Math.round(V / tot * 100)} %</strong><br>${P} prévu${P > 1 ? "s" : ""}`;
+  $("#sub").innerHTML = `<strong>${Math.round(VA.length / tot * 100)} %</strong> du monde<br>${P} prévu${P > 1 ? "s" : ""}`;
 }
-function select(id){ sel = id; paint(); detail(); openSheet(id); }
+function select(id){ if(selTrip) closeTrip(); sel = id; paint(); detail(); openSheet(id); }
 function openSheet(id){
   const p = BY[id], s = st(id);
   $("#sh-flag").textContent = flag(p.iso);
   $("#sh-name").textContent = p.n;
   $("#sh-info").textContent = (CONT[p.c] || "") + (p.t ? "" : " · territoire" + (p.s && BY[p.s] ? " (" + BY[p.s].n + ")" : "") + ", hors décompte");
   $("#sh-seg").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.s === s)));
+  const L = SEJ[id] || [];
+  $("#sh-sej").innerHTML = id === HOME ? `<p class="home">Chez toi</p>` : L.length ? `<ul class="sej">${L.map(x => `<li><b>${esc(x.an || "?")}</b><span>${x.avec && x.avec.length ? "avec " + esc(x.avec.join(", ")) : "seul"}${x.voyage && TRIPS.find(t => t.id === x.voyage) ? " · " + esc(TRIPS.find(t => t.id === x.voyage).nom) : ""}</span></li>`).join("")}</ul>` : s === "v" ? `<p class="home" style="color:var(--muted);font-weight:400">Année et compagnons à préciser</p>` : "";
+  $("#tsheet").hidden = true;
   $("#sheet").hidden = false;
 }
 function closeSheet(){ $("#sheet").hidden = true; if(sel){ sel = null; paint(); detail(); } }
 $("#sh-x").onclick = closeSheet;
 $("#sh-seg").onclick = e => { const b = e.target.closest("button"); if(b && sel) setStatus(sel, b.dataset.s); };
 
+/* ---------- voyages ---------- */
+function openTrip(id, fit = true){
+  const t = TRIPS.find(x => x.id === id); if(!t) return;
+  if(sel){ sel = null; paint(); }
+  $("#sheet").hidden = true; selTrip = id; const I = tripInfo(t);
+  svg.classList.add("trip-on");
+  $("#routes").querySelectorAll("g").forEach(g => g.classList.toggle("on", g.dataset.t === id));
+  $("#land").querySelectorAll("path").forEach(p => p.classList.toggle("intrip", I.all.includes(p.dataset.id)));
+  $("#stops").innerHTML = t.etapes.map((e, i) => { const q = proj(e.c); if(i === t.etapes.length - 1 && e.v === t.etapes[0].v && e.p === t.etapes[0].p) return "";
+    return `<circle class="${e.prevu ? "pv" : ""}" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="4"/><text x="${q[0].toFixed(1)}" y="${q[1].toFixed(1)}" data-y="${q[1].toFixed(1)}" text-anchor="middle">${esc(e.v)}</text>`; }).join("");
+  const nm = c => BY[c] ? BY[c].n : c, fg = c => BY[c] ? flag(BY[c].iso) : "";
+  const row = x => `<li class="${x.pv ? "pv" : ""}"><span class="fl2">${fg(x.a)} → ${fg(x.b)}</span><span>${esc(nm(x.a))} → ${esc(nm(x.b))}</span><span class="md ${x.k}">${esc(MODE[x.m] || x.m)}</span></li>`;
+  const D = I.borders.filter(x => !x.pv), F = I.borders.filter(x => x.pv);
+  $("#ts-name").innerHTML = esc(t.nom) + (t.brouillon ? `<span class="badge">brouillon</span>` : "");
+  $("#ts-info").textContent = [t.periode, t.avec && t.avec.length ? "avec " + t.avec.join(", ") : ""].filter(Boolean).join(" · ");
+  $("#ts-body").innerHTML = `<div class="tchips"><span><b>${I.countries.length}</b>pays</span><span><b>${I.done}</b>frontière${I.done > 1 ? "s" : ""}</span><span><b>${I.land}</b>par la terre</span><span><b>${fmt(Math.round(I.km / 100) * 100)}</b>km</span></div>
+    ${D.length ? `<p class="tsub2">Frontières franchies</p><ul class="bord">${D.map(row).join("")}</ul>` : ""}
+    ${F.length ? `<p class="tsub2">À venir</p><ul class="bord">${F.map(row).join("")}</ul>` : ""}
+    ${t.brouillon ? `<p class="tsub2" style="font-weight:400">Itinéraire provisoire : les étapes et les moyens de transport sont à préciser avec Claude.</p>` : ""}`;
+  $("#tsheet").hidden = false; $("#tsheet").scrollTop = 0;
+  if(fit){ const b = I.box, pad = 40; fitBox([b[0] - pad, b[1] - pad, b[2] + pad, b[3] + pad], 16, true, $("#tsheet").offsetHeight - 10); } else detail();
+}
+function closeTrip(){
+  selTrip = null; svg.classList.remove("trip-on"); $("#tsheet").hidden = true; $("#stops").innerHTML = "";
+  $("#routes").querySelectorAll("g").forEach(g => g.classList.remove("on")); $("#land").querySelectorAll(".intrip").forEach(p => p.classList.remove("intrip")); detail();
+}
+$("#ts-x").onclick = closeTrip;
+function renderTrips(){
+  const cards = TRIPS.map(t => { const I = tripInfo(t), seq = [];
+    t.etapes.forEach(e => { if(!seq.length || seq[seq.length - 1].p !== e.p) seq.push({p: e.p, pv: !!e.prevu}); });
+    return `<button class="tcard" data-trip="${t.id}"><h4>${esc(t.nom)}${t.brouillon ? `<span class="badge">brouillon</span>` : ""}</h4><p>${esc([t.periode, t.avec && t.avec.length ? "avec " + t.avec.join(", ") : ""].filter(Boolean).join(" · "))}</p>
+      <div class="chain">${seq.map((x, i) => `${i ? "<i>›</i>" : ""}<span class="${x.pv ? "pv" : ""}">${BY[x.p] ? flag(BY[x.p].iso) : x.p}</span>`).join("")}</div>
+      <div class="tchips"><span><b>${I.countries.length}</b>pays</span><span><b>${I.land}</b>frontières par la terre</span><span><b>${fmt(Math.round(I.km / 100) * 100)}</b>km</span></div></button>`; }).join("");
+  $("#trips").innerHTML = `<h2 class="sec">Mes grands voyages</h2>${cards || `<p class="empty">Aucun voyage pour l'instant.</p>`}
+    <p class="foot">Les tracés sont volontairement simplifiés : une étape par grande ville. Pour ajouter ou corriger un voyage, envoie à Claude la liste des étapes et les moyens de transport.</p>`;
+}
+$("#trips").onclick = e => { const c = e.target.closest("[data-trip]"); if(c){ show("map"); openTrip(c.dataset.trip); } };
+
 /* ---------- onglets ---------- */
 function show(v){
   document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.v === v)));
-  ["map", "list", "stats"].forEach(n => $("#v-" + n).hidden = n !== v);
-  if(v !== "map") $("#sheet").hidden = true;
+  ["map", "list", "trips", "stats"].forEach(n => $("#v-" + n).hidden = n !== v);
+  if(v !== "map"){ $("#sheet").hidden = true; $("#tsheet").hidden = true; }
   if(v === "list") renderList();
+  if(v === "trips") renderTrips();
+  if(v === "map" && selTrip) $("#tsheet").hidden = false;
   if(v === "map"){ size(); apply(); if(sel) openSheet(sel); }
 }
 document.querySelector("nav").onclick = e => { const b = e.target.closest("button"); if(b) show(b.dataset.v); };
-function goMap(id){ show("map"); select(id); fitBox(BY[id].b, 60); }
+function goMap(id){ show("map"); if(selTrip) closeTrip(); select(id); fitBox(BY[id].b, 60); }
 
 /* ---------- liste ---------- */
 let filt = "all", openRow = null, showTerr = true;
@@ -401,24 +589,68 @@ $("#list").onclick = e => {
 };
 
 /* ---------- bilan ---------- */
+const CCOL = {eu: "#8fbd5a", as: "#4f95cf", af: "#e2a23b", na: "#d9644d", sa: "#9a6cc0", oc: "#37b3a2", an: "#9fb3c8"};
+function rnd(seed){ let x = seed; return () => (x = (x * 16807) % 2147483647) / 2147483647; }
+function mountains(n){
+  const r = rnd(7), back = [], mid = [];
+  for(let x = -20, i = 0; x <= 320; x += 24, i++) back.push([x, i % 2 ? 150 + r() * 20 : 112 + r() * 26]);
+  for(let x = -30, i = 0; x <= 330; x += 34, i++) mid.push([x, i % 2 ? 206 + r() * 18 : 166 + r() * 22]);
+  const pk = back.filter((q, i) => i % 2 === 0 && q[0] > 4 && q[0] < 296);
+  const flags = [];
+  for(let i = 0; i < Math.min(n, 40); i++){ const q = pk[i % pk.length], dx = Math.floor(i / pk.length) * 7 - 3; flags.push(`<path d="M${q[0] + dx} ${q[1] + 2}v-14" stroke="#eef2f6" stroke-width="1.2"/><path d="M${q[0] + dx} ${q[1] - 12}l8 2.5-8 2.5z" fill="#e0475b"/>`); }
+  const poly = (L, h) => `M-40 300L${L.map(q => q.join(" ")).join("L")}L340 300Z`;
+  const caps = mid.filter((q, i) => i % 2 === 0).map(q => `<path d="M${q[0] - 11} ${q[1] + 12}L${q[0]} ${q[1]}L${q[0] + 12} ${q[1] + 13}L${q[0] + 4} ${q[1] + 9}L${q[0] - 3} ${q[1] + 14}Z" fill="#f4f7fa" opacity=".9"/>`).join("");
+  return `<svg viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9c8e2"/><stop offset="1" stop-color="#e4edf4"/></linearGradient>
+    <linearGradient id="fr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#eef2f6"/><stop offset=".5" stop-color="#d6dee7"/><stop offset=".5" stop-color="#5e6d80"/><stop offset="1" stop-color="#4a586a"/></linearGradient></defs>
+    <rect width="300" height="300" fill="url(#sky)"/><circle cx="28" cy="30" r="58" fill="#fff" opacity=".45"/>
+    <path d="${poly(back)}" fill="#9fb0c4"/>${flags.join("")}<path d="${poly(mid)}" fill="#7a8ca2"/>${caps}
+    <path d="M118 300L214 108L330 300Z" fill="url(#fr)"/><path d="M214 108L196 146L206 140L214 152L222 138L232 146Z" fill="#fff"/>
+    <path d="M214 110v-34" stroke="#fff" stroke-width="2.5"/><path d="M214 77l30 10-30 10z" fill="#e0475b"/>
+    <path d="M-40 300L30 238L84 262L140 230L200 270L260 246L340 300Z" fill="#3d4a5b"/></svg>`;
+}
+function contMap(on){
+  return `<svg class="cmap" viewBox="${B[0]} ${B[1] + 60} ${B[2] - B[0]} ${B[3] - B[1] - 60}" aria-label="Continents visités"><defs><filter id="wc" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".006" numOctaves="3" seed="5" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -1.1 .75" result="w"/><feComposite in="w" in2="SourceGraphic" operator="in" result="m"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="m"/></feMerge></filter></defs>
+    <g filter="url(#wc)">${M.pays.filter(p => p.id !== "ATA").map(p => { const c = on.includes(p.c) ? CCOL[p.c] : "#cfd5db"; return `<path d="${p.d}" fill="${c}" stroke="${c}" stroke-width="1.2"/>`; }).join("")}</g></svg>`;
+}
 function renderStats(){
-  const C = M.pays.filter(p => p.t), V = C.filter(p => st(p.id) === "v"), P = C.filter(p => st(p.id) === "p");
-  const area = M.pays.reduce((a, p) => a + p.a, 0), va = M.pays.filter(p => st(p.id) === "v").reduce((a, p) => a + p.a, 0);
+  const C = M.pays.filter(p => p.t), VA = C.filter(p => st(p.id) === "v"), V = VA.filter(p => p.id !== HOME), P = C.filter(p => st(p.id) === "p");
+  const terrV = M.pays.filter(p => !p.t && st(p.id) === "v");
+  const on = CORDER.filter(c => c !== "an" && VA.some(p => p.c === c));
   const conts = CORDER.filter(c => c !== "an").map(c => { const all = C.filter(p => p.c === c), v = all.filter(p => st(p.id) === "v").length; return {c, all: all.length, v}; });
-  const nc = conts.filter(x => x.v).length;
-  const terr = M.pays.filter(p => !p.t && st(p.id) === "v");
+  const pct = Math.round(VA.length / C.length * 100);
+  const TI = TRIPS.map(tripInfo), land = TI.reduce((a, x) => a + x.land, 0), km = TI.reduce((a, x) => a + x.km, 0);
+  /* par année et compagnons, depuis les séjours */
+  const years = {}, ppl = {}, nodate = [];
+  [...V, ...terrV].forEach(p => { const L = SEJ[p.id] || []; if(!L.length) nodate.push(p);
+    L.forEach(x => { const y = x.an || "?"; (years[y] = years[y] || new Set()).add(p.id); (x.avec || []).forEach(n => (ppl[n] = ppl[n] || new Set()).add(p.id)); }); });
+  const ys = Object.keys(years).sort((a, b) => b.localeCompare(a));
+  const fb = p => `<button data-go="${p.id}" aria-label="${esc(p.n)}"><span class="fl"><span>${flag(p.iso)}</span></span></button>`;
+  const flagsL = [...V].sort((a, b) => a.n.localeCompare(b.n, "fr")).concat(terrV.sort((a, b) => a.n.localeCompare(b.n, "fr")));
   const tag = L => L.length ? `<div class="tags">${L.sort((a, b) => a.n.localeCompare(b.n, "fr")).map(p => `<button data-go="${p.id}">${flag(p.iso)} ${esc(p.n)}</button>`).join("")}</div>` : `<p class="empty">Aucun pour l'instant.</p>`;
   $("#stats").innerHTML = `
-  <div class="big">
-    <div><b>${V.length}</b><span>pays sur ${C.length}</span></div>
-    <div><b>${nc}</b><span>continent${nc > 1 ? "s" : ""} sur 6</span></div>
-    <div><b>${(va / area * 100).toLocaleString("fr-FR", {maximumFractionDigits: va / area < .1 ? 1 : 0})} %</b><span>des terres du globe</span></div>
+  <h2 class="sec">Tu as vu</h2>
+  <div class="hero">
+    <div class="card">${mountains(V.length)}<div class="ov"><b>${V.length}</b><span>pays</span>${VA.length > V.length ? `<small>+ ${HOME === "FRA" ? "la France" : esc(BY[HOME].n)}</small>` : ""}</div></div>
+    <div class="card"><img src="globe-nuit.jpg" alt=""><div class="ov"><b>${pct} %</b><span>du monde</span></div></div>
   </div>
-  <h3>Par continent</h3>
+  <div class="tiles">
+    <div><b>${on.length}<small style="font-size:.55em;color:var(--muted)"> / 6</small></b><span>continents</span></div>
+    <div><b>${land}</b><span>frontières franchies par la terre</span></div>
+    <div><b>${km >= 10000 ? fmt(Math.round(km / 1000)) + "k" : fmt(Math.round(km))}</b><span>km en grands voyages</span></div>
+  </div>
+  <h2 class="sec">Continents visités</h2>
+  ${contMap(on)}
+  <div class="clegend">${CORDER.filter(c => c !== "an").map(c => `<span class="${on.includes(c) ? "on" : ""}"><i style="background:${on.includes(c) ? CCOL[c] : "#b9c1c9"}"></i>${CONT[c]}</span>`).join("")}</div>
+  <h2 class="sec">Drapeaux collectés</h2>
+  <div class="flags">${flagsL.map(fb).join("")}</div>
+  ${VA.length > V.length ? `<p class="homeflag">${BY[HOME] ? flag(BY[HOME].iso) : ""} ${HOME === "FRA" ? "La France" : esc(BY[HOME].n)}, chez toi, est comptée à part.</p>` : ""}
+  <h2 class="sec">Année par année</h2>
+  <ul class="years">${ys.map(y => `<li><b>${esc(y)}</b><div class="yf">${[...years[y]].map(id => `<span title="${esc(BY[id].n)}">${flag(BY[id].iso)}</span>`).join("")}</div><small>${years[y].size} pays</small></li>`).join("")}
+  ${nodate.length ? `<li><b style="color:var(--muted);font-size:15px">À dater</b><div class="yf">${nodate.map(p => `<span title="${esc(p.n)}">${flag(p.iso)}</span>`).join("")}</div><small>${nodate.length} pays sans année ni compagnons</small></li>` : ""}</ul>
+  ${Object.keys(ppl).length ? `<h2 class="sec">Compagnons de route</h2><div class="ppl">${Object.entries(ppl).sort((a, b) => b[1].size - a[1].size).map(([n, S]) => `<span>${esc(n)} <em>${S.size} pays</em></span>`).join("")}</div>` : ""}
+  <h2 class="sec">Par continent</h2>
   ${conts.map(x => `<div class="bar"><span>${CONT[x.c]}</span><span class="t"><i style="width:${x.all ? x.v / x.all * 100 : 0}%"></i></span><em>${x.v} / ${x.all}</em></div>`).join("")}
-  <h3>Pays visités<span>${V.length}</span></h3>${tag(V)}
   <h3>Pays prévus<span>${P.length}</span></h3>${tag(P)}
-  ${terr.length ? `<h3>Territoires visités<span>${terr.length}</span></h3>${tag(terr)}` : ""}
   <h3>Couleurs</h3>
   <div class="pals">${PALS.map(([id, n, c]) => `<button data-p="${id}" aria-pressed="${id === pal}"><span style="background:${c[0]}"><i style="background:${c[1]}"></i><i style="background:${c[2]}"></i></span>${n}</button>`).join("")}</div>
   <h3>Sauvegarde</h3>
@@ -431,7 +663,7 @@ function renderStats(){
     <button class="btn alt" id="bk-imp">Importer</button>
     <div class="msg" id="bk-msg" role="status"></div>
   </div>
-  <p class="foot">${C.length} pays comptés : les 193 membres de l'ONU, plus le Vatican, la Palestine, le Kosovo et Taïwan. Les territoires (Groenland, Hong Kong, Polynésie…) se cochent à part.<br><br><a href="../">Carnet d'histoire →</a></p>`;
+  <p class="foot">${C.length} pays comptés : les 193 membres de l'ONU, plus le Vatican, la Palestine, le Kosovo et Taïwan. Les territoires (Hong Kong, Groenland…) ont leur drapeau mais ne comptent pas dans le total.<br><br><a href="../">Carnet d'histoire →</a></p>`;
 }
 function code(){ const ids = s => M.pays.filter(p => st(p.id) === s).map(p => p.id).join(","); return `CARTE1:V=${ids("v")};P=${ids("p")}`; }
 $("#stats").onclick = e => {
@@ -462,6 +694,7 @@ async function start(){
   M = m; M.pays.forEach(p => BY[p.id] = p);
   const vis = M.pays.filter(p => p.id !== "ATA"); B = [0, Math.min(...vis.map(p => p.b[1])) - 20, M.w, Math.max(...vis.map(p => p.b[3])) + 20];
   (b.visites || []).forEach(id => base[id] = "v"); (b.prevus || []).forEach(id => base[id] = "p");
+  HOME = b.chez_moi || "FRA"; SEJ = b.sejours || {}; TRIPS = (b.voyages || []).filter(t => t.etapes && t.etapes.length > 1);
   build(); size(); paint(); renderStats(); fitMine(false);
   setTimeout(() => $("#hint").style.opacity = 0, 3500);
   setTimeout(() => $("#hint").remove(), 4200);
