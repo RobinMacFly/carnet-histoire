@@ -207,12 +207,19 @@ a{color:var(--lapis)}
 /* Exercices */
 .tag.ex{background:var(--surface2);color:var(--turq)}
 .ord{display:flex;flex-direction:column;gap:8px}
-.ord button{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;min-height:50px;display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center}
-.ord .n{width:28px;height:28px;border-radius:50%;border:1.5px dashed var(--line);display:grid;place-items:center;font-weight:700;font-size:.85rem}
-.ord .picked .n{background:var(--lapis);border:0;color:var(--lapis-ink)}
-.ord .yr{font-family:var(--f-display);font-weight:700;color:var(--lapis);font-variant-numeric:tabular-nums}
-.ord .ok{border-color:var(--good);background:var(--good-soft)} .ord .ko{border-color:var(--bad);background:var(--bad-soft)}
+.ord .end{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-left:4px}
+.ord .it{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 8px 8px 12px;min-height:58px;display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;transition:transform .15s ease}
+.ord .pos{font-family:var(--f-display);font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
+.ord .arrows{display:flex;flex-direction:column;gap:4px}
+.ord .arrows button{width:40px;height:30px;border:0;border-radius:8px;background:var(--surface2);display:grid;place-items:center}
+.ord .arrows button:disabled{opacity:.3;cursor:default}
+.ord .arrows svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ord .yr{font-family:var(--f-display);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.ord .it.ok{border-color:var(--good);background:var(--good-soft)} .ord .it.ok .pos{color:var(--good)}
+.ord .it.ko{border-color:var(--bad);background:var(--bad-soft)} .ord .it.ko .pos{color:var(--bad)}
+.ord .fix{display:block;font-size:.8rem;color:var(--bad);font-weight:600;margin-top:2px}
 .ord small{display:block;color:var(--muted);font-size:.8rem}
+@media (prefers-reduced-motion:reduce){.ord .it{transition:none}}
 .map .xpin{fill:var(--lapis);stroke:var(--surface);stroke-width:2.5;cursor:pointer}
 .map .xpin.ok{fill:var(--good)} .map .xpin.ko{fill:var(--bad)} .map .xpin.dim{opacity:.55}
 .map .xlet{fill:var(--lapis-ink);font-size:12px;font-weight:700;font-family:var(--f-body);pointer-events:none}
@@ -832,7 +839,7 @@ function makeOrder(pool){
     if(pick.length === 4) break;
   }
   if(pick.length < 4) return null;
-  return { kind: "order", items: pick, sel: [], checked: false, multi: new Set(pick.map(p => p.cid)).size > 1 };
+  return { kind: "order", items: pick, order: [0,1,2,3], multi: new Set(pick.map(p => p.cid)).size > 1 };
 }
 function makeYear(pool){
   const evs = keyEvents(pool);
@@ -890,14 +897,20 @@ function renderExercise(box){
   if(ex.kind === "order"){
     const done = !!ex.result;
     const sorted = ex.items.slice().sort((a,b) => a.y - b.y);
+    const ord = s => ["1er","2e","3e","4e"][s];
+    const up = `<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>`, down = `<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>`;
     body = `<p class="qtext">Remets ces événements dans l'ordre chronologique.</p>
-      <p class="muted small">${done ? "Voici l'ordre exact avec les dates. Le numéro est celui que tu avais choisi." : "Touche-les du plus ancien au plus récent. Touche à nouveau pour annuler."}</p>
-      <div class="ord">${(done ? sorted.map(ev => ex.items.indexOf(ev)) : ex.items.map((_, i) => i)).map(i => {
-        const ev = ex.items[i], n = ex.sel.indexOf(i);
-        const cls = done ? (sorted.indexOf(ev) === n ? "ok" : "ko") : (n >= 0 ? "picked" : "");
-        return `<button data-ex-ord="${i}" class="${cls} ${n >= 0 ? "picked" : ""}" ${done ? "disabled" : ""}><span class="n">${n >= 0 ? n + 1 : ""}</span><span>${evText(ev, ex.multi)}</span>${done ? `<span class="yr">${esc(ev.ys)}</span>` : ""}</button>`;
-      }).join("")}</div>
-      ${!done ? `<button class="btn primary" data-ex-check ${ex.sel.length < 4 ? "disabled" : ""}>Valider</button>` : ""}`;
+      <p class="muted small">${done ? "Ton ordre est conservé : en vert les événements bien placés, en rouge ceux à déplacer." : "Utilise les flèches pour monter ou descendre les événements, puis valide."}</p>
+      <div class="ord"><span class="end">↑ Plus ancien</span>${ex.order.map((i, pos) => {
+        const ev = ex.items[i], right = sorted.indexOf(ev);
+        const cls = done ? (right === pos ? "ok" : "ko") : "";
+        return `<div class="it ${cls}" data-pos="${pos}"><span class="pos">${done ? (right === pos ? "✓" : "✗") : pos + 1}</span>
+          <span>${evText(ev, ex.multi)}${done && right !== pos ? `<span class="fix">Devrait être ${ord(right)}</span>` : ""}</span>
+          ${done ? `<span class="yr">${esc(ev.ys)}</span>` : `<span class="arrows"><button data-ex-mv="${pos}" data-dir="-1" aria-label="Monter" ${pos === 0 ? "disabled" : ""}>${up}</button><button data-ex-mv="${pos}" data-dir="1" aria-label="Descendre" ${pos === 3 ? "disabled" : ""}>${down}</button></span>`}
+        </div>`;
+      }).join("")}<span class="end">↓ Plus récent</span></div>
+      ${done && !ex.result.good ? `<p class="small"><b>Bon ordre :</b> ${sorted.map(ev => esc(ev.ys)).join(" → ")}</p>` : ""}
+      ${!done ? `<button class="btn primary" data-ex-check>Valider</button>` : ""}`;
   } else if(ex.kind === "year"){
     const a = ex.answered;
     body = `<p class="qtext">En quelle année ?</p>
@@ -932,12 +945,22 @@ function exMapSVG(ex){
 }
 function exClick(e){
   const ex = S.quiz.ex; if(ex.result) return false;
-  const o = e.target.closest("[data-ex-ord]");
-  if(o){ const i = +o.dataset.exOrd, k = ex.sel.indexOf(i); if(k >= 0) ex.sel.splice(k, 1); else if(ex.sel.length < 4) ex.sel.push(i); renderQuiz(); return true; }
+  const mv = e.target.closest("[data-ex-mv]");
+  if(mv){
+    const p = +mv.dataset.exMv, q = p + +mv.dataset.dir; if(q < 0 || q > 3) return true;
+    [ex.order[p], ex.order[q]] = [ex.order[q], ex.order[p]];
+    renderQuiz();
+    const moved = document.querySelector(`.ord .it[data-pos="${q}"]`);
+    if(moved){ moved.style.transform = `translateY(${(p - q) * 40}%)`; requestAnimationFrame(() => requestAnimationFrame(() => { moved.style.transform = ""; })); }
+    const btn = document.querySelector(`.ord [data-ex-mv="${q}"][data-dir="${mv.dataset.dir}"]`) || document.querySelector(`.ord [data-ex-mv="${q}"]`);
+    if(btn) btn.focus({ preventScroll: true });
+    return true;
+  }
   if(e.target.closest("[data-ex-check]")){
     const sorted = ex.items.slice().sort((a,b) => a.y - b.y);
-    const good = ex.sel.every((i, n) => ex.items[i] === sorted[n]);
-    exDone(good, good ? "Ordre parfait." : "Les bonnes positions sont en vert.");
+    const good = ex.order.every((i, n) => ex.items[i] === sorted[n]);
+    const nOk = ex.order.filter((i, n) => ex.items[i] === sorted[n]).length;
+    exDone(good, good ? "Ordre parfait." : nOk ? `${nOk} sur 4 bien placé${nOk > 1 ? "s" : ""}.` : "Aucun événement bien placé.");
     renderQuiz(); return true;
   }
   const y = e.target.closest("[data-ex-year]");
