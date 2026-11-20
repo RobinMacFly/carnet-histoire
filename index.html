@@ -149,6 +149,7 @@ a{color:var(--lapis)}
 @media (prefers-reduced-motion:reduce){.sheet .panel{animation:none}}
 .sheet .bar-top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:14px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
 .sheet .body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px max(16px,env(safe-area-inset-right,0px)) calc(28px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:18px}
+.sheet .body > *{flex-shrink:0}
 .close{border:0;background:var(--surface2);width:36px;height:36px;border-radius:50%;font-size:1.1rem;flex:none}
 .answerline{background:var(--saffron-soft);border-radius:12px;padding:12px 14px}
 .answerline .eyebrow{color:var(--saffron)}
@@ -198,6 +199,34 @@ a{color:var(--lapis)}
 .srow .bar{grid-column:1 / -1;margin-top:4px}
 .srow button{all:unset;cursor:pointer}
 .skeleton{height:120px;border-radius:var(--r);background:var(--surface2)}
+/* Photos */
+.wiki{margin:0;border-radius:12px;overflow:hidden;background:var(--surface);border:1px solid var(--line)}
+.wiki .ph{aspect-ratio:4/3;max-width:100%;background:var(--surface2);display:block;width:100%;object-fit:cover}
+.wiki figcaption{padding:8px 12px;font-size:.8rem;color:var(--muted)}
+.wiki figcaption a{color:var(--muted)}
+/* Exercices */
+.tag.ex{background:var(--surface2);color:var(--turq)}
+.ord{display:flex;flex-direction:column;gap:8px}
+.ord button{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;min-height:50px;display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center}
+.ord .n{width:28px;height:28px;border-radius:50%;border:1.5px dashed var(--line);display:grid;place-items:center;font-weight:700;font-size:.85rem}
+.ord .picked .n{background:var(--lapis);border:0;color:var(--lapis-ink)}
+.ord .yr{font-family:var(--f-display);font-weight:700;color:var(--lapis);font-variant-numeric:tabular-nums}
+.ord .ok{border-color:var(--good);background:var(--good-soft)} .ord .ko{border-color:var(--bad);background:var(--bad-soft)}
+.ord small{display:block;color:var(--muted);font-size:.8rem}
+.map .xpin{fill:var(--lapis);stroke:var(--surface);stroke-width:2.5;cursor:pointer}
+.map .xpin.ok{fill:var(--good)} .map .xpin.ko{fill:var(--bad)} .map .xpin.dim{opacity:.55}
+.map .xlet{fill:var(--lapis-ink);font-size:12px;font-weight:700;font-family:var(--f-body);pointer-events:none}
+.map .xname{fill:var(--ink);font-size:10.5px;font-weight:600;font-family:var(--f-body);paint-order:stroke;stroke:var(--land);stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.near{font-size:.86rem;color:var(--turq);font-weight:600}
+/* Frise */
+.frise{display:flex;flex-direction:column}
+.frise h3{font-size:.98rem;padding:14px 0 6px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.frise h3 .r{font-size:.8rem;color:var(--muted);font-weight:500;font-family:var(--f-body)}
+.frise ol{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px solid var(--line)}
+.frise li button{all:unset;cursor:pointer;display:grid;grid-template-columns:96px 1fr;gap:10px;padding:7px 0;position:relative;width:100%}
+.frise li button::before{content:"";position:absolute;left:-20px;top:13px;width:10px;height:10px;border-radius:50%;background:var(--lapis);border:2px solid var(--bg)}
+.frise .y{font-family:var(--f-display);font-weight:700;color:var(--lapis);font-variant-numeric:tabular-nums}
+.frise small{display:block;color:var(--muted);font-size:.8rem}
 </style>
 
 <div class="app view">
@@ -210,6 +239,7 @@ a{color:var(--lapis)}
     <div class="menu" id="menu" hidden role="menu">
       <button role="menuitem" data-act="stats"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Statistiques<small>Ta progression par pays et par époque</small></span></button>
       <button role="menuitem" data-act="countries"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><span>Mes pays<small>Itinéraire, questions par pays</small></span></button>
+      <button role="menuitem" data-act="frises"><svg viewBox="0 0 24 24"><path d="M3 12h18"/><circle cx="6" cy="12" r="2"/><circle cx="13" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M6 8V5M13 8V4M19 8V6"/></svg><span>Frises chronologiques<small>Les grandes dates de chaque pays</small></span></button>
       <button role="menuitem" data-act="add-country"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>Ajouter un pays<small>Claude prépare les questions</small></span></button>
       <button role="menuitem" data-act="backup"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/></svg><span>Sauvegarde<small>Exporter ou importer ta progression</small></span></button>
     </div>
@@ -220,6 +250,8 @@ a{color:var(--lapis)}
     <div class="chips" id="f-country" role="group" aria-label="Choisir un pays"></div>
     <span class="eyebrow" style="margin-top:6px">Période</span>
     <div class="chips" id="f-period" role="group" aria-label="Choisir une période"></div>
+    <span class="eyebrow" style="margin-top:6px">Type</span>
+    <div class="chips" id="f-type" role="group" aria-label="Type de questions"></div>
     <p class="selinfo" id="f-info"></p>
   </div>
   <div id="quiz-body"><div class="skeleton"></div></div>
@@ -235,7 +267,8 @@ const STANDALONE = true;
 const S = {
   countries: [], db: null, sample: null, loaded: false,
   srs: load("qh-srs", {}),
-  quiz: { country: "all", period: "all", cur: null, answered: null, score: 0, total: 0, recent: [] }
+  quiz: { country: "all", period: "all", type: "q", seq: 0, cur: null, ex: null, answered: null, score: 0, total: 0, recent: [] },
+  pos: null, exStats: load("qh-ex", {})
 };
 function load(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
 function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -521,6 +554,8 @@ function openStats(){
       <div><b>${st.solid}</b><span>bien ancrées (révision dans 2 semaines ou plus)</span></div>
       <div><b>${ct.due}</b><span>à revoir maintenant</span></div>
     </div>
+    ${Object.keys(S.exStats).length ? `<div class="stack" style="gap:4px"><span class="eyebrow">Exercices</span>
+      <p class="small">${Object.entries(KINDS).filter(([k]) => S.exStats[k]).map(([k, n]) => `${n} : ${S.exStats[k].ok}/${S.exStats[k].ok + S.exStats[k].ko}`).join(" · ")}</p></div>` : ""}
     <div class="stack" style="gap:4px"><span class="eyebrow">Révisions à venir</span>
       <p class="small">${today} d'ici ce soir · ${week} dans les 7 prochains jours</p></div>
     <div class="stack" style="gap:0"><span class="eyebrow">Par pays</span>
@@ -535,9 +570,20 @@ function openStats(){
 }
 
 /* ---------- quiz ---------- */
+function km(a, b){
+  const r = Math.PI/180, dLa = (b.lat-a.lat)*r, dLo = (b.lon-a.lon)*r;
+  const h = Math.sin(dLa/2)**2 + Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLo/2)**2;
+  return 12742 * Math.asin(Math.sqrt(h));
+}
 function filtered(){
   let qs = allQ();
   const { country, period } = S.quiz;
+  if(country === "near"){
+    if(!S.pos) return [];
+    const withP = qs.filter(q => q.p && isFinite(q.p.lat)).map(q => ({ ...q, dist: km(S.pos, q.p) })).sort((a,b) => a.dist - b.dist);
+    const close = withP.filter(q => q.dist <= 200);
+    return close.length >= 8 ? close : withP.slice(0, 12);
+  }
   if(country !== "all") qs = qs.filter(q => q.cid === country);
   if(period !== "all"){
     if(country === "all"){ const e = ERAS.find(x => x.id === period); if(e) qs = qs.filter(q => e.t(q.y ?? 0)); }
@@ -547,17 +593,47 @@ function filtered(){
 }
 function renderFilters(){
   const { country, period } = S.quiz;
-  $("#f-country").innerHTML = `<button class="chip" data-fc="all" aria-pressed="${country==="all"}">Tous les pays</button>` +
+  $("#f-country").innerHTML = `<button class="chip" data-fc="all" aria-pressed="${country==="all"}">Tous les pays</button><button class="chip" data-fc="near" aria-pressed="${country==="near"}">📍 Autour de moi</button>` +
     S.countries.map(c => `<button class="chip" data-fc="${esc(c.id)}" aria-pressed="${country===c.id}">${esc(c.flag||"")} ${esc(c.name)}</button>`).join("");
   const c = byId(country);
   const pers = c ? (c.periods||[]).map(p => ({ id:p.id, n:p.n, r:p.r })) : ERAS.map(e => ({ id:e.id, n:e.n }));
   $("#f-period").innerHTML = `<button class="chip" data-fp="all" aria-pressed="${period==="all"}">Toutes</button>` +
     pers.map(p => `<button class="chip" data-fp="${esc(p.id)}" aria-pressed="${period===p.id}">${esc(p.n)}${p.r ? `<small>${esc(p.r)}</small>` : ""}</button>`).join("");
-  const k = counts(filtered());
-  $("#f-info").textContent = `${pl(k.n, "question")} · ${k.due} à revoir · ${k.nw} jamais vue${k.nw > 1 ? "s" : ""}`;
+  $("#f-period").parentElement.querySelectorAll(".eyebrow")[1].hidden = country === "near";
+  $("#f-period").hidden = country === "near";
+  const T = [["q","Questions"],["mix","Tout mélanger"],["order","Remettre dans l'ordre"],["year","Quelle année ?"],["map","Situer sur la carte"]];
+  $("#f-type").innerHTML = T.map(([id,n]) => `<button class="chip" data-ft="${id}" aria-pressed="${S.quiz.type===id}">${n}</button>`).join("");
+  const pool = filtered(), k = counts(pool);
+  if(country === "near" && !S.pos){ $("#f-info").textContent = "Position en cours de recherche…"; return; }
+  const far = country === "near" && pool.length ? ` · lieux à moins de ${Math.max(1, Math.round(pool[pool.length-1].dist))} km` : "";
+  $("#f-info").textContent = `${pl(k.n, "question")} · ${k.due} à revoir · ${k.nw} jamais vue${k.nw > 1 ? "s" : ""}${far}`;
+}
+$("#f-type").addEventListener("click", e => {
+  const b = e.target.closest("[data-ft]"); if(!b) return;
+  S.quiz.type = b.dataset.ft; S.quiz.seq = 0; S.quiz.ahead = false; resetSession(); renderFilters(); nextQuestion();
+});
+function locate(){
+  return new Promise((res, rej) => {
+    if(!navigator.geolocation) return rej({ code: 0 });
+    navigator.geolocation.getCurrentPosition(p => res({ lat: p.coords.latitude, lon: p.coords.longitude }), rej, { enableHighAccuracy: false, timeout: 15000, maximumAge: 10*MIN });
+  });
+}
+async function goNear(){
+  S.quiz.country = "near"; S.quiz.period = "all"; S.quiz.ahead = false; resetSession(); renderFilters();
+  $("#quiz-body").innerHTML = `<div class="notice">Recherche de ta position… Autorise la localisation si ton téléphone te le demande.</div>`;
+  try{ S.pos = await locate(); renderFilters(); nextQuestion(); }
+  catch(err){
+    S.pos = null;
+    const msg = err && err.code === 1
+      ? "La localisation est refusée. Pour l'autoriser : Réglages de l'iPhone → Confidentialité et sécurité → Service de localisation → Sites Safari (ou ton appli « Histoire ») → « Lorsque l'app est active ». Puis touche à nouveau « Autour de moi »."
+      : "Impossible de trouver ta position pour l'instant. Vérifie que la localisation est activée et réessaie.";
+    $("#f-info").textContent = "";
+    $("#quiz-body").innerHTML = `<div class="notice">${esc(msg)}</div>`;
+  }
 }
 $("#f-country").addEventListener("click", e => {
   const b = e.target.closest("[data-fc]"); if(!b) return;
+  if(b.dataset.fc === "near"){ goNear(); return; }
   S.quiz.country = b.dataset.fc; S.quiz.period = "all"; S.quiz.ahead = false; resetSession(); renderFilters(); nextQuestion();
 });
 $("#f-period").addEventListener("click", e => {
@@ -588,18 +664,33 @@ function pickQuestion(){
 }
 let doneTimer = null;
 function nextQuestion(){
-  const r = pickQuestion();
+  const t = S.quiz.type;
+  if(t === "q") return nextSRS();
+  if(t === "mix"){
+    S.quiz.seq++;
+    if(S.quiz.seq % 3 === 0 && nextExercise(randomKind())) return;
+    const r = pickQuestion();
+    if(r.q || r.empty) return nextSRS(r);
+    if(nextExercise(randomKind(), true)) return;
+    return nextSRS(r);
+  }
+  if(!nextExercise(t)){ S.quiz.ex = null; S.quiz.cur = null; S.quiz.done = false; $("#quiz-body").innerHTML = `<div class="notice">Pas assez de dates ou de lieux dans cette sélection pour cet exercice. Choisis une sélection plus large.</div>`; }
+}
+function nextSRS(pre){
+  S.quiz.ex = null;
+  const r = pre || pickQuestion();
   S.quiz.cur = r.q; S.quiz.why = r.why; S.quiz.done = !!r.done; S.quiz.answered = null; S.quiz.nextIn = null;
   S.quiz.order = r.q ? shuffle(r.q.c.map((_,i) => i)) : null;
   if(r.q){ S.quiz.recent.push(r.q.id); if(S.quiz.recent.length > 8) S.quiz.recent.shift(); }
   clearTimeout(doneTimer);
   if(r.done){
     const next = filtered().map(q => S.srs[q.id]?.due).filter(Boolean).sort((a,b) => a-b)[0];
-    if(next && next - Date.now() < 30*MIN) doneTimer = setTimeout(() => { if(S.quiz.done) nextQuestion(); }, next - Date.now() + 500);
+    if(next && next - Date.now() < 30*MIN) doneTimer = setTimeout(() => { if(S.quiz.done && !S.quiz.ex) nextQuestion(); }, next - Date.now() + 500);
   }
   renderQuiz();
 }
 function selLabel(){
+  if(S.quiz.country === "near") return "📍 Autour de moi";
   const c = byId(S.quiz.country);
   const per = c ? (c.periods||[]).find(p => p.id === S.quiz.period) : ERAS.find(e => e.id === S.quiz.period);
   if(c) return `${c.flag||""} ${c.name}${per ? " · " + per.n : ""}`;
@@ -626,6 +717,7 @@ function renderDone(box){
     <p>${pl(pool.length, "question")} vue${pool.length > 1 ? "s" : ""}, dont ${lastOk} réussie${lastOk > 1 ? "s" : ""} la dernière fois${st.rate !== null ? ` (${st.rate} % de bonnes réponses au total)` : ""}.</p>
     ${next ? `<p class="muted">Prochaine révision ici ${esc(inWords(next - now))}. D'ici là, ces questions ne reviendront pas.</p>` : ""}
     ${others.length ? `<span class="eyebrow" style="margin-top:4px">Encore des questions à faire</span><div class="chips">${others.join("")}</div>` : `<p>Plus rien à revoir ailleurs non plus. Reviens plus tard !</p>`}
+    <button class="btn" data-act="ex-mix">Faire des exercices sur cette sélection</button>
     <button class="btn ghost" data-act="ahead">Réviser quand même cette sélection en avance</button>
   </div>`;
 }
@@ -633,6 +725,7 @@ function renderQuiz(){
   const box = $("#quiz-body"), q = S.quiz.cur;
   if(!S.loaded){ box.innerHTML = `<div class="skeleton"></div>`; return; }
   if(!S.countries.length){ box.innerHTML = `<div class="notice">${S.db ? "Ton carnet est vide pour l'instant. Ajoute le premier pays que tu traverses." : (STANDALONE ? "Les questions n'ont pas pu se charger. Vérifie ta connexion internet et rouvre l'appli." : "Ouvre cette page en étant connecté à Claude pour charger tes pays et tes questions.")}</div>${S.db ? `<button class="btn primary" style="margin-top:12px" data-act="add-country">Ajouter un pays</button>` : ""}`; return; }
+  if(S.quiz.ex){ renderExercise(box); return; }
   if(S.quiz.done){ renderDone(box); return; }
   if(!q){ box.innerHTML = `<div class="notice">Aucune question dans cette sélection.</div>`; return; }
   const c = byId(q.cid), per = periodOf(c, q), a = S.quiz.answered;
@@ -644,7 +737,7 @@ function renderQuiz(){
   const good = a === q.a;
   const why = S.quiz.why === "new" ? `<span class="tag new">Nouvelle</span>` : S.quiz.why === "ahead" ? `<span class="tag">En avance</span>` : `<span class="tag">À revoir</span>`;
   box.innerHTML = `<div class="card qcard">
-    <div class="qmeta"><span>${esc(c?.flag||"")} ${esc(c?.name||"")}${per ? " · " + esc(per.n) : ""}</span><span class="score">${S.quiz.score} / ${S.quiz.total}</span></div>
+    <div class="qmeta"><span>${esc(c?.flag||"")} ${esc(c?.name||"")}${per ? " · " + esc(per.n) : ""}${q.dist != null ? ` · <span class="near">à ${Math.round(q.dist)} km</span>` : ""}</span><span class="score">${S.quiz.score} / ${S.quiz.total}</span></div>
     <div>${why}</div>
     <p class="qtext">${esc(q.q)}</p>
     <div class="choices">${choices}</div>
@@ -656,6 +749,7 @@ function renderQuiz(){
   </div>`;
 }
 $("#quiz-body").addEventListener("click", e => {
+  if(S.quiz.ex && exClick(e)) return;
   const ch = e.target.closest("[data-choice]");
   if(ch && S.quiz.answered === null){
     const i = +ch.dataset.choice, q = S.quiz.cur;
@@ -665,6 +759,232 @@ $("#quiz-body").addEventListener("click", e => {
     renderQuiz(); renderFilters(); renderTop();
   }
 });
+
+/* ---------- dates repères ---------- */
+const ROMAN = { I:1, V:5, X:10, L:50, C:100 };
+function roman(r){ let t = 0; for(let i = 0; i < r.length; i++){ const v = ROMAN[r[i]], n = ROMAN[r[i+1]]; t += n > v ? -v : v; } return t; }
+function parseYear(str){
+  const s = String(str), neg = /av\.\s*J\.-C\./.test(s);
+  const exactRe = /^(?:\d{1,2}(?:er)?\s+)?(?:[A-Za-zéûÉÛ]+\s+)?(\d{1,4})(?:\s+av\.\s*J\.-C\.)?$/;
+  const m = s.trim().match(exactRe);
+  if(m) return { y: neg ? -+m[1] : +m[1], exact: true };
+  const d = s.match(/(\d{1,4})/);
+  if(d) return { y: neg ? -+d[1] : +d[1], exact: false };
+  const r = s.match(/\b([IVXLC]+)e\s+s/);
+  if(r){ const c = (roman(r[1]) - 1) * 100 + 50; return { y: neg ? -c : c, exact: false }; }
+  return null;
+}
+function subjectOf(q){
+  let sub = String(q.w || "").replace(/\s*\([^)]*\)/g, "").trim();
+  if(!sub || /\d{3,4}/.test(sub)) sub = q.p?.n || "";
+  return sub;
+}
+function eventsOf(qs){
+  const seen = new Set(), out = [];
+  for(const q of qs){
+    for(const [ys, label] of (q.dt || [])){
+      const py = parseYear(ys); if(!py) continue;
+      const key = py.y + "|" + label.toLowerCase(); if(seen.has(key)) continue; seen.add(key);
+      const sub = subjectOf(q);
+      const generic = label.split(/\s+/).length <= 3 || !/[A-ZÉ]/.test(label.slice(1));
+      const ctx = generic && sub && !label.toLowerCase().includes(sub.toLowerCase()) ? sub : "";
+      out.push({ y: py.y, exact: py.exact, ys, label, ctx, q, qid: q.id, cid: q.cid, per: q.per });
+    }
+  }
+  return out;
+}
+const evText = ev => esc(ev.label) + (ev.ctx ? `<small>${esc(ev.ctx)}</small>` : "");
+
+/* ---------- exercices ---------- */
+const KINDS = { order: "Remettre dans l'ordre", year: "Quelle année ?", map: "Situer sur la carte" };
+const randomKind = () => ["order","year","map"][Math.floor(Math.random()*3)];
+function nextExercise(kind, fromMix){
+  const pool = filtered(); if(!pool.length) return false;
+  const make = { order: makeOrder, year: makeYear, map: makeMap }[kind];
+  let ex = null;
+  for(let i = 0; i < 6 && !ex; i++) ex = make(pool);
+  if(!ex){ for(const k of shuffle(Object.keys(KINDS))){ if(k !== kind && S.quiz.type === "mix"){ ex = { order: makeOrder, year: makeYear, map: makeMap }[k](pool); if(ex) break; } } }
+  if(!ex) return false;
+  ex.fromMix = !!fromMix;
+  S.quiz.ex = ex; S.quiz.cur = null; S.quiz.done = false;
+  renderQuiz();
+  return true;
+}
+function makeOrder(pool){
+  const evs = shuffle(eventsOf(pool));
+  const pick = [];
+  for(const ev of evs){
+    if(pick.every(p => Math.abs(p.y - ev.y) >= ((p.exact && ev.exact) ? 1 : 60))) pick.push(ev);
+    if(pick.length === 4) break;
+  }
+  if(pick.length < 4) return null;
+  return { kind: "order", items: pick, sel: [], checked: false };
+}
+function makeYear(pool){
+  const evs = eventsOf(pool);
+  const ok = shuffle(evs.filter(ev => ev.exact && Math.abs(ev.y) >= 100 && !ev.label.includes(String(Math.abs(ev.y))) && !ev.ctx.includes(String(Math.abs(ev.y)))));
+  const ev = ok[0]; if(!ev) return null;
+  const others = shuffle([...new Set(eventsOf(allQ().filter(q => q.cid === ev.cid)).filter(x => x.exact && x.y !== ev.y && Math.abs(x.y - ev.y) <= 120).map(x => x.y))]);
+  const ch = new Set([ev.y]);
+  for(const y of others){ if(ch.size >= 4) break; if([...ch].every(c => Math.abs(c - y) >= 2)) ch.add(y); }
+  for(const d of shuffle([-23,-11,-6,4,9,17,31,-40])){ if(ch.size >= 4) break; const y = ev.y + d; if([...ch].every(c => Math.abs(c - y) >= 2) && y <= new Date().getFullYear()) ch.add(y); }
+  if(ch.size < 4) return null;
+  return { kind: "year", ev, choices: [...ch].sort((a,b) => a-b), answered: null };
+}
+function placesOf(qs){
+  const seen = new Set(), out = [];
+  for(const q of qs){
+    if(!q.p || !isFinite(q.p.lat)) continue;
+    const key = q.p.lat.toFixed(2) + "," + q.p.lon.toFixed(2);
+    if(seen.has(key)) continue; seen.add(key);
+    out.push({ n: q.p.n, lat: q.p.lat, lon: q.p.lon, q, cid: q.cid });
+  }
+  return out;
+}
+function makeMap(pool){
+  const all = placesOf(allQ());
+  const target = shuffle(placesOf(pool))[0]; if(!target) return null;
+  const far = (a, b) => km(a, b) >= 40;
+  const cands = [target];
+  const same = shuffle(all.filter(p => p.cid === target.cid && p !== target && p.n !== target.n));
+  const near = all.filter(p => p.cid !== target.cid && km(p, target) < 1500).sort((a,b) => km(a,target) - km(b,target));
+  for(const p of [...same, ...near]){ if(cands.length >= 4) break; if(cands.every(c => far(c, p))) cands.push(p); }
+  if(cands.length < 4) return null;
+  return { kind: "map", target, cands: shuffle(cands), answered: null };
+}
+function exMeta(ex){
+  const c = byId(ex.kind === "map" ? ex.target.cid : ex.kind === "year" ? ex.ev.cid : (ex.items[0] && ex.items[0].cid));
+  const sameCountry = ex.kind !== "order" || ex.items.every(i => i.cid === ex.items[0].cid);
+  return `<div class="qmeta"><span>${sameCountry && c ? `${esc(c.flag||"")} ${esc(c.name)}` : "Plusieurs pays"}</span><span class="score">${S.quiz.score} / ${S.quiz.total}</span></div>
+    <div><span class="tag ex">Exercice · ${KINDS[ex.kind]}</span></div>`;
+}
+function exDone(good, extra){
+  const ex = S.quiz.ex;
+  S.quiz.total++; if(good) S.quiz.score++;
+  const st = S.exStats[ex.kind] || { ok: 0, ko: 0 }; good ? st.ok++ : st.ko++; S.exStats[ex.kind] = st; save("qh-ex", S.exStats);
+  ex.result = { good, extra };
+}
+function exFooter(ex){
+  if(!ex.result) return "";
+  const qid = ex.kind === "map" ? ex.target.q.id : ex.kind === "year" ? ex.ev.qid : null;
+  return `<div class="verdict ${ex.result.good ? "ok" : "ko"}" role="status"><strong>${ex.result.good ? "Bravo !" : "Pas tout à fait"}</strong>${ex.result.extra ? `<p>${ex.result.extra}</p>` : ""}</div>
+    <div class="row">${qid ? `<button class="btn grow" data-act="detail" data-q="${esc(qid)}">En savoir plus</button>` : ""}<button class="btn primary grow" data-act="next">Suivant</button></div>`;
+}
+function renderExercise(box){
+  const ex = S.quiz.ex;
+  let body = "";
+  if(ex.kind === "order"){
+    const done = !!ex.result;
+    const sorted = ex.items.slice().sort((a,b) => a.y - b.y);
+    body = `<p class="qtext">Remets ces événements dans l'ordre chronologique.</p>
+      <p class="muted small">${done ? "Voici l'ordre exact avec les dates. Le numéro est celui que tu avais choisi." : "Touche-les du plus ancien au plus récent. Touche à nouveau pour annuler."}</p>
+      <div class="ord">${(done ? sorted.map(ev => ex.items.indexOf(ev)) : ex.items.map((_, i) => i)).map(i => {
+        const ev = ex.items[i], n = ex.sel.indexOf(i);
+        const cls = done ? (sorted.indexOf(ev) === n ? "ok" : "ko") : (n >= 0 ? "picked" : "");
+        return `<button data-ex-ord="${i}" class="${cls} ${n >= 0 ? "picked" : ""}" ${done ? "disabled" : ""}><span class="n">${n >= 0 ? n + 1 : ""}</span><span>${evText(ev)}</span>${done ? `<span class="yr">${esc(ev.ys)}</span>` : ""}</button>`;
+      }).join("")}</div>
+      ${!done ? `<button class="btn primary" data-ex-check ${ex.sel.length < 4 ? "disabled" : ""}>Valider</button>` : ""}`;
+  } else if(ex.kind === "year"){
+    const a = ex.answered;
+    body = `<p class="qtext">En quelle année ?</p>
+      <div class="card" style="background:var(--surface2);border:0"><p style="font-weight:600">${esc(ex.ev.label)}</p>${ex.ev.ctx ? `<p class="muted small">${esc(ex.ev.ctx)}</p>` : ""}</div>
+      <div class="choices">${ex.choices.map((y, i) => {
+        let cls = ""; if(a !== null){ if(y === ex.ev.y) cls = "ok"; else if(y === a) cls = "ko"; }
+        return `<button class="choice ${cls}" data-ex-year="${y}" ${a !== null ? "disabled" : ""}><span class="k">${L[i]}</span><span>${y < 0 ? -y + " av. J.-C." : y}</span></button>`;
+      }).join("")}</div>`;
+  } else if(ex.kind === "map"){
+    const a = ex.answered;
+    body = `<p class="qtext">Où se trouve : ${esc(ex.target.n)} ?</p>
+      <div class="minimap">${exMapSVG(ex)}</div>
+      <div class="choices">${ex.cands.map((p, i) => {
+        let cls = ""; if(a !== null){ if(p === ex.target) cls = "ok"; else if(i === a) cls = "ko"; }
+        return `<button class="choice ${cls}" data-ex-pin="${i}" ${a !== null ? "disabled" : ""}><span class="k">${L[i]}</span><span>${a !== null ? esc(p.n) : "Point " + L[i]}</span></button>`;
+      }).join("")}</div>`;
+  }
+  box.innerHTML = `<div class="card qcard">${exMeta(ex)}${body}${exFooter(ex)}</div>`;
+}
+function exMapSVG(ex){
+  const W = 400, H = 260;
+  const P = project(ex.cands, W, H, 40, 5, 3.5);
+  let g = "";
+  ex.cands.forEach((p, i) => {
+    const [x, y] = P.f(p.lat, p.lon);
+    let cls = "xpin";
+    if(ex.answered !== null){ cls += p === ex.target ? " ok" : i === ex.answered ? " ko" : " dim"; }
+    g += `<circle class="${cls}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" data-ex-pin="${i}"></circle><text class="xlet" x="${x.toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="middle">${L[i]}</text>`;
+    if(ex.answered !== null) g += `<text class="xname" x="${x.toFixed(1)}" y="${(y+26).toFixed(1)}" text-anchor="middle">${esc(p.n.split(",")[0])}</text>`;
+  });
+  return `<svg class="map" viewBox="0 0 ${W} ${H}" role="img" aria-label="Carte avec quatre points">${landSVG(P, [], null)}${gratSVG(P, 2)}${g}</svg>`;
+}
+function exClick(e){
+  const ex = S.quiz.ex; if(ex.result) return false;
+  const o = e.target.closest("[data-ex-ord]");
+  if(o){ const i = +o.dataset.exOrd, k = ex.sel.indexOf(i); if(k >= 0) ex.sel.splice(k, 1); else if(ex.sel.length < 4) ex.sel.push(i); renderQuiz(); return true; }
+  if(e.target.closest("[data-ex-check]")){
+    const sorted = ex.items.slice().sort((a,b) => a.y - b.y);
+    const good = ex.sel.every((i, n) => ex.items[i] === sorted[n]);
+    exDone(good, good ? "Ordre parfait." : "Les bonnes positions sont en vert.");
+    renderQuiz(); return true;
+  }
+  const y = e.target.closest("[data-ex-year]");
+  if(y){ ex.answered = +y.dataset.exYear; const good = ex.answered === ex.ev.y; exDone(good, `${esc(ex.ev.label)} : ${esc(ex.ev.ys)}.`); renderQuiz(); return true; }
+  const pin = e.target.closest("[data-ex-pin]");
+  if(pin){ ex.answered = +pin.dataset.exPin; const good = ex.cands[ex.answered] === ex.target; const d = km(ex.cands[ex.answered], ex.target);
+    exDone(good, good ? "" : `Tu as choisi ${esc(ex.cands[ex.answered].n)}, à ${Math.round(d)} km de là.`); renderQuiz(); return true; }
+  return false;
+}
+
+/* ---------- frises ---------- */
+function openFrises(){
+  openSheet("Frises chronologiques", `<p class="muted">Choisis un pays.</p><div class="countries">${S.countries.map(c => `
+    <button class="country" data-act="frise" data-country="${esc(c.id)}"><span class="flag" aria-hidden="true">${esc(c.flag||"🏳️")}</span><span><span class="nm">${esc(c.name)}</span><br><span class="sub">${pl(eventsOf((c.questions||[]).map(q => ({...q, cid:c.id}))).length, "date")}</span></span><span class="step">›</span></button>`).join("")}</div>`);
+}
+function openFrise(cid){
+  const c = byId(cid); if(!c) return;
+  const evs = eventsOf((c.questions||[]).map(q => ({...q, cid:c.id}))).sort((a,b) => a.y - b.y);
+  const groups = (c.periods||[]).map(p => ({ p, evs: evs.filter(e => e.per === p.id) })).filter(g => g.evs.length);
+  const html = `<p class="muted small">Touche une date pour ouvrir la fiche de la question.</p><div class="frise">${groups.map(g => `
+    <h3>${esc(g.p.n)} <span class="r">${esc(g.p.r||"")}</span></h3>
+    <ol>${g.evs.map(ev => `<li><button data-act="detail" data-q="${esc(ev.qid)}"><span class="y">${esc(ev.ys)}</span><span>${evText(ev)}</span></button></li>`).join("")}</ol>`).join("")}</div>`;
+  openSheet(`${c.flag||""} ${c.name} · frise`, html);
+}
+
+/* ---------- photos Wikipédia ---------- */
+const WIKI = load("qh-wiki", {});
+async function wikiSummary(title){
+  const r = await fetch("https://fr.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title.replace(/ /g, "_")));
+  if(!r.ok) return null;
+  const j = await r.json();
+  if(!j.thumbnail) return null;
+  const o = j.originalimage;
+  const src = o && o.width <= 1600 ? o.source : (o && o.width > 800 ? j.thumbnail.source.replace(/\/\d+px-/, "/800px-") : j.thumbnail.source);
+  return { src, title: j.title, url: j.content_urls && j.content_urls.mobile ? j.content_urls.mobile.page : "https://fr.wikipedia.org/wiki/" + encodeURIComponent(j.title) };
+}
+async function wikiSearch(text){
+  const u = "https://fr.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=1&prop=pageimages|info&piprop=thumbnail&pithumbsize=800&inprop=url&gsrsearch=" + encodeURIComponent(text);
+  const r = await fetch(u); if(!r.ok) return null;
+  const j = await r.json(); const pages = j.query && j.query.pages; if(!pages) return null;
+  const pg = Object.values(pages)[0]; if(!pg || !pg.thumbnail) return null;
+  return { src: pg.thumbnail.source, title: pg.title, url: pg.fullurl };
+}
+async function wikiFor(q){
+  if(q.id in WIKI) return WIKI[q.id];
+  let info = null;
+  try{
+    if(q.w) info = await wikiSummary(q.w);
+    if(!info && q.p && q.p.n) info = await wikiSearch(q.p.n.split(",")[0]);
+    if(!info && q.w) info = await wikiSearch(q.w);
+  }catch(e){ return undefined; }
+  WIKI[q.id] = info; save("qh-wiki", WIKI);
+  return info;
+}
+async function fillWiki(q){
+  const box = $("#wiki-box"); if(!box) return;
+  const info = await wikiFor(q);
+  if(!$("#wiki-box") || $("#wiki-box").dataset.q !== q.id) return;
+  if(!info){ $("#wiki-box").remove(); return; }
+  $("#wiki-box").outerHTML = `<figure class="wiki"><img class="ph" src="${esc(info.src)}" alt="${esc(info.title)}" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>${esc(info.title)} · photo <a href="${esc(info.url)}" target="_blank" rel="noopener">Wikipédia</a></figcaption></figure>`;
+}
 
 /* ---------- feuilles ---------- */
 let sheetAbort = null;
@@ -713,6 +1033,7 @@ function openDetail(qid){
     ${per ? `<span class="eyebrow">${esc(per.n)} · ${esc(per.r||"")}</span>` : ""}
     <p class="qtext" style="font-size:1.15rem">${esc(q.q)}</p>
     <div class="answerline"><span class="eyebrow">Réponse</span><p style="font-weight:600">${esc(q.c[q.a])}</p></div>
+    ${STANDALONE ? `<div id="wiki-box" data-q="${esc(q.id)}" class="wiki"><div class="ph"></div><p class="muted small" style="padding:8px 12px">Chargement de la photo…</p></div>` : ""}
     <div class="prose">${md(q.d || q.e)}</div>
     ${q.dt && q.dt.length ? `<div class="stack" style="gap:8px"><span class="eyebrow">Repères</span><ol class="timeline">${q.dt.map(([y,t]) => `<li><span class="y">${esc(y)}</span><span>${esc(t)}</span></li>`).join("")}</ol></div>` : ""}
     ${q.p && isFinite(q.p.lat) ? `<div class="stack" style="gap:8px"><span class="eyebrow">Où c'est</span><div class="minimap"><div id="mini-map" data-q="${esc(q.id)}">${miniMapSVG(q, c)}</div><p>${esc(q.p.n)}</p></div></div>` : ""}
@@ -723,6 +1044,7 @@ function openDetail(qid){
       <div id="deeper-out" class="prose"></div>
     </div>`}`;
   openSheet(`${c?.flag||""} ${c?.name||""}`, html);
+  if(STANDALONE) fillWiki(q);
 }
 function errMsg(e){
   const c = e && e.code;
@@ -762,7 +1084,7 @@ function openCountry(cid){
   const item = q => { const st = srsState(q.id); return `<button data-act="detail" data-q="${esc(q.id)}"><span>${esc(q.q)}</span><span class="st ${st}">${esc(laterLabel(q.id))}</span></button>`; };
   const html = `
     <p class="muted">${k.n} questions · ${k.due} à revoir · ${k.nw} jamais vues</p>
-    <button class="btn primary" data-act="quiz-country" data-country="${esc(c.id)}">Quiz sur ce pays</button>
+    <div class="row"><button class="btn primary grow" data-act="quiz-country" data-country="${esc(c.id)}">Quiz sur ce pays</button><button class="btn grow" data-act="frise" data-country="${esc(c.id)}">Voir la frise</button></div>
     ${groups.map(g => `<div class="pergroup"><h3>${esc(g.p.n)} <span class="r">${esc(g.p.r||"")}</span></h3><div class="qlist">${g.qs.map(item).join("")}</div>
       ${g.p.id ? `<button class="btn ghost sm" style="margin-top:8px;align-self:flex-start" data-act="quiz-period" data-country="${esc(c.id)}" data-period="${esc(g.p.id)}">Quiz sur cette période</button>` : ""}</div>`).join("")}
     ${S.db ? `<div class="stack" style="gap:8px;margin-top:8px">
@@ -897,7 +1219,10 @@ document.addEventListener("click", e => {
   const act = t.dataset.act;
   if(act === "close") closeSheet();
   else if(act === "next") nextQuestion();
-  else if(act === "ahead"){ S.quiz.ahead = true; nextQuestion(); }
+  else if(act === "ahead"){ S.quiz.ahead = true; if(S.quiz.type !== "q") S.quiz.type = "q"; renderFilters(); nextQuestion(); }
+  else if(act === "ex-mix"){ S.quiz.type = "mix"; S.quiz.seq = 2; renderFilters(); nextQuestion(); }
+  else if(act === "frises") openFrises();
+  else if(act === "frise") openFrise(t.dataset.country);
   else if(act === "detail") openDetail(t.dataset.q);
   else if(act === "deeper") deeper(t.dataset.q, t);
   else if(act === "stats") openStats();
@@ -932,6 +1257,7 @@ document.addEventListener("click", e => {
 function renderAll(){
   renderTop(); renderFilters();
   if(!S.loaded){ return; }
+  if(S.quiz.ex){ renderQuiz(); return; }
   if(!S.quiz.cur || !allQ().some(q => q.id === S.quiz.cur.id)) nextQuestion(); else renderQuiz();
 }
 
