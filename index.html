@@ -782,18 +782,18 @@ function subjectOf(q){
 function eventsOf(qs){
   const seen = new Set(), out = [];
   for(const q of qs){
-    for(const [ys, label] of (q.dt || [])){
+    for(const [ys, label, minor] of (q.dt || [])){
       const py = parseYear(ys); if(!py) continue;
       const key = py.y + "|" + label.toLowerCase(); if(seen.has(key)) continue; seen.add(key);
-      const sub = subjectOf(q);
-      const generic = label.split(/\s+/).length <= 3 || !/[A-ZÉ]/.test(label.slice(1));
-      const ctx = generic && sub && !label.toLowerCase().includes(sub.toLowerCase()) ? sub : "";
-      out.push({ y: py.y, exact: py.exact, ys, label, ctx, q, qid: q.id, cid: q.cid, per: q.per });
+      const c = byId(q.cid);
+      const ctx = c ? `${c.flag || ""} ${c.name}`.trim() : "";
+      out.push({ y: py.y, exact: py.exact, ys, label, ctx, minor: !!minor, q, qid: q.id, cid: q.cid, per: q.per });
     }
   }
   return out;
 }
-const evText = ev => esc(ev.label) + (ev.ctx ? `<small>${esc(ev.ctx)}</small>` : "");
+const evText = (ev, withCountry) => esc(ev.label) + (withCountry && ev.ctx ? `<small>${esc(ev.ctx)}</small>` : "");
+const keyEvents = qs => eventsOf(qs).filter(ev => !ev.minor);
 
 /* ---------- exercices ---------- */
 const KINDS = { order: "Remettre dans l'ordre", year: "Quelle année ?", map: "Situer sur la carte" };
@@ -811,18 +811,18 @@ function nextExercise(kind, fromMix){
   return true;
 }
 function makeOrder(pool){
-  const evs = shuffle(eventsOf(pool));
+  const evs = shuffle(keyEvents(pool));
   const pick = [];
   for(const ev of evs){
     if(pick.every(p => Math.abs(p.y - ev.y) >= ((p.exact && ev.exact) ? 1 : 60))) pick.push(ev);
     if(pick.length === 4) break;
   }
   if(pick.length < 4) return null;
-  return { kind: "order", items: pick, sel: [], checked: false };
+  return { kind: "order", items: pick, sel: [], checked: false, multi: new Set(pick.map(p => p.cid)).size > 1 };
 }
 function makeYear(pool){
-  const evs = eventsOf(pool);
-  const ok = shuffle(evs.filter(ev => ev.exact && Math.abs(ev.y) >= 100 && !ev.label.includes(String(Math.abs(ev.y))) && !ev.ctx.includes(String(Math.abs(ev.y)))));
+  const evs = keyEvents(pool);
+  const ok = shuffle(evs.filter(ev => ev.exact && Math.abs(ev.y) >= 100 && !ev.label.includes(String(Math.abs(ev.y)))));
   const ev = ok[0]; if(!ev) return null;
   const others = shuffle([...new Set(eventsOf(allQ().filter(q => q.cid === ev.cid)).filter(x => x.exact && x.y !== ev.y && Math.abs(x.y - ev.y) <= 120).map(x => x.y))]);
   const ch = new Set([ev.y]);
@@ -881,13 +881,13 @@ function renderExercise(box){
       <div class="ord">${(done ? sorted.map(ev => ex.items.indexOf(ev)) : ex.items.map((_, i) => i)).map(i => {
         const ev = ex.items[i], n = ex.sel.indexOf(i);
         const cls = done ? (sorted.indexOf(ev) === n ? "ok" : "ko") : (n >= 0 ? "picked" : "");
-        return `<button data-ex-ord="${i}" class="${cls} ${n >= 0 ? "picked" : ""}" ${done ? "disabled" : ""}><span class="n">${n >= 0 ? n + 1 : ""}</span><span>${evText(ev)}</span>${done ? `<span class="yr">${esc(ev.ys)}</span>` : ""}</button>`;
+        return `<button data-ex-ord="${i}" class="${cls} ${n >= 0 ? "picked" : ""}" ${done ? "disabled" : ""}><span class="n">${n >= 0 ? n + 1 : ""}</span><span>${evText(ev, ex.multi)}</span>${done ? `<span class="yr">${esc(ev.ys)}</span>` : ""}</button>`;
       }).join("")}</div>
       ${!done ? `<button class="btn primary" data-ex-check ${ex.sel.length < 4 ? "disabled" : ""}>Valider</button>` : ""}`;
   } else if(ex.kind === "year"){
     const a = ex.answered;
     body = `<p class="qtext">En quelle année ?</p>
-      <div class="card" style="background:var(--surface2);border:0"><p style="font-weight:600">${esc(ex.ev.label)}</p>${ex.ev.ctx ? `<p class="muted small">${esc(ex.ev.ctx)}</p>` : ""}</div>
+      <div class="card" style="background:var(--surface2);border:0"><p style="font-weight:600">${esc(ex.ev.label)}</p><p class="muted small">${esc(ex.ev.ctx)}</p></div>
       <div class="choices">${ex.choices.map((y, i) => {
         let cls = ""; if(a !== null){ if(y === ex.ev.y) cls = "ok"; else if(y === a) cls = "ko"; }
         return `<button class="choice ${cls}" data-ex-year="${y}" ${a !== null ? "disabled" : ""}><span class="k">${L[i]}</span><span>${y < 0 ? -y + " av. J.-C." : y}</span></button>`;
@@ -950,40 +950,41 @@ function openFrise(cid){
 }
 
 /* ---------- photos Wikipédia ---------- */
-const WIKI = load("qh-wiki", {});
-async function wikiSummary(title){
-  const r = await fetch("https://fr.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title.replace(/ /g, "_")));
-  if(!r.ok) return null;
+const WIKI = load("qh-wiki2", {});
+const WAPI = "https://fr.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&origin=*&prop=pageimages|info&piprop=thumbnail&pithumbsize=800&inprop=url&redirects=1";
+async function wikiGet(url){
+  const r = await fetch(url, { mode: "cors" });
+  if(!r.ok) throw new Error("HTTP " + r.status);
   const j = await r.json();
-  if(!j.thumbnail) return null;
-  const o = j.originalimage;
-  const src = o && o.width <= 1600 ? o.source : (o && o.width > 800 ? j.thumbnail.source.replace(/\/\d+px-/, "/800px-") : j.thumbnail.source);
-  return { src, title: j.title, url: j.content_urls && j.content_urls.mobile ? j.content_urls.mobile.page : "https://fr.wikipedia.org/wiki/" + encodeURIComponent(j.title) };
+  const pages = (j.query && j.query.pages) || [];
+  const pg = (Array.isArray(pages) ? pages : Object.values(pages)).find(x => x && x.thumbnail);
+  return pg ? { src: pg.thumbnail.source, title: pg.title, url: pg.fullurl || "https://fr.wikipedia.org/wiki/" + encodeURIComponent(pg.title) } : null;
 }
-async function wikiSearch(text){
-  const u = "https://fr.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=1&prop=pageimages|info&piprop=thumbnail&pithumbsize=800&inprop=url&gsrsearch=" + encodeURIComponent(text);
-  const r = await fetch(u); if(!r.ok) return null;
-  const j = await r.json(); const pages = j.query && j.query.pages; if(!pages) return null;
-  const pg = Object.values(pages)[0]; if(!pg || !pg.thumbnail) return null;
-  return { src: pg.thumbnail.source, title: pg.title, url: pg.fullurl };
-}
+const byTitle = t => wikiGet(WAPI + "&titles=" + encodeURIComponent(t));
+const bySearch = t => wikiGet(WAPI + "&generator=search&gsrlimit=3&gsrsearch=" + encodeURIComponent(t));
 async function wikiFor(q){
-  if(q.id in WIKI) return WIKI[q.id];
-  let info = null;
+  const c = WIKI[q.id];
+  if(c && (c.info || Date.now() - c.at < 3*DAY)) return { info: c.info };
   try{
-    if(q.w) info = await wikiSummary(q.w);
-    if(!info && q.p && q.p.n) info = await wikiSearch(q.p.n.split(",")[0]);
-    if(!info && q.w) info = await wikiSearch(q.w);
-  }catch(e){ return undefined; }
-  WIKI[q.id] = info; save("qh-wiki", WIKI);
-  return info;
+    let info = null;
+    if(q.w) info = await byTitle(q.w);
+    if(!info && q.p && q.p.n) info = await bySearch(q.p.n.split(",")[0]);
+    if(!info && q.w) info = await bySearch(q.w);
+    WIKI[q.id] = { info, at: Date.now() }; save("qh-wiki2", WIKI);
+    return { info };
+  }catch(e){ return { error: String(e && e.message || e) }; }
 }
 async function fillWiki(q){
-  const box = $("#wiki-box"); if(!box) return;
-  const info = await wikiFor(q);
-  if(!$("#wiki-box") || $("#wiki-box").dataset.q !== q.id) return;
-  if(!info){ $("#wiki-box").remove(); return; }
-  $("#wiki-box").outerHTML = `<figure class="wiki"><img class="ph" src="${esc(info.src)}" alt="${esc(info.title)}" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>${esc(info.title)} · photo <a href="${esc(info.url)}" target="_blank" rel="noopener">Wikipédia</a></figcaption></figure>`;
+  if(!$("#wiki-box")) return;
+  const r = await wikiFor(q);
+  const box = $("#wiki-box");
+  if(!box || box.dataset.q !== q.id) return;
+  if(!r.info){
+    box.outerHTML = `<p class="muted small" id="wiki-box">${r.error ? (navigator.onLine === false ? "Photo indisponible hors connexion." : "La photo n'a pas pu être chargée (" + esc(r.error) + ").") : "Pas de photo trouvée sur Wikipédia pour cette fiche."}</p>`;
+    return;
+  }
+  const info = r.info;
+  box.outerHTML = `<figure class="wiki" id="wiki-box"><img class="ph" src="${esc(info.src)}" alt="${esc(info.title)}" onerror="this.replaceWith(Object.assign(document.createElement('p'),{className:'muted small',style:'padding:12px',textContent:'La photo n\'a pas pu s\'afficher.'}))"><figcaption>${esc(info.title)} · photo <a href="${esc(info.url)}" target="_blank" rel="noopener">Wikipédia</a></figcaption></figure>`;
 }
 
 /* ---------- feuilles ---------- */
