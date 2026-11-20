@@ -973,7 +973,7 @@ function friseEvents(c, all){
   }
   return out.sort((a,b) => a.y - b.y);
 }
-function openFrise(cid, all){
+function openFrise(cid, all, replace){
   const c = byId(cid); if(!c) return;
   const evs = friseEvents(c, all), total = eventsOf((c.questions||[]).map(q => ({...q, cid:c.id}))).length;
   const groups = (c.periods||[]).map((p, i) => ({ p, i, evs: evs.filter(e => e.per === p.id) })).filter(g => g.evs.length);
@@ -992,7 +992,7 @@ function openFrise(cid, all){
   openSheet(`${c.flag||""} ${c.name} · frise`, html, body => {
     body.querySelector(".fr-band").addEventListener("click", e => { const b = e.target.closest("[data-fr-go]"); if(b) body.querySelector("#fr-" + CSS.escape(b.dataset.frGo)).scrollIntoView({ behavior: "smooth", block: "start" }); });
     if(STANDALONE) fillThumbs(body);
-  });
+  }, { replace });
 }
 async function fillThumbs(body){
   const slots = [...body.querySelectorAll("[data-th]")];
@@ -1002,7 +1002,7 @@ async function fillThumbs(body){
     while(i < slots.length){
       const el = slots[i++], q = qs.find(x => x.id === el.dataset.th); if(!q) continue;
       const r = await wikiFor(q);
-      if(r.info && el.isConnected){
+      if(r.info){
         const img = new Image();
         img.onload = () => { el.style.backgroundImage = `url("${r.info.src.replace(/"/g, "%22")}")`; el.textContent = ""; };
         img.src = r.info.src;
@@ -1052,17 +1052,37 @@ async function fillWiki(q){
 
 /* ---------- feuilles ---------- */
 let sheetAbort = null;
-function openSheet(title, html, onMount){
-  closeSheet();
-  $("#sheet-root").innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+const sheetStack = [];
+function abortSheet(){ if(sheetAbort){ sheetAbort.abort(); sheetAbort = null; } }
+/* Une feuille ouverte depuis une autre feuille s'empile : en la fermant, on retrouve la précédente
+   à la même position. opts.replace remplace la feuille du dessus sans empiler. */
+function openSheet(title, html, onMount, opts = {}){
+  const cur = $("#sheet-root .sheet");
+  abortSheet();
+  if(cur){
+    if(opts.replace) cur.remove();
+    else { sheetStack.push({ el: cur, scroll: cur.querySelector(".body").scrollTop }); cur.remove(); }
+  }
+  const back = sheetStack.length > 0;
+  $("#sheet-root").insertAdjacentHTML("beforeend", `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}">
     <div class="scrim" data-act="close"></div>
-    <div class="panel"><div class="bar-top"><h2 style="font-size:1.1rem">${esc(title)}</h2><button class="close" data-act="close" aria-label="Fermer">✕</button></div>
-    <div class="body">${html}</div></div></div>`;
+    <div class="panel"><div class="bar-top"><h2 style="font-size:1.1rem;flex:1">${esc(title)}</h2><button class="close" data-act="close" aria-label="${back ? "Revenir à la page précédente" : "Fermer"}">✕</button></div>
+    <div class="body">${html}</div></div></div>`);
   document.body.style.overflow = "hidden";
-  onMount && onMount($(".sheet .body"));
+  onMount && onMount($("#sheet-root .sheet .body"));
 }
 function closeSheet(){
-  if(sheetAbort){ sheetAbort.abort(); sheetAbort = null; }
+  abortSheet();
+  const cur = $("#sheet-root .sheet"); if(cur) cur.remove();
+  const prev = sheetStack.pop();
+  if(prev){
+    prev.el.querySelector(".panel").style.animation = "none";
+    $("#sheet-root").appendChild(prev.el);
+    prev.el.querySelector(".body").scrollTop = prev.scroll;
+  } else document.body.style.overflow = "";
+}
+function closeAllSheets(){
+  abortSheet(); sheetStack.length = 0;
   $("#sheet-root").innerHTML = ""; document.body.style.overflow = "";
 }
 document.addEventListener("keydown", e => { if(e.key === "Escape") closeSheet(); });
@@ -1196,7 +1216,7 @@ Réponds UNIQUEMENT avec un objet JSON de cette forme :
     if(r.cap && isFinite(+r.cap.lat) && isFinite(+r.cap.lon)) doc.cap = { n: String(r.cap.n||""), lat: +r.cap.lat, lon: +r.cap.lon };
     await S.db.collection("countries").doc(id).set(doc);
     statusEl.textContent = doc.name + " est ajouté avec " + qs.length + " questions.";
-    setTimeout(() => { closeSheet(); openCountry(id); }, 700);
+    setTimeout(() => { closeAllSheets(); openCountry(id); }, 700);
   }catch(e){ btn.disabled = false; statusEl.innerHTML = `<span class="err">${errMsg(e)}</span>`; }
 }
 async function moreQuestions(cid, btn){
@@ -1272,7 +1292,7 @@ function openBackup(){
 
 /* ---------- actions ---------- */
 function startQuiz(country, period){
-  closeSheet(); toggleMenu(false);
+  closeAllSheets(); toggleMenu(false);
   S.quiz.country = country; S.quiz.period = period; S.quiz.ahead = false; resetSession();
   renderFilters(); nextQuestion(); window.scrollTo(0,0);
 }
@@ -1282,13 +1302,14 @@ document.addEventListener("click", e => {
   if(t.classList && t.classList.contains("hit")){ openCountry(t.dataset.country); return; }
   const act = t.dataset.act;
   if(act === "close") closeSheet();
+  else if(act === "close-all") closeAllSheets();
   else if(act === "next") nextQuestion();
   else if(act === "ahead"){ S.quiz.ahead = true; if(S.quiz.type !== "q") S.quiz.type = "q"; renderFilters(); nextQuestion(); }
   else if(act === "ex-mix"){ S.quiz.type = "mix"; S.quiz.seq = 2; renderFilters(); nextQuestion(); }
   else if(act === "frises") openFrises();
   else if(act === "frise") openFrise(t.dataset.country);
-  else if(act === "frise-all") openFrise(t.dataset.country, true);
-  else if(act === "frise-less") openFrise(t.dataset.country, false);
+  else if(act === "frise-all") openFrise(t.dataset.country, true, true);
+  else if(act === "frise-less") openFrise(t.dataset.country, false, true);
   else if(act === "detail") openDetail(t.dataset.q);
   else if(act === "deeper") deeper(t.dataset.q, t);
   else if(act === "stats") openStats();
@@ -1314,10 +1335,10 @@ document.addEventListener("click", e => {
   else if(act === "quiz-era") startQuiz("all", t.dataset.era);
   else if(act === "reset-ask") $("#reset-zone").innerHTML = `<div class="row"><span>Effacer toute ta progression sur cet appareil ?</span><button class="btn sm ghost danger" data-act="reset-yes">Oui, effacer</button><button class="btn sm" data-act="reset-no">Annuler</button></div>`;
   else if(act === "reset-no") $("#reset-zone").innerHTML = `<button class="btn ghost sm danger" data-act="reset-ask">Remettre ma progression à zéro</button>`;
-  else if(act === "reset-yes"){ S.srs = {}; save("qh-srs", S.srs); closeSheet(); resetSession(); renderAll(); nextQuestion(); }
+  else if(act === "reset-yes"){ S.srs = {}; save("qh-srs", S.srs); closeAllSheets(); resetSession(); renderAll(); nextQuestion(); }
   else if(act === "del-ask") $("#del-zone").innerHTML = `<div class="row"><span>Retirer ce pays et ses questions ?</span><button class="btn sm ghost danger" data-act="del-yes">Oui, retirer</button><button class="btn sm" data-act="del-no">Annuler</button></div>`;
   else if(act === "del-no") $("#del-zone").innerHTML = `<button class="btn ghost sm danger" data-act="del-ask">Retirer ce pays du carnet</button>`;
-  else if(act === "del-yes"){ const cid = $(".sheet").dataset.country; S.db.collection("countries").doc(cid).delete().then(closeSheet).catch(err => { $("#del-zone").innerHTML = `<p class="err">${errMsg(err)}</p>`; }); }
+  else if(act === "del-yes"){ const cid = $(".sheet").dataset.country; S.db.collection("countries").doc(cid).delete().then(closeAllSheets).catch(err => { $("#del-zone").innerHTML = `<p class="err">${errMsg(err)}</p>`; }); }
 });
 
 function renderAll(){

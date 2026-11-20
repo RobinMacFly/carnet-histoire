@@ -1,7 +1,7 @@
 /* Mise en cache pour que l'appli marche sans connexion.
    Pages et questions : réseau d'abord (pour recevoir les mises à jour), cache si hors ligne.
    Icônes, polices, fond de carte : cache d'abord. */
-const CACHE = "carnet-v4";
+const CACHE = "carnet-v5";
 const SHELL = ["./", "index.html", "pays.json", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {
