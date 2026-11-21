@@ -144,13 +144,14 @@ textarea{width:100%;font-size:16px;border:1.5px solid var(--line);border-radius:
 .foot a{color:var(--ink);font-weight:600}
 
 /* voyages sur la carte */
-#routes path{fill:none;stroke:var(--route);stroke-linecap:round;stroke-linejoin:round}
+#routes g{stroke:var(--route)}
+#routes path{fill:none;stroke-linecap:round;stroke-linejoin:round}
 #routes .prevu{opacity:.45}
 #routes .unk{opacity:.8}
 #hits path{fill:none;stroke:transparent;pointer-events:stroke;cursor:pointer}
 #map.trip-on #routes g:not(.on){opacity:.18}
 #map.trip-on #land path:not(.intrip){opacity:.55}
-#stops circle{fill:var(--paper);stroke:var(--route)}
+#stops circle{fill:var(--paper);stroke:var(--tc,var(--route))}
 #stops circle.pv{fill:var(--land);opacity:.7}
 #stops text{fill:var(--ink);stroke:var(--paper);paint-order:stroke;stroke-linejoin:round;font-weight:700;pointer-events:none}
 .legend b.rl{display:inline-block;width:16px;height:0;border-top:2.5px solid var(--route);margin-right:6px;vertical-align:3px}
@@ -201,7 +202,8 @@ textarea{width:100%;font-size:16px;border:1.5px solid var(--line);border-radius:
 .flags{display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:12px 10px}
 .flags button{border:0;padding:0;background:none;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
 .fl{width:48px;height:48px;border-radius:50%;overflow:hidden;display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.18);background:var(--line)}
-.fl span{font-size:76px;line-height:1;display:block}
+.fl img{width:100%;height:100%;object-fit:cover;display:block}
+.fl span{font-size:96px;line-height:1;display:block}
 .homeflag{margin-top:12px;color:var(--muted);font-size:14px}
 .years{list-style:none;margin:0;padding:0}
 .years li{display:grid;grid-template-columns:4.2em minmax(0,1fr);gap:4px 12px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
@@ -276,6 +278,30 @@ textarea{width:100%;font-size:16px;border:1.5px solid var(--line);border-radius:
 .bord li{flex-wrap:wrap;row-gap:2px}
 .bord .bc{white-space:nowrap}
 .bord .ar{color:var(--muted)}
+.mini{position:sticky;top:-8px;z-index:3;background:var(--paper);padding:8px 0 4px;margin-top:6px}
+.mini svg{width:100%;height:230px;display:block;border-radius:14px;touch-action:none;border:1px solid var(--line)}
+.mini .msea{fill:var(--sea)}
+.mini .mland path{fill:var(--land);stroke:var(--border)}
+.mini .mland path.v{fill:var(--vis)}
+.mini .mroute path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.mini .mroute .prevu{opacity:.5}
+.mpt circle{fill:var(--paper);stroke:var(--ink);cursor:grab}
+.mpt text{fill:var(--ink);font-weight:800;text-anchor:middle;pointer-events:none}
+.mtools{position:absolute;right:8px;top:16px;display:flex;flex-direction:column;gap:6px}
+.mtools .ib{background:var(--paper);width:38px;height:38px}
+.mhint{margin:6px 2px 0;font-size:13px;color:var(--muted)}
+.mrow.same{color:var(--muted);font-style:italic;padding-top:0;padding-bottom:0}
+.mrow.same span{width:auto}
+.cols{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sw{width:38px;height:38px;border-radius:50%;border:2px solid var(--line);box-shadow:inset 0 0 0 2px var(--paper)}
+.sw.on{border-color:var(--ink);border-width:3px}
+.swa{height:38px;border-radius:19px;border:1.5px solid var(--line);background:none;padding:0 12px;font-weight:600;color:var(--muted)}
+.swa.on{border-color:var(--ink);color:var(--ink)}
+.plist{list-style:none;margin:0;padding:0}
+.plist li{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:6px 0}
+.pin{flex:1;font-size:16px;border:1.5px solid var(--line);border-radius:10px;padding:8px;background:none;color:var(--ink);font-weight:600}
+.pin:focus{border-color:var(--vis);outline:0}
+.plist span{color:var(--muted);font-size:14px;white-space:nowrap}
 /* onglets */
 nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);background:var(--paper);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{border:0;background:none;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
@@ -434,7 +460,8 @@ function build(){
   const dots = P.filter(p => p.dot).map(p => `<circle class="t${p.t}" data-id="${p.id}" cx="${p.x}" cy="${p.y}" r="6"/>`).join("");
   const labels = P.filter(p => p.id !== "ATA").map(p => `<text data-id="${p.id}" x="${p.x}" y="${p.y}">${esc(p.n)}</text>`).join("");
   svg.innerHTML = `<defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--land)"/><rect width="3" height="8" fill="var(--vis)"/></pattern></defs>
-  <g id="vp"><path id="sphere" d="${M.sphere}"/><path id="grat" d="${M.grat}"/><g id="land">${land}</g><g id="routes">${routesSvg()}</g><g id="dots">${dots}</g><g id="hits">${hitsSvg()}</g><g id="labels">${labels}</g><g id="stops"></g></g>`;
+  <g id="vp"><path id="sphere" d="${M.sphere}"/><path id="grat" d="${M.grat}"/><g id="land">${land}</g><g id="routes"></g><g id="dots">${dots}</g><g id="hits"></g><g id="labels">${labels}</g><g id="stops"></g></g>`;
+  $("#routes").innerHTML = routesSvg(); $("#hits").innerHTML = hitsSvg();
 }
 function segPath(E, P, i){
   const a = P[i - 1], b = P[i], k = kind(E[i].m), dl = C(E[i])[0] - C(E[i - 1])[0];
@@ -455,11 +482,49 @@ function segPath(E, P, i){
   return `M${a[0].toFixed(1)} ${a[1].toFixed(1)}C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
 }
 const DASH = {air: "7 6", sea: "1 6", unk: "2 5", land: ""};
+const TCOLS = ["#d7263d", "#1b98e0", "#7b2cbf", "#2a9d8f", "#f2b705", "#1f2d3d", "#ffffff", "#e76f51", "#4a7c59"];
+const tColor = t => t.couleur || TCOLS[Math.max(0, TRIPS.indexOf(t)) % TCOLS.length];
+/* le point est-il sur la terre ? (pour n'afficher en pointillés que la partie en mer d'un trajet en bateau) */
+/* contours des pays décodés depuis le fond de carte (indépendant de l'affichage) */
+const RINGS = {};
+function ringsOf(p){
+  if(RINGS[p.id]) return RINGS[p.id];
+  const out = []; (p.d.match(/M[^z]*z/g) || []).forEach(sub => {
+    const m = sub.match(/^M(-?[\d.]+) (-?[\d.]+)l(.*)z$/); if(!m) return;
+    let x = +m[1], y = +m[2]; const r = [[x, y]], n = (m[3].match(/-?\d*\.?\d+/g) || []).map(Number);
+    for(let k = 0; k + 1 < n.length; k += 2){ x += n[k]; y += n[k + 1]; r.push([x, y]); }
+    out.push(r); });
+  return RINGS[p.id] = out;
+}
+function inRing(r, x, y){ let c = false; for(let i = 0, j = r.length - 1; i < r.length; j = i++){ const a = r[i], b = r[j]; if((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; }
+function onLand(x, y){
+  for(const p of M.pays){ const b = p.b; if(x < b[0] - 1 || x > b[2] + 1 || y < b[1] - 1 || y > b[3] + 1) continue;
+    let c = false; ringsOf(p).forEach(r => { if(inRing(r, x, y)) c = !c; }); if(c) return true; }
+  return false;
+}
+function seaSplit(a, b){
+  const n = Math.max(12, Math.min(80, Math.round(Math.hypot(b[0] - a[0], b[1] - a[1]) / 3))), runs = [];
+  for(let j = 0; j <= n; j++){ const f = j / n, x = a[0] + (b[0] - a[0]) * f, y = a[1] + (b[1] - a[1]) * f, l = onLand(x, y);
+    if(!runs.length || runs[runs.length - 1].l !== l) runs.push({l, pts: runs.length ? [runs[runs.length - 1].pts.slice(-1)[0]] : []});
+    runs[runs.length - 1].pts.push([x, y]); }
+  const d = l => runs.filter(r => r.l === l && r.pts.length > 1).map(r => `M${r.pts[0][0].toFixed(1)} ${r.pts[0][1].toFixed(1)}L${r.pts[r.pts.length - 1][0].toFixed(1)} ${r.pts[r.pts.length - 1][1].toFixed(1)}`).join("");
+  return {land: d(true), sea: d(false)};
+}
+function segsSvg(E, P){
+  let out = "";
+  for(let i = 1; i < E.length; i++){
+    const k = kind(E[i].m), pv = E[i].prevu ? " prevu" : "";
+    if(k === "sea" && Math.abs(C(E[i])[0] - C(E[i - 1])[0]) <= 180){ const r = seaSplit(P[i - 1], P[i]);
+      if(r.land) out += `<path class="land${pv}"${pv ? ` data-dash="5 6"` : ""} d="${r.land}"/>`;
+      if(r.sea) out += `<path class="sea${pv}" data-dash="${DASH.sea}" d="${r.sea}"/>`; continue; }
+    const d = DASH[k] || (E[i].prevu ? "5 6" : "");
+    out += `<path class="${k}${pv}"${d ? ` data-dash="${d}"` : ""} d="${segPath(E, P, i)}"/>`;
+  }
+  return out;
+}
 function routesSvg(){
   return TRIPS.map(t => { const E = t.etapes, P = E.map(e => proj(C(e)));
-    let out = ""; for(let i = 1; i < E.length; i++){ const k = kind(E[i].m), d = DASH[k] || (E[i].prevu ? "5 6" : "");
-      out += `<path class="${k}${E[i].prevu ? " prevu" : ""}"${d ? ` data-dash="${d}"` : ""} d="${segPath(E, P, i)}"/>`; }
-    return `<g data-t="${t.id}">${out}</g>`; }).join("");
+    return `<g data-t="${t.id}" style="stroke:${tColor(t)}">${segsSvg(E, P)}</g>`; }).join("");
 }
 function hitsSvg(){
   return TRIPS.map(t => { const E = t.etapes, P = E.map(e => proj(C(e))); let d = `M${P[0][0].toFixed(0)} ${P[0][1].toFixed(0)}`;
@@ -644,7 +709,7 @@ function openTrip(id, fit = true){
   const t = TRIPS.find(x => x.id === id); if(!t) return;
   if(sel){ sel = null; paint(); }
   $("#sheet").hidden = true; selTrip = id; const I = tripInfo(t);
-  svg.classList.add("trip-on");
+  svg.classList.add("trip-on"); $("#stops").style.setProperty("--tc", tColor(t));
   $("#routes").querySelectorAll("g").forEach(g => g.classList.toggle("on", g.dataset.t === id));
   $("#land").querySelectorAll("path").forEach(p => p.classList.toggle("intrip", I.all.includes(p.dataset.id)));
   $("#stops").innerHTML = t.etapes.map((e, i) => { const q = proj(C(e)); if(i === t.etapes.length - 1 && e.v === t.etapes[0].v && e.p === t.etapes[0].p) return "";
@@ -671,7 +736,7 @@ $("#ts-body").addEventListener("click", e => { const b = e.target.closest("[data
 function renderTrips(){
   const cards = TRIPS.map(t => { const I = tripInfo(t), seq = [];
     t.etapes.forEach(e => { if(!seq.length || seq[seq.length - 1].p !== e.p) seq.push({p: e.p, pv: !!e.prevu}); });
-    return `<button class="tcard" data-trip="${t.id}"><h4>${esc(t.nom)}${t.brouillon ? `<span class="badge">brouillon</span>` : ""}</h4><p>${esc([t.periode, t.avec && t.avec.length ? "avec " + t.avec.join(", ") : ""].filter(Boolean).join(" · "))}</p>
+    return `<button class="tcard" data-trip="${t.id}" style="border-left:6px solid ${tColor(t)}"><h4>${esc(t.nom)}${t.brouillon ? `<span class="badge">brouillon</span>` : ""}</h4><p>${esc([t.periode, t.avec && t.avec.length ? "avec " + t.avec.join(", ") : ""].filter(Boolean).join(" · "))}</p>
       <div class="chain">${seq.map((x, i) => `${i ? "<i>›</i>" : ""}<span class="${x.pv ? "pv" : ""}">${BY[x.p] ? flag(BY[x.p].iso) : x.p}</span>`).join("")}</div>
       <div class="tchips"><span><b>${I.countries.length}</b>pays</span><span><b>${I.land}</b>frontière${I.land > 1 ? "s" : ""} par la terre</span></div></button>`; }).join("");
   $("#trips").innerHTML = `<h2 class="sec">Mes grands voyages</h2><button class="btn" id="new-trip">+ Nouveau voyage</button>${cards || `<p class="empty">Aucun voyage pour l'instant.</p>`}
@@ -691,10 +756,10 @@ const mk = m => ({land: "terre", air: "avion", sea: "bateau"})[kind(m)] || "";
 const PIN = `<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>`;
 function openEditor(id){
   const t = id && TRIPS.find(x => x.id === id);
-  ED = t ? {id: t.id, nom: t.nom, an: tYear(t), etapes: t.etapes.map(e => Object.assign({}, e)), orig: t, confirm: false, open: null}
-         : {id: null, nom: "", an: "", etapes: [], confirm: false, open: null};
+  ED = t ? {id: t.id, nom: t.nom, an: tYear(t), couleur: t.couleur || null, etapes: t.etapes.map(e => Object.assign({}, e)), orig: t, confirm: false, open: null, view: null}
+         : {id: null, nom: "", an: "", couleur: null, etapes: [], confirm: false, open: null, view: null};
   PF.trip = t ? [...(t.avec || [])] : [];
-  renderEditor(); openPanel("editor");
+  renderEditor(); openPanel("editor"); drawMini();
 }
 function grab(){
   if(!ED || !$("#ed-nom")) return; ED.nom = $("#ed-nom").value; ED.an = $("#ed-an").value;
@@ -706,7 +771,7 @@ function renderEditor(){
   const step = (e, i) => {
     const av = e.avec ? e.avec.join(", ") || "seul" : "comme le voyage";
     return `<li class="step"><span class="f">${BY[e.p] ? flag(BY[e.p].iso) : ""}</span><span class="nm">${esc(BY[e.p] ? BY[e.p].n : e.p)}${e.v ? ` · ${esc(e.v)}` : ""}
-      <small><button class="lk" data-av="${i}">avec : ${esc(av)}</button> · ${e.c ? `point placé · <button class="lk" data-place="${i}">déplacer</button> · <button class="lk" data-unplace="${i}">remettre au centre</button>` : `<button class="lk" data-place="${i}">placer sur la carte</button>`}</small></span>
+      <small><button class="lk" data-av="${i}">avec : ${esc(av)}</button>${e.c ? ` · point déplacé · <button class="lk" data-unplace="${i}">remettre au centre</button>` : ""}</small></span>
       <button class="pvb${e.prevu ? " on" : ""}" data-pv="${i}" aria-pressed="${!!e.prevu}">à venir</button><button class="ib" data-up="${i}" aria-label="Monter"${i ? "" : " disabled"}>↑</button><button class="ib" data-rm="${i}" aria-label="Retirer">×</button></li>
       ${ED.open === i ? `<li class="avbox"><p>Avec qui dans ce pays ?</p>${peopleField("st" + i)}<div class="frow"><button class="btn" data-avok="${i}">Valider</button><button class="btn alt" data-avreset="${i}">Comme le voyage (${esc(tav)})</button></div></li>` : ""}`;
   };
@@ -714,12 +779,50 @@ function renderEditor(){
   <label class="fld">Nom du voyage<input id="ed-nom" value="${esc(ED.nom)}" placeholder="Road trip en Amérique latine" autocomplete="off"></label>
   <label class="fld" style="width:8em;margin-left:0">Année<input id="ed-an" type="number" inputmode="numeric" value="${esc(ED.an)}" placeholder="2018"></label>
   <label class="fld">Avec qui (pour tout le voyage)</label>${peopleField("trip")}
+  <label class="fld">Couleur du tracé</label><div class="cols">${TCOLS.map(c => `<button class="sw${ED.couleur === c ? " on" : ""}" data-col="${c}" style="background:${c}" aria-label="Couleur ${c}" aria-pressed="${ED.couleur === c}"></button>`).join("")}<button class="swa${ED.couleur ? "" : " on"}" data-col="" aria-pressed="${!ED.couleur}">auto</button></div>
   <h3>Étapes dans l'ordre<span>${E.length}</span></h3>
-  ${E.length ? `<ol class="steps">${E.map((e, i) => `${i ? `<li class="mrow"><span>${e.p !== E[i - 1].p ? "Frontière" : "Trajet"}</span><div class="mseg">${MBTN.map(([m, l]) => `<button data-mode="${m}" data-i="${i}" aria-pressed="${mk(e.m) === m}">${l}</button>`).join("")}</div></li>` : ""}${step(e, i)}`).join("")}</ol>` : `<p class="empty" style="padding:8px 0">Ajoute les pays dans l'ordre où tu les as traversés. Un pays peut revenir plusieurs fois (par exemple Kazakhstan → Ouzbékistan → Kazakhstan).</p>`}
+  <div class="mini" id="mini-wrap">${E.length ? `<svg id="mini" aria-label="Aperçu du tracé : fais glisser un point pour le déplacer"></svg><div class="mtools"><button class="ib" data-mz="1.6" aria-label="Zoomer">+</button><button class="ib" data-mz="0.625" aria-label="Dézoomer">−</button><button class="ib" data-mz="0" aria-label="Recadrer">⤢</button></div><p class="mhint">Fais glisser un point pour suivre ton vrai chemin.</p>` : `<p class="mhint">La carte du voyage apparaîtra ici dès le premier pays.</p>`}</div>
+  ${E.length ? `<ol class="steps">${E.map((e, i) => `${i ? (e.p !== E[i - 1].p ? `<li class="mrow"><span>Frontière</span><div class="mseg">${MBTN.map(([m, l]) => `<button data-mode="${m}" data-i="${i}" aria-pressed="${mk(e.m) === m}">${l}</button>`).join("")}</div></li>` : `<li class="mrow same"><span>même pays, pas de frontière</span></li>`) : ""}${step(e, i)}`).join("")}</ol>` : `<p class="empty" style="padding:8px 0">Ajoute les pays dans l'ordre où tu les as traversés. Un pays peut revenir plusieurs fois (par exemple Kazakhstan → Ouzbékistan → Kazakhstan).</p>`}
   <div class="picker"><input class="search" id="ed-q" type="search" placeholder="Ajouter un pays…" autocomplete="off"><div id="ed-res"></div></div>
   <div class="msg" id="ed-msg" role="status"></div>
   <div class="frow"><button class="btn" id="ed-save">Enregistrer</button><button class="btn alt" id="ed-cancel">Annuler</button></div>
   ${ED.id ? `<button class="btn danger" id="ed-del">${ED.confirm ? "Confirmer la suppression" : "Supprimer ce voyage"}</button>` : ""}`;
+  drawMini();
+}
+/* mini-carte en direct dans l'éditeur */
+function miniFit(){
+  const E = ED.etapes, P = E.map(e => proj(C(e))), b = [1e9, 1e9, -1e9, -1e9];
+  P.forEach(q => { b[0] = Math.min(b[0], q[0]); b[1] = Math.min(b[1], q[1]); b[2] = Math.max(b[2], q[0]); b[3] = Math.max(b[3], q[1]); });
+  E.forEach(e => { if(E.length < 3 && BY[e.p]){ const q = BY[e.p].b; b[0] = Math.min(b[0], q[0]); b[1] = Math.min(b[1], q[1]); b[2] = Math.max(b[2], q[2]); b[3] = Math.max(b[3], q[3]); } });
+  const w = Math.max(80, b[2] - b[0]), h = Math.max(60, b[3] - b[1]), cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2;
+  ED.view = {cx, cy, w: w * 1.3, h: h * 1.3}; ED.vn = E.length;
+}
+function drawMini(){
+  const m = $("#mini"); if(!m) return; const E = ED.etapes;
+  if(!ED.view || ED.vn !== E.length) miniFit();
+  const W = m.clientWidth || 340, H = m.clientHeight || 230, v = ED.view, s = Math.max(v.w / W, v.h / H), vw = W * s, vh = H * s, x0 = v.cx - vw / 2, y0 = v.cy - vh / 2;
+  m.setAttribute("viewBox", `${x0.toFixed(1)} ${y0.toFixed(1)} ${vw.toFixed(1)} ${vh.toFixed(1)}`); ED.s = s;
+  const inView = p => !(p.b[2] < x0 || p.b[0] > x0 + vw || p.b[3] < y0 || p.b[1] > y0 + vh);
+  const land = M.pays.filter(inView).map(p => `<path class="${st(p.id) === "v" || E.some(e => e.p === p.id && !e.prevu) ? "v" : ""}" d="${p.d}"/>`).join("");
+  const P = E.map(e => proj(C(e))), col = ED.couleur || "var(--route)";
+  const segs = segsSvg(E, P).replace(/data-dash="([^"]*)"/g, (_, d) => `stroke-dasharray="${d.split(" ").map(x => (x * s).toFixed(2)).join(" ")}"`);
+  const dots = P.map((q, i) => `<g class="mpt" data-si="${i}"><circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${(11 * s).toFixed(2)}"/><text x="${q[0].toFixed(1)}" y="${(q[1] + 4 * s).toFixed(1)}" font-size="${(11 * s).toFixed(2)}">${i + 1}</text></g>`).join("");
+  m.innerHTML = `<rect x="${x0}" y="${y0}" width="${vw}" height="${vh}" class="msea"/><g class="mland" stroke-width="${(0.8 * s).toFixed(3)}">${land}</g><g class="mroute" style="stroke:${col}" stroke-width="${(2.6 * s).toFixed(3)}">${segs}</g><g stroke-width="${(2 * s).toFixed(3)}">${dots}</g>`;
+}
+{
+  let drag = null;
+  const pt = (m, e) => { const r = m.getBoundingClientRect(), vb = m.viewBox.baseVal; return [vb.x + (e.clientX - r.left) / r.width * vb.width, vb.y + (e.clientY - r.top) / r.height * vb.height]; };
+  $("#ed-body").addEventListener("pointerdown", e => {
+    const m = e.target.closest("#mini"); if(!m) return; e.preventDefault(); m.setPointerCapture(e.pointerId);
+    const g = e.target.closest(".mpt"); drag = g ? {i: +g.dataset.si} : {pan: pt(m, e), view: Object.assign({}, ED.view)};
+  });
+  $("#ed-body").addEventListener("pointermove", e => {
+    const m = e.target.closest("#mini") || $("#mini"); if(!drag || !m) return;
+    if(drag.i !== undefined){ const q = pt(m, e); ED.etapes[drag.i].c = unproj(q[0], q[1]); delete ED.etapes[drag.i].v; drag.moved = true; drawMini(); }
+    else { const q = pt(m, e); ED.view.cx -= q[0] - drag.pan[0]; ED.view.cy -= q[1] - drag.pan[1]; drawMini(); }
+  });
+  const end = () => { if(drag && drag.moved){ grab(); const v = ED.view; renderEditor(); ED.view = v; drawMini(); } drag = null; };
+  $("#ed-body").addEventListener("pointerup", end); $("#ed-body").addEventListener("pointercancel", end);
 }
 $("#ed-body").addEventListener("input", e => {
   if(e.target.id !== "ed-q") return;
@@ -729,15 +832,19 @@ $("#ed-body").addEventListener("input", e => {
 });
 $("#ed-body").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b || b.closest(".pf")) return; grab(); const E = ED.etapes;
-  if(b.dataset.add){ E.push({p: b.dataset.add, m: E.length ? "terre" : undefined}); renderEditor(); const q = $("#ed-q"); q.focus({preventScroll: true}); const pb = $("#editor .pb"); pb.scrollTop = Math.max(0, q.offsetTop - pb.clientHeight / 2); return; }
-  if(b.dataset.mode){ E[+b.dataset.i].m = b.dataset.mode; renderEditor(); return; }
+  if(b.dataset.add){ const np = {p: b.dataset.add, m: E.length ? "terre" : undefined}, prev = E[E.length - 1];
+    if(prev && prev.p === np.p && BY[np.p]){ const q = proj(C(prev)), bb = BY[np.p].b; np.c = unproj(q[0] + (bb[2] - bb[0]) * .2, q[1] + (bb[3] - bb[1]) * .2); }
+    E.push(np); renderEditor(); const q = $("#ed-q"); q.focus({preventScroll: true}); const pb = $("#editor .pb"); pb.scrollTop = Math.max(0, q.offsetTop - pb.clientHeight / 2); return; }
+  if(b.dataset.mode){ E[+b.dataset.i].m = b.dataset.mode; const v = ED.view; renderEditor(); return; }
+  if(b.dataset.mz !== undefined){ const f = +b.dataset.mz; if(!f) ED.view = null; else { ED.view.w /= f; ED.view.h /= f; } drawMini(); return; }
+  if(b.dataset.col !== undefined){ ED.couleur = b.dataset.col || null; const v = ED.view; renderEditor(); ED.view = v; drawMini(); return; }
   if(b.dataset.pv){ const i = +b.dataset.pv; E[i].prevu = !E[i].prevu; if(!E[i].prevu) delete E[i].prevu; renderEditor(); return; }
   if(b.dataset.up){ const i = +b.dataset.up; if(i > 0){ [E[i - 1], E[i]] = [E[i], E[i - 1]]; ED.open = null; } renderEditor(); return; }
   if(b.dataset.rm){ E.splice(+b.dataset.rm, 1); ED.open = null; renderEditor(); return; }
   if(b.dataset.av){ const i = +b.dataset.av; ED.open = ED.open === i ? null : i; PF["st" + i] = [...(E[i].avec || PF.trip || [])]; renderEditor(); return; }
   if(b.dataset.avok){ const i = +b.dataset.avok; E[i].avec = [...(PF["st" + i] || [])]; ED.open = null; renderEditor(); return; }
   if(b.dataset.avreset){ const i = +b.dataset.avreset; delete E[i].avec; ED.open = null; renderEditor(); return; }
-  if(b.dataset.unplace){ delete E[+b.dataset.unplace].c; delete E[+b.dataset.unplace].v; renderEditor(); return; }
+  if(b.dataset.unplace){ delete E[+b.dataset.unplace].c; delete E[+b.dataset.unplace].v; const v = ED.view; renderEditor(); ED.view = v; drawMini(); return; }
   if(b.dataset.place){ startPlacing(+b.dataset.place); return; }
   if(b.id === "ed-cancel"){ $("#editor").hidden = true; return; }
   if(b.id === "ed-del"){ if(!ED.confirm){ ED.confirm = true; renderEditor(); return; }
@@ -746,7 +853,7 @@ $("#ed-body").addEventListener("click", e => {
     if(!ED.nom.trim()){ $("#ed-msg").textContent = "Donne un nom au voyage."; $("#ed-nom").focus(); return; }
     if(E.length < 2){ $("#ed-msg").textContent = "Ajoute au moins deux étapes."; return; }
     const an = parseInt(ED.an, 10);
-    const t = Object.assign({}, ED.orig || {}, {id: ED.id || "u" + uid(), nom: ED.nom.trim(), an: an || "", periode: ED.orig && ED.orig.periode && String(ED.orig.periode).includes(String(an)) ? ED.orig.periode : (an || ""), avec: [...(PF.trip || [])], etapes: E.map((e, i) => { const x = Object.assign({}, e); if(!i) delete x.m; return x; }), edited: true});
+    const t = Object.assign({}, ED.orig || {}, {id: ED.id || "u" + uid(), nom: ED.nom.trim(), an: an || "", periode: ED.orig && ED.orig.periode && String(ED.orig.periode).includes(String(an)) ? ED.orig.periode : (an || ""), avec: [...(PF.trip || [])], couleur: ED.couleur || undefined, etapes: E.map((e, i) => { const x = Object.assign({}, e); if(!i) delete x.m; return x; }), edited: true});
     delete t.brouillon;
     const i = ST.trips.findIndex(x => x.id === t.id); if(i < 0) ST.trips.push(t); else ST.trips[i] = t;
     E.filter(e => !e.prevu).forEach(e => { if(st(e.p) !== "v"){ if((base[e.p] || "") === "v") delete over[e.p]; else over[e.p] = "v"; } });
@@ -762,7 +869,7 @@ function startPlacing(i){
 }
 function endPlacing(c){
   if(placing !== null && c){ ED.etapes[placing].c = c; }
-  placing = null; $("#placebar").hidden = true; renderEditor(); openPanel("editor");
+  placing = null; $("#placebar").hidden = true; renderEditor(); openPanel("editor"); drawMini();
 }
 $("#placebar").addEventListener("click", e => { if(e.target.closest("button")) endPlacing(null); });
 
@@ -847,7 +954,7 @@ function renderStats(){
   [...V, ...terrV].filter(p => p.id !== HOME).forEach(p => { const L = sejOf(p.id); if(!L.length) nodate.push(p);
     L.forEach(x => { const y = x.an || "?"; (years[y] = years[y] || new Set()).add(p.id); (x.avec || []).forEach(n => (ppl[n] = ppl[n] || new Set()).add(p.id)); }); });
   const ys = Object.keys(years).sort((a, b) => b.localeCompare(a));
-  const fb = p => `<button data-go="${p.id}" aria-label="${esc(p.n)}"><span class="fl"><span>${flag(p.iso)}</span></span></button>`;
+  const fb = p => `<button data-go="${p.id}" aria-label="${esc(p.n)}"><span class="fl">${p.iso ? `<img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/${p.iso.toLowerCase()}.svg" alt="" loading="lazy" data-e="${flag(p.iso)}" onerror="this.outerHTML='<span>'+this.dataset.e+'</span>'">` : ""}</span></button>`;
   const flagsL = [...V].sort((a, b) => a.n.localeCompare(b.n, "fr")).concat(terrV.sort((a, b) => a.n.localeCompare(b.n, "fr")));
   const tag = L => L.length ? `<div class="tags">${L.sort((a, b) => a.n.localeCompare(b.n, "fr")).map(p => `<button data-go="${p.id}">${flag(p.iso)} ${esc(p.n)}</button>`).join("")}</div>` : `<p class="empty">Aucun pour l'instant.</p>`;
   $("#stats").innerHTML = `
@@ -893,6 +1000,8 @@ function renderSettings(){
   <h3>Affichage</h3>
   ${sw("o-terr", ST.opt.terr, "Territoires dans la liste", "Groenland, Hong Kong, Polynésie…")}
   ${sw("o-routes", ST.opt.routes, "Tracés des voyages sur la carte", "")}
+  <h3>Personnes<span>${people().length}</span></h3>
+  ${people().length ? `<ul class="plist">${people().map(n => `<li><input class="pin" data-old="${esc(n)}" value="${esc(n)}" aria-label="Nom de ${esc(n)}" autocapitalize="words"><span>${countOf(n)} pays</span></li>`).join("")}</ul><p class="foot" style="margin-top:6px">Modifie un nom pour le corriger partout. Efface-le pour retirer la personne.</p>` : `<p class="empty">Personne pour l'instant : ajoute des compagnons dans un séjour ou un voyage.</p>`}
   <h3>Couleurs</h3>
   <div class="pals">${PALS.map(([id, n, c]) => `<button data-p="${id}" aria-pressed="${id === pal}"><span style="background:${c[0]}"><i style="background:${c[1]}"></i><i style="background:${c[2]}"></i></span>${n}</button>`).join("")}</div>
   <h3>Sauvegarde</h3>
@@ -907,10 +1016,18 @@ function renderSettings(){
   </div>
   <p class="foot"><a href="../">Carnet d'histoire →</a></p>`;
 }
+function countOf(n){ return M.pays.filter(p => sejOf(p.id).some(x => (x.avec || []).includes(n))).length; }
+function renamePerson(old, nu){
+  nu = nu.trim(); const fix = L => { if(!Array.isArray(L)) return L; const r = []; L.forEach(x => { const y = x === old ? nu : x; if(y && !r.includes(y)) r.push(y); }); return r; };
+  Object.values(ST.sej).forEach(L => L.forEach(x => { x.avec = fix(x.avec || []); }));
+  (ST.trips || []).forEach(t => { t.avec = fix(t.avec || []); t.etapes.forEach(e => { if(e.avec) e.avec = fix(e.avec); }); t.edited = true; });
+  save(); setTrips(); renderStats(); renderSettings();
+}
 function openPanel(id){ document.querySelector("main").scrollTop = 0; $("#" + id).hidden = false; $("#" + id).querySelector(".pb").scrollTop = 0; }
 $("#gear").onclick = () => { renderSettings(); openPanel("settings"); };
 document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => $("#" + b.dataset.close).hidden = true);
 $("#set-body").addEventListener("change", e => {
+  if(e.target.classList.contains("pin")){ const o = e.target.dataset.old, n = e.target.value; if(n.trim() !== o) renamePerson(o, n); return; }
   if(e.target.id === "o-terr"){ ST.opt.terr = e.target.checked; save(); renderList(); }
   if(e.target.id === "o-routes"){ ST.opt.routes = e.target.checked; save(); svg.classList.toggle("noroutes", !ST.opt.routes); }
 });
