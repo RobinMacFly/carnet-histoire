@@ -325,6 +325,16 @@ button.bar{width:100%;border:0;background:none;text-align:left;color:inherit;fon
 .drows svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2}
 .dmore{margin-top:18px}
 .dmore summary{font-weight:700;color:var(--head);min-height:44px;display:flex;align-items:center;cursor:pointer}
+.tiles button{display:flex;flex-direction:column;justify-content:flex-start;border:0;text-align:left;font:inherit;color:inherit;border-radius:16px;padding:12px 10px;background:linear-gradient(160deg,color-mix(in srgb,var(--vis) 22%,var(--paper)),color-mix(in srgb,var(--vis) 6%,var(--paper)))}
+.tiles button b{display:block;font-size:clamp(22px,6.5vw,30px);font-weight:800;color:var(--ink);line-height:1.1}
+.tiles button span{font-size:13px;color:var(--muted);line-height:1.25;display:block}
+.secsub{font-size:15px;font-weight:600;color:var(--muted);margin-left:10px}
+.clegend .lb{display:block;width:100%;height:5px;border-radius:3px;background:var(--line);margin-top:5px;overflow:hidden}
+.clegend .lb i{display:block;height:100%;border:0;width:0;border-radius:3px}
+.clegend button>span{flex:1}
+.fgroup{display:flex;align-items:baseline;gap:6px}
+.fgroup span{font-weight:400}
+.fgroup em{margin-left:auto;font-style:normal;font-weight:400}
 /* onglets */
 nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);background:var(--paper);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{border:0;background:none;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
@@ -982,20 +992,17 @@ function renderStats(){
   const conts = CORDER.filter(c => c !== "an").map(c => { const all = C.filter(p => p.c === c), v = all.filter(p => st(p.id) === "v").length; return {c, all: all.length, v}; });
   const pct = Math.round(VA.length / C.length * 100);
   const TI = TRIPS.map(tripInfo), land = TI.reduce((a, x) => a + x.land, 0);
-  /* par année et compagnons, depuis les séjours */
-  const years = {}, ppl = {}, nodate = [];
-  [...V, ...terrV].filter(p => p.id !== HOME).forEach(p => { const L = sejOf(p.id); if(!L.length) nodate.push(p);
-    L.forEach(x => { const y = x.an || "?"; (years[y] = years[y] || new Set()).add(p.id); (x.avec || []).forEach(n => (ppl[n] = ppl[n] || new Set()).add(p.id)); }); });
-  const ys = Object.keys(years).sort((a, b) => b.localeCompare(a));
-  const fb = p => `<button data-go="${p.id}" aria-label="${esc(p.n)}"><span class="fl">${p.iso ? `<img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/${p.iso.toLowerCase()}.svg" alt="" loading="lazy" data-e="${flag(p.iso)}" onerror="this.outerHTML='<span>'+this.dataset.e+'</span>'">` : ""}</span></button>`;
+  /* compagnons, depuis les séjours */
+  const ppl = {};
+  [...V, ...terrV].filter(p => p.id !== HOME).forEach(p => sejOf(p.id).forEach(x => (x.avec || []).forEach(n => (ppl[n] = ppl[n] || new Set()).add(p.id))));
+  const fb = p => `<button data-${p.id !== HOME && !sejOf(p.id).length ? "sejgo" : "go"}="${p.id}" aria-label="${esc(p.n)}"><span class="fl">${p.iso ? `<img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/${p.iso.toLowerCase()}.svg" alt="" loading="lazy" data-e="${flag(p.iso)}" onerror="this.outerHTML='<span>'+this.dataset.e+'</span>'">` : ""}</span></button>`;
   const fs = ST.opt.fsort || "date", last = p => Math.max(0, ...yearsOf(p.id).map(Number).filter(Boolean)), az = (a, b) => a.n.localeCompare(b.n, "fr");
   const flagsL = [...V, ...terrV].sort(fs === "az" ? az : fs === "cont" ? ((a, b) => CORDER.indexOf(a.c) - CORDER.indexOf(b.c) || az(a, b)) : ((a, b) => (last(b) - last(a)) || az(a, b)));
   let flagsHtml;
   if(fs === "cont") flagsHtml = CORDER.map(c => { const L = flagsL.filter(p => p.c === c); return L.length ? `<p class="fgroup">${CONT[c]}</p><div class="flags">${L.map(fb).join("")}</div>` : ""; }).join("");
   else if(fs === "date"){ const groups = []; flagsL.forEach(p => { const y = last(p) || "Sans date"; if(!groups.length || groups[groups.length - 1].y !== y) groups.push({y, L: []}); groups[groups.length - 1].L.push(p); });
-    flagsHtml = groups.map(g => `<p class="fgroup">${g.y}</p><div class="flags">${g.L.map(fb).join("")}</div>`).join(""); }
+    flagsHtml = groups.map(g => `<p class="fgroup">${g.y === "Sans date" ? "Sans date <span>· touche un drapeau pour noter l'année</span>" : g.y}<em>${g.L.length} pays</em></p><div class="flags">${g.L.map(fb).join("")}</div>`).join(""); }
   else flagsHtml = `<div class="flags">${flagsL.map(fb).join("")}</div>`;
-  const tag = L => L.length ? `<div class="tags">${L.sort((a, b) => a.n.localeCompare(b.n, "fr")).map(p => `<button data-go="${p.id}">${flag(p.iso)} ${esc(p.n)}</button>`).join("")}</div>` : `<p class="empty">Aucun pour l'instant.</p>`;
   $("#stats").innerHTML = `
   <h2 class="sec">Tu as vu</h2>
   <div class="hero">
@@ -1003,29 +1010,24 @@ function renderStats(){
     <div class="card"><img src="globe-nuit.jpg" alt=""><div class="ov"><b>${pct} %</b><span>du monde</span></div></div>
   </div>
   <div class="tiles">
-    <div><b>${on.length}<small style="font-size:.55em;color:var(--muted)"> / 6</small></b><span>continents</span></div>
-    <div><b>${land}</b><span>frontières franchies par la terre</span></div>
-    <div><b>${TRIPS.length}</b><span>grand${TRIPS.length > 1 ? "s" : ""} voyage${TRIPS.length > 1 ? "s" : ""}</span></div>
+    <button data-tab="trips"><b>${land}</b><span>frontières franchies par la terre</span></button>
+    <button data-tab="trips"><b>${TRIPS.length}</b><span>grand${TRIPS.length > 1 ? "s" : ""} voyage${TRIPS.length > 1 ? "s" : ""}</span></button>
+    <button data-prevus="1"><b>${P.length}</b><span>pays prévu${P.length > 1 ? "s" : ""}</span></button>
   </div>
-  <h2 class="sec">Continents visités</h2>
+  <h2 class="sec">Continents<span class="secsub">${on.length} sur 6</span></h2>
   ${contMap(on)}
-  <div class="clegend">${conts.map(x => `<button data-cont="${x.c}" class="${on.includes(x.c) ? "on" : ""}"><i style="${on.includes(x.c) ? `background:${CCOL[x.c]}` : ""}"></i><span>${CONT[x.c]}<small>${x.v ? `${x.v} pays` : "pas encore"}</small></span></button>`).join("")}</div>
+  <div class="clegend">${conts.map(x => `<button data-cont="${x.c}" class="${on.includes(x.c) ? "on" : ""}"><i style="${on.includes(x.c) ? `background:${CCOL[x.c]}` : ""}"></i><span>${CONT[x.c]}<small>${x.v ? `${x.v} / ${x.all} pays` : "pas encore"}</small><span class="lb"><i style="width:${x.all ? x.v / x.all * 100 : 0}%;background:${CCOL[x.c]}"></i></span></span></button>`).join("")}</div>
   <h2 class="sec">Drapeaux collectés</h2>
   <div class="chips fsort">${[["date", "Par date"], ["az", "A → Z"], ["cont", "Par continent"]].map(([k, l]) => `<button data-fsort="${k}" aria-pressed="${fs === k}">${l}</button>`).join("")}</div>
   ${flagsHtml}
-  <h2 class="sec">Année par année</h2>
-  <ul class="years">${ys.map(y => `<li><b>${esc(y)}</b><div class="yf">${[...years[y]].map(id => `<span title="${esc(BY[id].n)}">${flag(BY[id].iso)}</span>`).join("")}</div><small>${years[y].size} pays</small></li>`).join("")}
-  ${nodate.length ? `<li><b style="color:var(--muted);font-size:15px">À dater</b><div class="yf">${nodate.map(p => `<button class="yb" data-sejgo="${p.id}" aria-label="${esc(p.n)}">${flag(p.iso)}</button>`).join("")}</div><small>${nodate.length} pays sans séjour noté : touche un pays pour l'ajouter</small></li>` : ""}</ul>
   ${Object.keys(ppl).length ? `<h2 class="sec">Compagnons de route</h2><div class="ppl">${Object.entries(ppl).sort((a, b) => b[1].size - a[1].size).map(([n, S]) => `<button data-person="${esc(n)}">${esc(n)} <em>${S.size} pays</em></button>`).join("")}</div>` : ""}
-  <h2 class="sec">Par continent</h2>
-  ${conts.map(x => `<button class="bar" data-cont="${x.c}"><span>${CONT[x.c]}</span><span class="t"><i style="width:${x.all ? x.v / x.all * 100 : 0}%"></i></span><em>${x.v} / ${x.all}</em></button>`).join("")}
-  <h3>Pays prévus<span>${P.length}</span></h3>${tag(P)}
   <p class="foot">${C.length} pays comptés : les 193 membres de l'ONU, plus le Vatican, la Palestine, le Kosovo et Taïwan. Les territoires (Hong Kong, Groenland…) ont leur drapeau mais ne comptent pas dans le total.</p>`;
 }
-function code(){ const ids = s => M.pays.filter(p => st(p.id) === s).map(p => p.id).join(","); return `CARTE1:V=${ids("v")};P=${ids("p")}`; }
 $("#stats").onclick = e => {
   const sg = e.target.closest("[data-sejgo]"); if(sg){ goMap(sg.dataset.sejgo); sejForm = true; PF.sej = []; renderSej(sg.dataset.sejgo); return; }
   const g = e.target.closest("[data-go]"); if(g){ goMap(g.dataset.go); return; }
+  const tb = e.target.closest("[data-tab]"); if(tb){ show(tb.dataset.tab); return; }
+  if(e.target.closest("[data-prevus]")){ openDetail("prevus"); return; }
   const fsb = e.target.closest("[data-fsort]"); if(fsb){ ST.opt.fsort = fsb.dataset.fsort; save(); const y = $("#v-stats").scrollTop; renderStats(); $("#v-stats").scrollTop = y; return; }
   const ct = e.target.closest("[data-cont],[data-c]"); if(ct){ openDetail("cont", ct.dataset.cont || ct.dataset.c); return; }
   const pe = e.target.closest("[data-person]"); if(pe){ openDetail("person", pe.dataset.person); return; }
@@ -1035,7 +1037,10 @@ function dRow(p, extra){ const L = sejOf(p.id), ys = [...new Set(L.map(x => x.an
   return `<li><button data-dgo="${p.id}"><span class="f">${flag(p.iso)}</span><span class="nm">${esc(p.n)}${p.t ? "" : " <em>territoire</em>"}<small>${extra != null ? extra : esc(ys || (st(p.id) === "v" && p.id !== HOME ? "année à préciser" : ""))}</small></span><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button></li>`; }
 function openDetail(kind, key){
   let title = "", body = "";
-  if(kind === "cont"){
+  if(kind === "prevus"){
+    const P = M.pays.filter(p => st(p.id) === "p").sort((a, b) => a.n.localeCompare(b.n, "fr"));
+    title = "Pays prévus"; body = P.length ? `<ul class="drows">${P.map(p => dRow(p, CONT[p.c])).join("")}</ul>` : `<p class="empty">Aucun pays prévu pour l'instant.</p>`;
+  } else if(kind === "cont"){
     const all = M.pays.filter(p => p.c === key && p.id !== "ATA"), C = all.filter(p => p.t), V = C.filter(p => st(p.id) === "v"), P = C.filter(p => st(p.id) === "p"), N = C.filter(p => !st(p.id)), T = all.filter(p => !p.t && st(p.id) === "v");
     const az = (a, b) => a.n.localeCompare(b.n, "fr");
     title = CONT[key];
