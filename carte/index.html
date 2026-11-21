@@ -196,14 +196,18 @@ textarea{width:100%;font-size:16px;border:1.5px solid var(--line);border-radius:
 .tiles span{font-size:13px;color:var(--muted);line-height:1.25;display:block}
 .cmap{width:100%;height:auto;display:block}
 .clegend{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 12px;margin-top:12px;font-size:17px}
-.clegend span{display:flex;align-items:center;gap:10px;color:var(--muted)}
-.clegend span.on{color:var(--ink);font-weight:700}
-.clegend i{width:12px;height:12px;border-radius:50%;flex:none}
-.flags{display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:12px 10px}
+.clegend button{display:flex;align-items:center;gap:10px;color:var(--muted);border:0;background:none;padding:6px 0;text-align:left;font-size:17px;min-height:44px}
+.clegend button.on{color:var(--ink);font-weight:700}
+.clegend button small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+.clegend i{width:14px;height:14px;border-radius:50%;flex:none;border:2px dashed var(--cnone2)}
+.clegend button.on i{border:0}
+.flags{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:10px 8px}
+.fgroup{margin:14px 0 6px;font-size:13px;font-weight:700;color:var(--muted)}
+.fsort{margin:0 0 4px}
 .flags button{border:0;padding:0;background:none;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
-.fl{width:48px;height:48px;border-radius:50%;overflow:hidden;display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.18);background:var(--line)}
+.fl{width:36px;height:36px;border-radius:50%;overflow:hidden;display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.18);background:var(--line)}
 .fl img{width:100%;height:100%;object-fit:cover;display:block}
-.fl span{font-size:96px;line-height:1;display:block}
+.fl span{font-size:72px;line-height:1;display:block}
 .homeflag{margin-top:12px;color:var(--muted);font-size:14px}
 .years{list-style:none;margin:0;padding:0}
 .years li{display:grid;grid-template-columns:4.2em minmax(0,1fr);gap:4px 12px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
@@ -302,6 +306,25 @@ textarea{width:100%;font-size:16px;border:1.5px solid var(--line);border-radius:
 .pin{flex:1;font-size:16px;border:1.5px solid var(--line);border-radius:10px;padding:8px;background:none;color:var(--ink);font-weight:600}
 .pin:focus{border-color:var(--vis);outline:0}
 .plist span{color:var(--muted);font-size:14px;white-space:nowrap}
+:root{--cnone:light-dark(#eceeef,#2a2f33);--cnone2:light-dark(#d3d8dc,#3a4147)}
+.ppl button{border:0;border-radius:20px;padding:8px 14px;background:color-mix(in srgb,var(--vis) 12%,var(--paper));font-weight:600;font-size:15px;min-height:40px}
+.ppl em{font-style:normal;color:var(--muted);font-weight:400}
+button.bar{width:100%;border:0;background:none;text-align:left;color:inherit;font:inherit}
+.cmap path{cursor:pointer}
+.dhead{padding:16px;border-radius:16px;background:color-mix(in srgb,var(--cc,var(--vis)) 14%,var(--paper));margin-top:8px}
+.dhead b{font-size:40px;font-weight:800;line-height:1;color:var(--cc,var(--vis));margin-right:8px}
+.dhead span{font-weight:600}
+.dhead .t{height:10px;border-radius:5px;background:var(--line);margin-top:12px;overflow:hidden}
+.dhead .t i{display:block;height:100%;background:var(--cc,var(--vis))}
+.drows{list-style:none;margin:0;padding:0}
+.drows button{display:flex;align-items:center;gap:12px;width:100%;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;min-height:54px;padding:6px 0;font-size:16px}
+.drows .f{font-size:24px;width:30px;text-align:center}
+.drows .nm{flex:1;font-weight:600}
+.drows .nm em{font-style:normal;font-weight:400;font-size:12px;color:var(--muted)}
+.drows small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.drows svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2}
+.dmore{margin-top:18px}
+.dmore summary{font-weight:700;color:var(--head);min-height:44px;display:flex;align-items:center;cursor:pointer}
 /* onglets */
 nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);background:var(--paper);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{border:0;background:none;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
@@ -374,6 +397,10 @@ nav button[aria-selected=true]{color:var(--vis)}
       <div class="ph"><h2 id="set-t">Réglages</h2><button class="x" data-close="settings" aria-label="Fermer">×</button></div>
       <div class="pb" id="set-body"></div>
     </div>
+    <div class="panel" id="detail" hidden role="dialog" aria-labelledby="det-t">
+      <div class="ph"><h2 id="det-t"></h2><button class="x" data-close="detail" aria-label="Fermer">×</button></div>
+      <div class="pb" id="det-body"></div>
+    </div>
     <div class="panel" id="editor" hidden role="dialog" aria-labelledby="ed-t">
       <div class="ph"><h2 id="ed-t">Nouveau voyage</h2><button class="x" data-close="editor" aria-label="Fermer">×</button></div>
       <div class="pb" id="ed-body"></div>
@@ -426,8 +453,8 @@ const st = id => (id in over ? over[id] : (base[id] || ""));
 const fmt = n => n.toLocaleString("fr-FR");
 
 /* tout ce que tu modifies dans l'appli : statuts (o), séjours (sej), voyages (trips), éléments supprimés (del), réglages (opt) */
-let ST = {o: {}, sej: {}, trips: null, del: [], seed: 0, opt: {terr: true, routes: true}};
-function load(){ try{ const j = JSON.parse(localStorage.getItem(KEY) || "{}"); ST = Object.assign(ST, j); ST.opt = Object.assign({terr: true, routes: true}, j.opt || {}); if(localStorage.getItem("carte-territoires") === "0" && !j.opt) ST.opt.terr = false; }catch(e){} over = ST.o || {}; ST.o = over; ST.sej = ST.sej || {}; ST.del = ST.del || []; }
+let ST = {o: {}, sej: {}, trips: null, del: [], seed: 0, opt: {terr: true, routes: true, fsort: "date"}};
+function load(){ try{ const j = JSON.parse(localStorage.getItem(KEY) || "{}"); ST = Object.assign(ST, j); ST.opt = Object.assign({terr: true, routes: true, fsort: "date"}, j.opt || {}); if(localStorage.getItem("carte-territoires") === "0" && !j.opt) ST.opt.terr = false; }catch(e){} over = ST.o || {}; ST.o = over; ST.sej = ST.sej || {}; ST.del = ST.del || []; }
 function save(){ ST.o = over; try{ localStorage.setItem(KEY, JSON.stringify(ST)); }catch(e){} }
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 /* séjours d'un pays : ceux que tu as ajoutés + ceux qui viennent des grands voyages */
@@ -919,7 +946,7 @@ $("#list").onclick = e => {
 };
 
 /* ---------- bilan ---------- */
-const CCOL = {eu: "#8fbd5a", as: "#4f95cf", af: "#e2a23b", na: "#d9644d", sa: "#9a6cc0", oc: "#37b3a2", an: "#9fb3c8"};
+const CCOL = {eu: "#7cb342", as: "#2f80c4", af: "#e8a33a", na: "#d65a42", sa: "#8e5cc4", oc: "#13a89e", an: "#9fb3c8"};
 function rnd(seed){ let x = seed; return () => (x = (x * 16807) % 2147483647) / 2147483647; }
 function mountains(n){
   const r = rnd(7), back = [], mid = [];
@@ -939,9 +966,15 @@ function mountains(n){
     <path d="M-40 300L30 238L84 262L140 230L200 270L260 246L340 300Z" fill="#3d4a5b"/></svg>`;
 }
 function contMap(on){
-  return `<svg class="cmap" viewBox="${B[0]} ${B[1] + 60} ${B[2] - B[0]} ${B[3] - B[1] - 60}" aria-label="Continents visités"><defs><filter id="wc" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".006" numOctaves="3" seed="5" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -1.1 .75" result="w"/><feComposite in="w" in2="SourceGraphic" operator="in" result="m"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="m"/></feMerge></filter></defs>
-    <g filter="url(#wc)">${M.pays.filter(p => p.id !== "ATA").map(p => { const c = on.includes(p.c) ? CCOL[p.c] : "#cfd5db"; return `<path d="${p.d}" fill="${c}" stroke="${c}" stroke-width="1.2"/>`; }).join("")}</g></svg>`;
+  /* la Russie est coupée à l'Oural (60° E) : Europe à gauche, Asie à droite, comme Polarsteps */
+  const xu = (60 + 180) / 360 * M.w, P = M.pays.filter(p => p.id !== "ATA");
+  const part = (p, c, clip) => `<path data-c="${c}" d="${p.d}"${clip ? ` clip-path="url(#${clip})"` : ""} fill="${on.includes(c) ? CCOL[c] : "var(--cnone)"}" stroke="${on.includes(c) ? CCOL[c] : "var(--cnone2)"}" stroke-width="1.2"/>`;
+  const all = []; P.forEach(p => { if(p.id === "RUS"){ all.push(["eu", part(p, "eu", "ru-w")]); all.push(["as", part(p, "as", "ru-e")]); } else all.push([p.c, part(p, p.c)]); });
+  return `<svg class="cmap" viewBox="${B[0]} ${B[1] + 60} ${B[2] - B[0]} ${B[3] - B[1] - 60}" aria-label="Continents visités"><defs><filter id="wc" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".006" numOctaves="3" seed="5" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -1.1 .75" result="w"/><feComposite in="w" in2="SourceGraphic" operator="in" result="m"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="m"/></feMerge></filter>
+    <clipPath id="ru-w"><rect x="${M.w / 2}" y="0" width="${xu - M.w / 2}" height="${M.h}"/></clipPath><clipPath id="ru-e"><rect x="${xu}" y="0" width="${M.w - xu}" height="${M.h}"/><rect x="0" y="0" width="${M.w / 2}" height="${M.h}"/></clipPath></defs>
+    <g>${all.filter(x => !on.includes(x[0])).map(x => x[1]).join("")}</g><g filter="url(#wc)">${all.filter(x => on.includes(x[0])).map(x => x[1]).join("")}</g></svg>`;
 }
+const yearsOf = id => sejOf(id).map(x => x.an).filter(Boolean);
 function renderStats(){
   const C = M.pays.filter(p => p.t), VA = C.filter(p => st(p.id) === "v"), V = VA, P = C.filter(p => st(p.id) === "p");
   const terrV = M.pays.filter(p => !p.t && st(p.id) === "v");
@@ -955,7 +988,13 @@ function renderStats(){
     L.forEach(x => { const y = x.an || "?"; (years[y] = years[y] || new Set()).add(p.id); (x.avec || []).forEach(n => (ppl[n] = ppl[n] || new Set()).add(p.id)); }); });
   const ys = Object.keys(years).sort((a, b) => b.localeCompare(a));
   const fb = p => `<button data-go="${p.id}" aria-label="${esc(p.n)}"><span class="fl">${p.iso ? `<img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/${p.iso.toLowerCase()}.svg" alt="" loading="lazy" data-e="${flag(p.iso)}" onerror="this.outerHTML='<span>'+this.dataset.e+'</span>'">` : ""}</span></button>`;
-  const flagsL = [...V].sort((a, b) => a.n.localeCompare(b.n, "fr")).concat(terrV.sort((a, b) => a.n.localeCompare(b.n, "fr")));
+  const fs = ST.opt.fsort || "date", last = p => Math.max(0, ...yearsOf(p.id).map(Number).filter(Boolean)), az = (a, b) => a.n.localeCompare(b.n, "fr");
+  const flagsL = [...V, ...terrV].sort(fs === "az" ? az : fs === "cont" ? ((a, b) => CORDER.indexOf(a.c) - CORDER.indexOf(b.c) || az(a, b)) : ((a, b) => (last(b) - last(a)) || az(a, b)));
+  let flagsHtml;
+  if(fs === "cont") flagsHtml = CORDER.map(c => { const L = flagsL.filter(p => p.c === c); return L.length ? `<p class="fgroup">${CONT[c]}</p><div class="flags">${L.map(fb).join("")}</div>` : ""; }).join("");
+  else if(fs === "date"){ const groups = []; flagsL.forEach(p => { const y = last(p) || "Sans date"; if(!groups.length || groups[groups.length - 1].y !== y) groups.push({y, L: []}); groups[groups.length - 1].L.push(p); });
+    flagsHtml = groups.map(g => `<p class="fgroup">${g.y}</p><div class="flags">${g.L.map(fb).join("")}</div>`).join(""); }
+  else flagsHtml = `<div class="flags">${flagsL.map(fb).join("")}</div>`;
   const tag = L => L.length ? `<div class="tags">${L.sort((a, b) => a.n.localeCompare(b.n, "fr")).map(p => `<button data-go="${p.id}">${flag(p.iso)} ${esc(p.n)}</button>`).join("")}</div>` : `<p class="empty">Aucun pour l'instant.</p>`;
   $("#stats").innerHTML = `
   <h2 class="sec">Tu as vu</h2>
@@ -970,15 +1009,16 @@ function renderStats(){
   </div>
   <h2 class="sec">Continents visités</h2>
   ${contMap(on)}
-  <div class="clegend">${CORDER.filter(c => c !== "an").map(c => `<span class="${on.includes(c) ? "on" : ""}"><i style="background:${on.includes(c) ? CCOL[c] : "#b9c1c9"}"></i>${CONT[c]}</span>`).join("")}</div>
+  <div class="clegend">${conts.map(x => `<button data-cont="${x.c}" class="${on.includes(x.c) ? "on" : ""}"><i style="${on.includes(x.c) ? `background:${CCOL[x.c]}` : ""}"></i><span>${CONT[x.c]}<small>${x.v ? `${x.v} pays` : "pas encore"}</small></span></button>`).join("")}</div>
   <h2 class="sec">Drapeaux collectés</h2>
-  <div class="flags">${flagsL.map(fb).join("")}</div>
+  <div class="chips fsort">${[["date", "Par date"], ["az", "A → Z"], ["cont", "Par continent"]].map(([k, l]) => `<button data-fsort="${k}" aria-pressed="${fs === k}">${l}</button>`).join("")}</div>
+  ${flagsHtml}
   <h2 class="sec">Année par année</h2>
   <ul class="years">${ys.map(y => `<li><b>${esc(y)}</b><div class="yf">${[...years[y]].map(id => `<span title="${esc(BY[id].n)}">${flag(BY[id].iso)}</span>`).join("")}</div><small>${years[y].size} pays</small></li>`).join("")}
   ${nodate.length ? `<li><b style="color:var(--muted);font-size:15px">À dater</b><div class="yf">${nodate.map(p => `<button class="yb" data-sejgo="${p.id}" aria-label="${esc(p.n)}">${flag(p.iso)}</button>`).join("")}</div><small>${nodate.length} pays sans séjour noté : touche un pays pour l'ajouter</small></li>` : ""}</ul>
-  ${Object.keys(ppl).length ? `<h2 class="sec">Compagnons de route</h2><div class="ppl">${Object.entries(ppl).sort((a, b) => b[1].size - a[1].size).map(([n, S]) => `<span>${esc(n)} <em>${S.size} pays</em></span>`).join("")}</div>` : ""}
+  ${Object.keys(ppl).length ? `<h2 class="sec">Compagnons de route</h2><div class="ppl">${Object.entries(ppl).sort((a, b) => b[1].size - a[1].size).map(([n, S]) => `<button data-person="${esc(n)}">${esc(n)} <em>${S.size} pays</em></button>`).join("")}</div>` : ""}
   <h2 class="sec">Par continent</h2>
-  ${conts.map(x => `<div class="bar"><span>${CONT[x.c]}</span><span class="t"><i style="width:${x.all ? x.v / x.all * 100 : 0}%"></i></span><em>${x.v} / ${x.all}</em></div>`).join("")}
+  ${conts.map(x => `<button class="bar" data-cont="${x.c}"><span>${CONT[x.c]}</span><span class="t"><i style="width:${x.all ? x.v / x.all * 100 : 0}%"></i></span><em>${x.v} / ${x.all}</em></button>`).join("")}
   <h3>Pays prévus<span>${P.length}</span></h3>${tag(P)}
   <p class="foot">${C.length} pays comptés : les 193 membres de l'ONU, plus le Vatican, la Palestine, le Kosovo et Taïwan. Les territoires (Hong Kong, Groenland…) ont leur drapeau mais ne comptent pas dans le total.</p>`;
 }
@@ -986,7 +1026,39 @@ function code(){ const ids = s => M.pays.filter(p => st(p.id) === s).map(p => p.
 $("#stats").onclick = e => {
   const sg = e.target.closest("[data-sejgo]"); if(sg){ goMap(sg.dataset.sejgo); sejForm = true; PF.sej = []; renderSej(sg.dataset.sejgo); return; }
   const g = e.target.closest("[data-go]"); if(g){ goMap(g.dataset.go); return; }
+  const fsb = e.target.closest("[data-fsort]"); if(fsb){ ST.opt.fsort = fsb.dataset.fsort; save(); const y = $("#v-stats").scrollTop; renderStats(); $("#v-stats").scrollTop = y; return; }
+  const ct = e.target.closest("[data-cont],[data-c]"); if(ct){ openDetail("cont", ct.dataset.cont || ct.dataset.c); return; }
+  const pe = e.target.closest("[data-person]"); if(pe){ openDetail("person", pe.dataset.person); return; }
 };
+/* page de détail : un continent ou une personne */
+function dRow(p, extra){ const L = sejOf(p.id), ys = [...new Set(L.map(x => x.an).filter(Boolean))].join(", ");
+  return `<li><button data-dgo="${p.id}"><span class="f">${flag(p.iso)}</span><span class="nm">${esc(p.n)}${p.t ? "" : " <em>territoire</em>"}<small>${extra != null ? extra : esc(ys || (st(p.id) === "v" && p.id !== HOME ? "année à préciser" : ""))}</small></span><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button></li>`; }
+function openDetail(kind, key){
+  let title = "", body = "";
+  if(kind === "cont"){
+    const all = M.pays.filter(p => p.c === key && p.id !== "ATA"), C = all.filter(p => p.t), V = C.filter(p => st(p.id) === "v"), P = C.filter(p => st(p.id) === "p"), N = C.filter(p => !st(p.id)), T = all.filter(p => !p.t && st(p.id) === "v");
+    const az = (a, b) => a.n.localeCompare(b.n, "fr");
+    title = CONT[key];
+    body = `<div class="dhead" style="--cc:${CCOL[key]}"><b>${V.length}</b><span>pays visités sur ${C.length}</span><div class="t"><i style="width:${C.length ? V.length / C.length * 100 : 0}%"></i></div></div>
+      ${V.length ? `<h3>Visités<span>${V.length}</span></h3><ul class="drows">${V.sort(az).map(p => dRow(p)).join("")}</ul>` : `<p class="empty">Aucun pays visité pour l'instant.</p>`}
+      ${T.length ? `<h3>Territoires visités<span>${T.length}</span></h3><ul class="drows">${T.sort(az).map(p => dRow(p)).join("")}</ul>` : ""}
+      ${P.length ? `<h3>Prévus<span>${P.length}</span></h3><ul class="drows">${P.sort(az).map(p => dRow(p, "prévu")).join("")}</ul>` : ""}
+      ${N.length ? `<details class="dmore"><summary>Pas encore visités (${N.length})</summary><ul class="drows">${N.sort(az).map(p => dRow(p, "")).join("")}</ul></details>` : ""}`;
+  } else {
+    const L = M.pays.filter(p => sejOf(p.id).some(x => (x.avec || []).includes(key)));
+    const ly = p => Math.max(0, ...sejOf(p.id).filter(x => (x.avec || []).includes(key)).map(x => +x.an || 0));
+    const trips = TRIPS.filter(t => (t.avec || []).includes(key) || t.etapes.some(e => (e.avec || []).includes(key)));
+    title = key;
+    body = `<div class="dhead"><b>${L.length}</b><span>pays ensemble</span></div>
+      ${trips.length ? `<h3>Grands voyages<span>${trips.length}</span></h3><div class="ppl">${trips.map(t => `<button data-dtrip="${t.id}" style="border-left:5px solid ${tColor(t)}">${esc(t.nom)} <em>${esc(tYear(t))}</em></button>`).join("")}</div>` : ""}
+      <h3>Pays<span>${L.length}</span></h3><ul class="drows">${L.sort((a, b) => ly(b) - ly(a) || a.n.localeCompare(b.n, "fr")).map(p => dRow(p, [...new Set(sejOf(p.id).filter(x => (x.avec || []).includes(key)).map(x => x.an).filter(Boolean))].join(", "))).join("")}</ul>`;
+  }
+  $("#det-t").textContent = title; $("#det-body").innerHTML = body; openPanel("detail");
+}
+$("#det-body").addEventListener("click", e => {
+  const g = e.target.closest("[data-dgo]"); if(g){ $("#detail").hidden = true; goMap(g.dataset.dgo); return; }
+  const t = e.target.closest("[data-dtrip]"); if(t){ $("#detail").hidden = true; show("map"); openTrip(t.dataset.dtrip); }
+});
 
 /* ---------- réglages ---------- */
 function code(){

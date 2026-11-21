@@ -1,7 +1,7 @@
 /* Fonctionnement hors ligne de la carte.
    Page et listes de pays : réseau d'abord (pour recevoir les mises à jour), cache si hors ligne.
    Fond de carte, icônes, polices : cache d'abord. */
-const CACHE = "carte-v10";
+const CACHE = "carte-v11";
 const SHELL = ["./", "index.html", "monde.json", "mes-pays.json", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png", "globe-nuit.jpg"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
