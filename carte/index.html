@@ -346,6 +346,20 @@ button.bar{width:100%;border:0;background:none;text-align:left;color:inherit;fon
 .step.home .nm{font-weight:700}
 .homes{margin:2px 0 4px}
 .homes .switch{min-height:42px}
+.bkbar{position:absolute;left:12px;right:12px;bottom:12px;z-index:6;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--ink);color:var(--paper);border-radius:14px;padding:10px 10px 10px 14px;font-size:15px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.bkbar[hidden]{display:none}
+.bkbar span{flex:1 1 100%}
+.bkbar #bkbar-save{margin-left:auto}
+.bkbar button{min-height:40px;border-radius:10px;border:0;background:var(--vis);color:var(--onvis);font-weight:700;padding:0 12px}
+.bkbar button.lt{background:none;color:var(--paper);opacity:.8}
+.bkstate{font-weight:700;color:var(--ink)!important}
+.bkstate.late{color:var(--head)!important}
+.btn.wide{width:100%}
+.hint2{font-size:13px!important;margin:6px 0 12px!important}
+.filebtn{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:pointer}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.confirm{margin-top:12px;padding:12px;border-radius:12px;border:1.5px solid var(--head);background:var(--vis2)}
+.confirm p{color:var(--ink)!important;margin:0 0 4px!important}
 /* onglets */
 nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);background:var(--paper);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{border:0;background:none;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
@@ -414,6 +428,7 @@ nav button[aria-selected=true]{color:var(--vis)}
       </div>
       <div id="ts-body"></div>
     </div>
+    <div class="bkbar" id="bkbar" hidden role="status"><span></span><button id="bkbar-save">Sauvegarder</button><button id="bkbar-later" class="lt">Plus tard</button></div>
     <div class="panel" id="settings" hidden role="dialog" aria-labelledby="set-t">
       <div class="ph"><h2 id="set-t">Réglages</h2><button class="x" data-close="settings" aria-label="Fermer">×</button></div>
       <div class="pb" id="set-body"></div>
@@ -1096,11 +1111,43 @@ $("#det-body").addEventListener("click", e => {
 });
 
 /* ---------- réglages ---------- */
-function code(){
+/* ---------- sauvegarde ---------- */
+function backupData(){
   const ids = s => M.pays.filter(p => st(p.id) === s).map(p => p.id).join(",");
-  const data = {v: ids("v"), p: ids("p"), sej: ST.sej, trips: ST.trips, del: ST.del};
-  return "CARTE2:" + btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  return {app: "mes-pays-du-monde", version: 1, date: new Date().toISOString(), v: ids("v"), p: ids("p"), sej: ST.sej, trips: ST.trips, del: ST.del, opt: ST.opt, homeMig: ST.homeMig || 0};
 }
+function code(){ return "CARTE2:" + btoa(unescape(encodeURIComponent(JSON.stringify(backupData())))); }
+function applyData(data){
+  const S = {}; (data.v || "").split(",").filter(Boolean).forEach(id => S[id] = "v"); (data.p || "").split(",").filter(Boolean).forEach(id => S[id] = "p");
+  over = {}; M.pays.forEach(p => { const s = S[p.id] || ""; if((base[p.id] || "") !== s) over[p.id] = s; });
+  if(data.sej) ST.sej = data.sej; if(data.trips) ST.trips = data.trips; if(data.del) ST.del = data.del;
+  if(data.opt) ST.opt = Object.assign(ST.opt, data.opt); if(data.homeMig) ST.homeMig = data.homeMig;
+  save(); setTrips(); paint(); renderStats(); if(!$("#v-list").hidden) renderList();
+}
+const fdate = t => new Date(t).toLocaleDateString("fr-FR", {day: "numeric", month: "long", year: "numeric"});
+const daysSince = t => Math.floor((Date.now() - t) / 864e5);
+function markSaved(){ ST.lastBackup = Date.now(); ST.snooze = 0; save(); backupBar(); if(!$("#settings").hidden) renderSettings(); }
+async function saveFile(){
+  const d = backupData(), name = `mes-pays-${d.date.slice(0, 10)}.json`, txt = JSON.stringify(d, null, 1), blob = new Blob([txt], {type: "application/json"});
+  let file = null; try{ file = new File([blob], name, {type: "application/json"}); }catch(e){}
+  if(file && navigator.canShare && navigator.canShare({files: [file]})){
+    try{ await navigator.share({files: [file], title: "Sauvegarde Mes pays du monde"}); markSaved(); return "ok"; }
+    catch(e){ if(e && e.name === "AbortError") return "annule"; }
+  }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000); markSaved(); return "ok";
+}
+const hasData = () => Object.keys(over).length || Object.keys(ST.sej || {}).length || (ST.trips || []).some(t => t.edited);
+function backupBar(){
+  const bar = $("#bkbar"); if(!bar) return;
+  const due = hasData() && (!ST.lastBackup || daysSince(ST.lastBackup) >= 14) && !(ST.snooze > Date.now());
+  bar.hidden = !due; if(!due) return;
+  $("#bkbar span").textContent = ST.lastBackup ? `Dernière sauvegarde il y a ${daysSince(ST.lastBackup)} jours.` : "Tes données ne sont pas encore sauvegardées.";
+}
+$("#bkbar").addEventListener("click", async e => {
+  if(e.target.id === "bkbar-save"){ const r = await saveFile(); if(r === "annule") return; }
+  if(e.target.id === "bkbar-later"){ ST.snooze = Date.now() + 3 * 864e5; save(); backupBar(); }
+});
 function sw(id, on, label, sub){ return `<label class="switch"><input type="checkbox" id="${id}"${on ? " checked" : ""}><span class="tr" aria-hidden="true"></span>${label}${sub ? `<small>${sub}</small>` : ""}</label>`; }
 function renderSettings(){
   $("#set-body").innerHTML = `
@@ -1113,13 +1160,21 @@ function renderSettings(){
   <div class="pals">${PALS.map(([id, n, c]) => `<button data-p="${id}" aria-pressed="${id === pal}"><span style="background:${c[0]}"><i style="background:${c[1]}"></i><i style="background:${c[2]}"></i></span>${n}</button>`).join("")}</div>
   <h3>Sauvegarde</h3>
   <div class="box">
-    <p>Tout ce que tu notes (pays, séjours, voyages) est enregistré dans ce téléphone. Copie ce code de temps en temps dans Notes, ou envoie-le à Claude : il permet de tout retrouver.</p>
-    <textarea id="bk-out" readonly>${esc(code())}</textarea>
-    <button class="btn" id="bk-copy">Copier le code</button>
-    <p style="margin-top:16px">Pour restaurer, colle un code ci-dessous.</p>
-    <textarea id="bk-in" placeholder="CARTE2:…"></textarea>
-    <button class="btn alt" id="bk-imp">Importer</button>
+    <p class="bkstate ${ST.lastBackup && daysSince(ST.lastBackup) < 14 ? "ok" : "late"}">${ST.lastBackup ? `Dernière sauvegarde : ${fdate(ST.lastBackup)}${daysSince(ST.lastBackup) ? ` (il y a ${daysSince(ST.lastBackup)} jour${daysSince(ST.lastBackup) > 1 ? "s" : ""})` : " (aujourd'hui)"}` : "Aucune sauvegarde pour l'instant."}</p>
+    <p>Tout ce que tu notes (pays, séjours, voyages) n'est enregistré que dans ce téléphone. Une sauvegarde le met à l'abri dans un fichier.</p>
+    <button class="btn wide" id="bk-file">Enregistrer une sauvegarde</button>
+    <p class="hint2">Dans le menu qui s'ouvre, choisis « Enregistrer dans Fichiers », puis iCloud Drive. Un rappel s'affiche si ta dernière sauvegarde a plus de 14 jours.</p>
+    <label class="btn alt wide filebtn">Restaurer depuis un fichier<input type="file" id="bk-filein" accept=".json,application/json"></label>
+    <div id="bk-confirm"></div>
     <div class="msg" id="bk-msg" role="status"></div>
+    <details class="dmore"><summary>Autre méthode : code à copier</summary>
+      <p>Tu peux aussi copier ce code dans Notes ou l'envoyer à Claude.</p>
+      <textarea id="bk-out" readonly>${esc(code())}</textarea>
+      <button class="btn" id="bk-copy">Copier le code</button>
+      <p style="margin-top:16px">Pour restaurer, colle un code ci-dessous.</p>
+      <textarea id="bk-in" placeholder="CARTE2:…"></textarea>
+      <button class="btn alt" id="bk-imp">Importer le code</button>
+    </details>
   </div>
   <p class="foot"><a href="../">Carnet d'histoire →</a></p>`;
 }
@@ -1133,7 +1188,18 @@ function renamePerson(old, nu){
 function openPanel(id){ document.querySelector("main").scrollTop = 0; $("#" + id).hidden = false; $("#" + id).querySelector(".pb").scrollTop = 0; }
 $("#gear").onclick = () => { renderSettings(); openPanel("settings"); };
 document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => $("#" + b.dataset.close).hidden = true);
+let pending = null;
+function askRestore(d){
+  pending = d; const nv = (d.v || "").split(",").filter(Boolean).length, nt = (d.trips || []).length;
+  $("#bk-confirm").innerHTML = `<div class="confirm"><p>Remplacer tes données actuelles par cette sauvegarde${d.date ? ` du ${fdate(d.date)}` : ""} ? Elle contient ${nv} pays visités et ${nt} voyage${nt > 1 ? "s" : ""}.</p><div class="frow"><button class="btn" id="bk-yes">Remplacer</button><button class="btn alt" id="bk-no">Annuler</button></div></div>`;
+  $("#bk-confirm").scrollIntoView({block: "nearest"});
+}
 $("#set-body").addEventListener("change", e => {
+  if(e.target.id === "bk-filein"){ const f = e.target.files && e.target.files[0]; if(!f) return; const r = new FileReader();
+    r.onload = () => { let d = null; try{ d = JSON.parse(r.result); }catch(err){} e.target.value = "";
+      if(!d || (d.app !== "mes-pays-du-monde" && d.v === undefined)){ $("#bk-msg").textContent = "Ce fichier n'est pas une sauvegarde de la carte."; return; }
+      askRestore(d); };
+    r.readAsText(f); return; }
   if(e.target.classList.contains("pin")){ const o = e.target.dataset.old, n = e.target.value; if(n.trim() !== o) renamePerson(o, n); return; }
   if(e.target.id === "o-terr"){ ST.opt.terr = e.target.checked; save(); renderList(); }
   if(e.target.id === "o-routes"){ ST.opt.routes = e.target.checked; save(); svg.classList.toggle("noroutes", !ST.opt.routes); }
@@ -1146,16 +1212,16 @@ $("#set-body").addEventListener("click", e => {
     const ko = () => { ta.focus(); ta.select(); $("#bk-msg").textContent = "Le code est sélectionné : touche « Copier »."; };
     try{ navigator.clipboard.writeText(ta.value).then(ok, ko); }catch(err){ ko(); }
   }
+  if(e.target.id === "bk-file"){ saveFile().then(r => { if(r === "ok") $("#bk-msg").textContent = "Sauvegarde faite."; }); return; }
+  if(e.target.id === "bk-yes" && pending){ applyData(pending); pending = null; markSaved(); $("#bk-confirm").innerHTML = ""; $("#bk-msg").textContent = "Données restaurées."; return; }
+  if(e.target.id === "bk-no"){ pending = null; $("#bk-confirm").innerHTML = ""; return; }
   if(e.target.id === "bk-imp"){
-    const v = $("#bk-in").value.trim(); let S = {}, data = null;
+    const v = $("#bk-in").value.trim(); let data = null;
     const m1 = v.match(/^CARTE1:V=([A-Z0-9,]*);P=([A-Z0-9,]*)$/);
     try{ if(v.startsWith("CARTE2:")) data = JSON.parse(decodeURIComponent(escape(atob(v.slice(7))))); }catch(err){}
-    if(!m1 && !data){ $("#bk-msg").textContent = "Ce code n'est pas reconnu. Il doit commencer par CARTE2: (ou CARTE1:)."; return; }
-    const V = m1 ? m1[1] : data.v || "", P = m1 ? m1[2] : data.p || "";
-    V.split(",").filter(Boolean).forEach(id => S[id] = "v"); P.split(",").filter(Boolean).forEach(id => S[id] = "p");
-    over = {}; M.pays.forEach(p => { const s = S[p.id] || ""; if((base[p.id] || "") !== s) over[p.id] = s; });
-    if(data){ ST.sej = data.sej || {}; ST.trips = data.trips || []; ST.del = data.del || []; }
-    save(); setTrips(); paint(); renderStats(); $("#bk-msg").textContent = "Importé.";
+    if(m1) data = {v: m1[1], p: m1[2]};
+    if(!data){ $("#bk-msg").textContent = "Ce code n'est pas reconnu. Il doit commencer par CARTE2: (ou CARTE1:)."; return; }
+    askRestore(data);
   }
 });
 
@@ -1187,6 +1253,7 @@ async function start(){
   TRIPS = ST.trips.filter(t => t.etapes && t.etapes.length > 1);
   svg.classList.toggle("noroutes", !ST.opt.routes);
   build(); size(); paint(); renderStats(); fitMine(false);
+  backupBar(); try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); }catch(e){}
   setTimeout(() => { const h = $("#hint"); if(h) h.style.opacity = 0; }, 3500);
   setTimeout(() => { const h = $("#hint"); if(h) h.remove(); }, 4200);
 }
