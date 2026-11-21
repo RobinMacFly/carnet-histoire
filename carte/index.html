@@ -1041,7 +1041,7 @@ function renderStats(){
   const ppl = {};
   [...V, ...terrV].filter(p => p.id !== HOME).forEach(p => sejOf(p.id).forEach(x => (x.avec || []).forEach(n => (ppl[n] = ppl[n] || new Set()).add(p.id))));
   const fb = p => `<button data-${p.id !== HOME && !sejOf(p.id).length ? "sejgo" : "go"}="${p.id}" aria-label="${esc(p.n)}"><span class="fl">${p.iso ? `<img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/${p.iso.toLowerCase()}.svg" alt="" loading="lazy" data-e="${flag(p.iso)}" onerror="this.outerHTML='<span>'+this.dataset.e+'</span>'">` : ""}</span></button>`;
-  const fs = ST.opt.fsort || "date", last = p => Math.max(0, ...yearsOf(p.id).map(Number).filter(Boolean)), az = (a, b) => a.n.localeCompare(b.n, "fr");
+  const fs = ST.opt.fsort || "date", last = p => { const Y = yearsOf(p.id).map(Number).filter(Boolean); return Y.length ? Math.min(...Y) : 0; } /* année de la première visite */, az = (a, b) => a.n.localeCompare(b.n, "fr");
   const flagsL = [...V, ...terrV].sort(fs === "az" ? az : fs === "cont" ? ((a, b) => CORDER.indexOf(a.c) - CORDER.indexOf(b.c) || az(a, b)) : ((a, b) => (last(b) - last(a)) || az(a, b)));
   let flagsHtml;
   if(fs === "cont") flagsHtml = CORDER.map(c => { const L = flagsL.filter(p => p.c === c); return L.length ? `<p class="fgroup">${CONT[c]}</p><div class="flags">${L.map(fb).join("")}</div>` : ""; }).join("");
