@@ -335,6 +335,17 @@ button.bar{width:100%;border:0;background:none;text-align:left;color:inherit;fon
 .fgroup{display:flex;align-items:baseline;gap:6px}
 .fgroup span{font-weight:400}
 .fgroup em{margin-left:auto;font-style:normal;font-weight:400}
+#homept .hp circle{fill:var(--ink);stroke:var(--paper);stroke-width:2.5}
+#homept .hp path{fill:none;stroke:var(--paper);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#homept .hp text{fill:var(--ink);stroke:var(--paper);stroke-width:3;paint-order:stroke;font-size:12px;font-weight:800;text-anchor:middle;pointer-events:none}
+#homept{pointer-events:none}
+.mhome circle{fill:var(--ink);stroke:var(--paper)}
+.mhome path{fill:none;stroke:var(--paper);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hico{display:grid;place-items:center}
+.hico svg{width:24px;height:24px;fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.step.home .nm{font-weight:700}
+.homes{margin:2px 0 4px}
+.homes .switch{min-height:42px}
 /* onglets */
 nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);background:var(--paper);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{border:0;background:none;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
@@ -438,7 +449,10 @@ const EA = [1.340264, -0.081106, 0.000893, 0.003796], EM = Math.sqrt(3) / 2;
 function ee(lon, lat){ const l = lon * Math.PI / 180, ph = lat * Math.PI / 180, t = Math.asin(EM * Math.sin(ph)), t2 = t * t, t6 = t2 ** 3;
   return [l * Math.cos(t) / (EM * (EA[0] + 3 * EA[1] * t2 + t6 * (7 * EA[2] + 9 * EA[3] * t2))), t * (EA[0] + EA[1] * t2 + t6 * (EA[2] + EA[3] * t2))]; }
 const EXM = ee(180, 0)[0], EYM = ee(0, 90)[1];
-const C = e => e.c || (BY[e.p] && BY[e.p].ll) || [0, 0];
+/* chez moi : point de départ des voyages (Paris par défaut) */
+const HOMEPT = () => (ST.opt && ST.opt.home) || {v: "Paris", c: [2.35, 48.86]};
+const C = e => e.home ? HOMEPT().c : e.c || (BY[e.p] && BY[e.p].ll) || [0, 0];
+const eName = e => e.home ? HOMEPT().v : e.v || (BY[e.p] ? BY[e.p].n : e.p);
 const tYear = t => t.an || (String(t.periode || "").match(/\d{4}/) || [""])[0];
 function proj(c){ const R = M.w / (2 * Math.PI), lat = Math.max(-85, Math.min(85, c[1]));
   return [(c[0] + 180) / 360 * M.w, (M.ym - Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360))) * R]; }
@@ -497,9 +511,15 @@ function build(){
   const dots = P.filter(p => p.dot).map(p => `<circle class="t${p.t}" data-id="${p.id}" cx="${p.x}" cy="${p.y}" r="6"/>`).join("");
   const labels = P.filter(p => p.id !== "ATA").map(p => `<text data-id="${p.id}" x="${p.x}" y="${p.y}">${esc(p.n)}</text>`).join("");
   svg.innerHTML = `<defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--land)"/><rect width="3" height="8" fill="var(--vis)"/></pattern></defs>
-  <g id="vp"><path id="sphere" d="${M.sphere}"/><path id="grat" d="${M.grat}"/><g id="land">${land}</g><g id="routes"></g><g id="dots">${dots}</g><g id="hits"></g><g id="labels">${labels}</g><g id="stops"></g></g>`;
-  $("#routes").innerHTML = routesSvg(); $("#hits").innerHTML = hitsSvg();
+  <g id="vp"><path id="sphere" d="${M.sphere}"/><path id="grat" d="${M.grat}"/><g id="land">${land}</g><g id="routes"></g><g id="dots">${dots}</g><g id="hits"></g><g id="labels">${labels}</g><g id="stops"></g><g id="homept"></g></g>`;
+  $("#routes").innerHTML = routesSvg(); $("#hits").innerHTML = hitsSvg(); drawHome();
 }
+function drawHome(){
+  const q = proj(HOMEPT().c);
+  $("#homept").innerHTML = `<g class="hp" data-x="${q[0]}" data-y="${q[1]}"><circle r="11"/><path d="M-5.5 0.5L0 -5L5.5 0.5M-3.8 -0.8V5H3.8V-0.8"/><text y="-16">${esc(HOMEPT().v)}</text></g>`;
+  homeT();
+}
+function homeT(){ const g = $("#homept .hp"); if(g) g.setAttribute("transform", `translate(${g.dataset.x} ${g.dataset.y}) scale(${(1 / k).toFixed(5)})`); }
 function segPath(E, P, i){
   const a = P[i - 1], b = P[i], k = kind(E[i].m), dl = C(E[i])[0] - C(E[i - 1])[0];
   if(Math.abs(dl) > 180){ /* traverse le Pacifique : on coupe au bord de la carte */
@@ -579,7 +599,7 @@ function clamp(){
 let raf = 0, detailT = 0;
 function apply(){
   clamp();
-  $("#vp").setAttribute("transform", `translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${k.toFixed(5)})`);
+  $("#vp").setAttribute("transform", `translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${k.toFixed(5)})`); homeT();
   const g = $("#labels"); g.setAttribute("font-size", (11.5 / k).toFixed(3)); g.setAttribute("stroke-width", (3 / k).toFixed(3));
   clearTimeout(detailT); detailT = setTimeout(detail, 60);
 }
@@ -749,8 +769,8 @@ function openTrip(id, fit = true){
   svg.classList.add("trip-on"); $("#stops").style.setProperty("--tc", tColor(t));
   $("#routes").querySelectorAll("g").forEach(g => g.classList.toggle("on", g.dataset.t === id));
   $("#land").querySelectorAll("path").forEach(p => p.classList.toggle("intrip", I.all.includes(p.dataset.id)));
-  $("#stops").innerHTML = t.etapes.map((e, i) => { const q = proj(C(e)); if(i === t.etapes.length - 1 && e.v === t.etapes[0].v && e.p === t.etapes[0].p) return "";
-    return `<circle class="${e.prevu ? "pv" : ""}" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="4"/><text x="${q[0].toFixed(1)}" y="${q[1].toFixed(1)}" data-y="${q[1].toFixed(1)}" text-anchor="middle">${esc(e.v || (BY[e.p] ? BY[e.p].n : e.p))}</text>`; }).join("");
+  $("#stops").innerHTML = t.etapes.map((e, i) => { const q = proj(C(e)); if(e.home || (i === t.etapes.length - 1 && e.v && e.v === t.etapes[0].v && e.p === t.etapes[0].p)) return "";
+    return `<circle class="${e.prevu ? "pv" : ""}" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="4"/><text x="${q[0].toFixed(1)}" y="${q[1].toFixed(1)}" data-y="${q[1].toFixed(1)}" text-anchor="middle">${esc(eName(e))}</text>`; }).join("");
   const nm = c => BY[c] ? BY[c].n : c, fg = c => BY[c] ? flag(BY[c].iso) : "";
   const row = x => `<li class="${x.pv ? "pv" : ""}"><span class="bc">${fg(x.a)} ${esc(nm(x.a))}</span><span class="ar">→</span><span class="bc">${fg(x.b)} ${esc(nm(x.b))}</span><span class="md ${x.k}">${esc(MODE[x.m] || x.m)}</span></li>`;
   const D = I.borders.filter(x => !x.pv), F = I.borders.filter(x => x.pv);
@@ -794,7 +814,7 @@ const PIN = `<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0
 function openEditor(id){
   const t = id && TRIPS.find(x => x.id === id);
   ED = t ? {id: t.id, nom: t.nom, an: tYear(t), couleur: t.couleur || null, etapes: t.etapes.map(e => Object.assign({}, e)), orig: t, confirm: false, open: null, view: null}
-         : {id: null, nom: "", an: "", couleur: null, etapes: [], confirm: false, open: null, view: null};
+         : {id: null, nom: "", an: "", couleur: null, etapes: [{p: HOME, home: true}], confirm: false, open: null, view: null};
   PF.trip = t ? [...(t.avec || [])] : [];
   renderEditor(); openPanel("editor"); drawMini();
 }
@@ -807,9 +827,10 @@ function renderEditor(){
   $("#ed-t").textContent = ED.id ? "Modifier le voyage" : "Nouveau voyage";
   const step = (e, i) => {
     const av = e.avec ? e.avec.join(", ") || "seul" : "comme le voyage";
+    if(e.home) return `<li class="step home"><span class="f hico"><svg viewBox="0 0 24 24"><path d="M4 11 12 4l8 7M6.5 9.5V20h11V9.5"/></svg></span><span class="nm">${esc(HOMEPT().v)}<small>chez moi · ${i ? "retour" : "départ"}</small></span><button class="ib" data-${i ? "noret" : "nodep"}="1" aria-label="Retirer">×</button></li>`;
     return `<li class="step"><span class="f">${BY[e.p] ? flag(BY[e.p].iso) : ""}</span><span class="nm">${esc(BY[e.p] ? BY[e.p].n : e.p)}${e.v ? ` · ${esc(e.v)}` : ""}
       <small><button class="lk" data-av="${i}">avec : ${esc(av)}</button>${e.c ? ` · point déplacé · <button class="lk" data-unplace="${i}">remettre au centre</button>` : ""}</small></span>
-      <button class="pvb${e.prevu ? " on" : ""}" data-pv="${i}" aria-pressed="${!!e.prevu}">à venir</button><button class="ib" data-up="${i}" aria-label="Monter"${i ? "" : " disabled"}>↑</button><button class="ib" data-rm="${i}" aria-label="Retirer">×</button></li>
+      <button class="pvb${e.prevu ? " on" : ""}" data-pv="${i}" aria-pressed="${!!e.prevu}">à venir</button><button class="ib" data-up="${i}" aria-label="Monter"${i && !E[i - 1].home ? "" : " disabled"}>↑</button><button class="ib" data-rm="${i}" aria-label="Retirer">×</button></li>
       ${ED.open === i ? `<li class="avbox"><p>Avec qui dans ce pays ?</p>${peopleField("st" + i)}<div class="frow"><button class="btn" data-avok="${i}">Valider</button><button class="btn alt" data-avreset="${i}">Comme le voyage (${esc(tav)})</button></div></li>` : ""}`;
   };
   $("#ed-body").innerHTML = `
@@ -818,6 +839,7 @@ function renderEditor(){
   <label class="fld">Avec qui (pour tout le voyage)</label>${peopleField("trip")}
   <label class="fld">Couleur du tracé</label><div class="cols">${TCOLS.map(c => `<button class="sw${ED.couleur === c ? " on" : ""}" data-col="${c}" style="background:${c}" aria-label="Couleur ${c}" aria-pressed="${ED.couleur === c}"></button>`).join("")}<button class="swa${ED.couleur ? "" : " on"}" data-col="" aria-pressed="${!ED.couleur}">auto</button></div>
   <h3>Étapes dans l'ordre<span>${E.length}</span></h3>
+  <div class="homes">${sw("ed-dep", E.length && E[0].home, `Départ de chez moi (${esc(HOMEPT().v)})`, "")}${sw("ed-ret", E.length > 1 && E[E.length - 1].home, `Retour chez moi (${esc(HOMEPT().v)})`, "")}</div>
   <div class="mini" id="mini-wrap">${E.length ? `<svg id="mini" aria-label="Aperçu du tracé : fais glisser un point pour le déplacer"></svg><div class="mtools"><button class="ib" data-mz="1.6" aria-label="Zoomer">+</button><button class="ib" data-mz="0.625" aria-label="Dézoomer">−</button><button class="ib" data-mz="0" aria-label="Recadrer">⤢</button></div><p class="mhint">Fais glisser un point pour suivre ton vrai chemin.</p>` : `<p class="mhint">La carte du voyage apparaîtra ici dès le premier pays.</p>`}</div>
   ${E.length ? `<ol class="steps">${E.map((e, i) => `${i ? (e.p !== E[i - 1].p ? `<li class="mrow"><span>Frontière</span><div class="mseg">${MBTN.map(([m, l]) => `<button data-mode="${m}" data-i="${i}" aria-pressed="${mk(e.m) === m}">${l}</button>`).join("")}</div></li>` : `<li class="mrow same"><span>même pays, pas de frontière</span></li>`) : ""}${step(e, i)}`).join("")}</ol>` : `<p class="empty" style="padding:8px 0">Ajoute les pays dans l'ordre où tu les as traversés. Un pays peut revenir plusieurs fois (par exemple Kazakhstan → Ouzbékistan → Kazakhstan).</p>`}
   <div class="picker"><input class="search" id="ed-q" type="search" placeholder="Ajouter un pays…" autocomplete="off"><div id="ed-res"></div></div>
@@ -843,7 +865,7 @@ function drawMini(){
   const land = M.pays.filter(inView).map(p => `<path class="${st(p.id) === "v" || E.some(e => e.p === p.id && !e.prevu) ? "v" : ""}" d="${p.d}"/>`).join("");
   const P = E.map(e => proj(C(e))), col = ED.couleur || "var(--route)";
   const segs = segsSvg(E, P).replace(/data-dash="([^"]*)"/g, (_, d) => `stroke-dasharray="${d.split(" ").map(x => (x * s).toFixed(2)).join(" ")}"`);
-  const dots = P.map((q, i) => `<g class="mpt" data-si="${i}"><circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${(11 * s).toFixed(2)}"/><text x="${q[0].toFixed(1)}" y="${(q[1] + 4 * s).toFixed(1)}" font-size="${(11 * s).toFixed(2)}">${i + 1}</text></g>`).join("");
+  const dots = P.map((q, i) => E[i].home ? `<g class="mhome"><circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${(11 * s).toFixed(2)}"/><path transform="translate(${q[0].toFixed(1)} ${q[1].toFixed(1)}) scale(${s.toFixed(4)})" d="M-5.5 0.5L0 -5L5.5 0.5M-3.8 -0.8V5H3.8V-0.8"/></g>` : `<g class="mpt" data-si="${i}"><circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${(11 * s).toFixed(2)}"/><text x="${q[0].toFixed(1)}" y="${(q[1] + 4 * s).toFixed(1)}" font-size="${(11 * s).toFixed(2)}">${i + 1}</text></g>`).join("");
   m.innerHTML = `<rect x="${x0}" y="${y0}" width="${vw}" height="${vh}" class="msea"/><g class="mland" stroke-width="${(0.8 * s).toFixed(3)}">${land}</g><g class="mroute" style="stroke:${col}" stroke-width="${(2.6 * s).toFixed(3)}">${segs}</g><g stroke-width="${(2 * s).toFixed(3)}">${dots}</g>`;
 }
 {
@@ -861,6 +883,12 @@ function drawMini(){
   const end = () => { if(drag && drag.moved){ grab(); const v = ED.view; renderEditor(); ED.view = v; drawMini(); } drag = null; };
   $("#ed-body").addEventListener("pointerup", end); $("#ed-body").addEventListener("pointercancel", end);
 }
+$("#ed-body").addEventListener("change", e => {
+  if(e.target.id !== "ed-dep" && e.target.id !== "ed-ret") return; grab(); const E = ED.etapes;
+  if(e.target.id === "ed-dep"){ if(e.target.checked){ if(!(E[0] && E[0].home)){ E.unshift({p: HOME, home: true}); if(E[1] && !E[1].m) E[1].m = "terre"; } } else if(E[0] && E[0].home){ E.shift(); if(E[0]) delete E[0].m; } }
+  else { if(e.target.checked){ if(!(E.length > 1 && E[E.length - 1].home)) E.push({p: HOME, home: true, m: "terre"}); } else if(E.length > 1 && E[E.length - 1].home) E.pop(); }
+  ED.open = null; renderEditor();
+});
 $("#ed-body").addEventListener("input", e => {
   if(e.target.id !== "ed-q") return;
   const q = norm(e.target.value.trim());
@@ -869,9 +897,11 @@ $("#ed-body").addEventListener("input", e => {
 });
 $("#ed-body").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b || b.closest(".pf")) return; grab(); const E = ED.etapes;
-  if(b.dataset.add){ const np = {p: b.dataset.add, m: E.length ? "terre" : undefined}, prev = E[E.length - 1];
+  if(b.dataset.nodep){ E.shift(); if(E[0]) delete E[0].m; renderEditor(); return; }
+  if(b.dataset.noret){ E.pop(); renderEditor(); return; }
+  if(b.dataset.add){ const np = {p: b.dataset.add, m: E.length ? "terre" : undefined}, ret = E.length > 1 && E[E.length - 1].home ? E.pop() : null, prev = E[E.length - 1];
     if(prev && prev.p === np.p && BY[np.p]){ const q = proj(C(prev)), bb = BY[np.p].b; np.c = unproj(q[0] + (bb[2] - bb[0]) * .2, q[1] + (bb[3] - bb[1]) * .2); }
-    E.push(np); renderEditor(); const q = $("#ed-q"); q.focus({preventScroll: true}); const pb = $("#editor .pb"); pb.scrollTop = Math.max(0, q.offsetTop - pb.clientHeight / 2); return; }
+    E.push(np); if(ret) E.push(ret); renderEditor(); const q = $("#ed-q"); q.focus({preventScroll: true}); const pb = $("#editor .pb"); pb.scrollTop = Math.max(0, q.offsetTop - pb.clientHeight / 2); return; }
   if(b.dataset.mode){ E[+b.dataset.i].m = b.dataset.mode; const v = ED.view; renderEditor(); return; }
   if(b.dataset.mz !== undefined){ const f = +b.dataset.mz; if(!f) ED.view = null; else { ED.view.w /= f; ED.view.h /= f; } drawMini(); return; }
   if(b.dataset.col !== undefined){ ED.couleur = b.dataset.col || null; const v = ED.view; renderEditor(); ED.view = v; drawMini(); return; }
@@ -1148,6 +1178,12 @@ async function start(){
     Object.entries(b.sejours || {}).forEach(([pid, L]) => L.forEach((x, n) => { const id = `f-${pid}-${x.an || ""}-${n}`; if(ST.del.includes(id)) return; const A = ST.sej[pid] = ST.sej[pid] || []; if(!A.some(y => y.id === id)) A.push(Object.assign({}, x, {id})); }));
     ST.seed = ver; save();
   }
+  if(!ST.homeMig){ /* une fois : les voyages qui partaient de France (et Europe, 4L, tour du monde) partent de chez moi */
+    ST.trips.forEach(t => { const E = t.etapes || []; if(!E.length) return;
+      if(E[0].p === HOME){ E[0] = {p: HOME, home: true}; }
+      else if(/europe|4l|tour du monde/i.test(t.nom || "")){ E.unshift({p: HOME, home: true}); if(!E[1].m) E[1].m = "terre"; }
+      t.edited = true; });
+    ST.homeMig = 1; save(); }
   TRIPS = ST.trips.filter(t => t.etapes && t.etapes.length > 1);
   svg.classList.toggle("noroutes", !ST.opt.routes);
   build(); size(); paint(); renderStats(); fitMine(false);
