@@ -1117,12 +1117,26 @@ function backupData(){
   return {app: "mes-pays-du-monde", version: 1, date: new Date().toISOString(), v: ids("v"), p: ids("p"), sej: ST.sej, trips: ST.trips, del: ST.del, opt: ST.opt, homeMig: ST.homeMig || 0};
 }
 function code(){ return "CARTE2:" + btoa(unescape(encodeURIComponent(JSON.stringify(backupData())))); }
+/* mises à niveau des données : rejouées au démarrage ET après chaque restauration,
+   pour qu'une ancienne sauvegarde fonctionne avec la dernière version de l'appli */
+function migrate(){
+  if(!Array.isArray(ST.trips)) ST.trips = [];
+  ST.trips.forEach(t => { if(!Array.isArray(t.etapes)) t.etapes = []; if(!Array.isArray(t.avec)) t.avec = t.avec ? [t.avec] : []; });
+  Object.keys(ST.sej || {}).forEach(k => { if(!Array.isArray(ST.sej[k])) delete ST.sej[k]; else ST.sej[k].forEach(x => { if(!x.id) x.id = uid(); if(!Array.isArray(x.avec)) x.avec = x.avec ? [x.avec] : []; }); });
+  if(!ST.homeMig){ /* v1 : les voyages qui partaient de France (et Europe, 4L, tour du monde) partent de chez moi */
+    ST.trips.forEach(t => { const E = t.etapes; if(!E.length) return;
+      if(E[0].p === HOME){ E[0] = {p: HOME, home: true}; }
+      else if(/europe|4l|tour du monde/i.test(t.nom || "")){ E.unshift({p: HOME, home: true}); if(!E[1].m) E[1].m = "terre"; }
+      t.edited = true; });
+    ST.homeMig = 1; }
+  save();
+}
 function applyData(data){
   const S = {}; (data.v || "").split(",").filter(Boolean).forEach(id => S[id] = "v"); (data.p || "").split(",").filter(Boolean).forEach(id => S[id] = "p");
   over = {}; M.pays.forEach(p => { const s = S[p.id] || ""; if((base[p.id] || "") !== s) over[p.id] = s; });
   if(data.sej) ST.sej = data.sej; if(data.trips) ST.trips = data.trips; if(data.del) ST.del = data.del;
-  if(data.opt) ST.opt = Object.assign(ST.opt, data.opt); if(data.homeMig) ST.homeMig = data.homeMig;
-  save(); setTrips(); paint(); renderStats(); if(!$("#v-list").hidden) renderList();
+  if(data.opt) ST.opt = Object.assign(ST.opt, data.opt); ST.homeMig = data.homeMig || 0;
+  migrate(); setTrips(); paint(); renderStats(); if(!$("#v-list").hidden) renderList();
 }
 const fdate = t => new Date(t).toLocaleDateString("fr-FR", {day: "numeric", month: "long", year: "numeric"});
 const daysSince = t => Math.floor((Date.now() - t) / 864e5);
@@ -1244,12 +1258,7 @@ async function start(){
     Object.entries(b.sejours || {}).forEach(([pid, L]) => L.forEach((x, n) => { const id = `f-${pid}-${x.an || ""}-${n}`; if(ST.del.includes(id)) return; const A = ST.sej[pid] = ST.sej[pid] || []; if(!A.some(y => y.id === id)) A.push(Object.assign({}, x, {id})); }));
     ST.seed = ver; save();
   }
-  if(!ST.homeMig){ /* une fois : les voyages qui partaient de France (et Europe, 4L, tour du monde) partent de chez moi */
-    ST.trips.forEach(t => { const E = t.etapes || []; if(!E.length) return;
-      if(E[0].p === HOME){ E[0] = {p: HOME, home: true}; }
-      else if(/europe|4l|tour du monde/i.test(t.nom || "")){ E.unshift({p: HOME, home: true}); if(!E[1].m) E[1].m = "terre"; }
-      t.edited = true; });
-    ST.homeMig = 1; save(); }
+  migrate();
   TRIPS = ST.trips.filter(t => t.etapes && t.etapes.length > 1);
   svg.classList.toggle("noroutes", !ST.opt.routes);
   build(); size(); paint(); renderStats(); fitMine(false);
